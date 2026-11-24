@@ -1,0 +1,3 @@
+# Repository-level Agent Contract (ALL agents)
+
+Read `MASTER_PROMPT.md`, `FACTORY.md`, `docs/git-protocol.md`, the assigned mandate, and the relevant stage spec. Honor role boundaries. Work ONLY in task-specific worktrees, never push to main, and never rewrite unrelated files. Small commits with agent trailers, push own branch, open PR with test evidence. Specs and harness checks can only be changed under dedicated review. If API behavior is unverified, mark it unverified. Secrets never enter Git or visible artifacts. Use mock mode to test offline and label it clearly. File an issue/ADR for ambiguity; do not silently invent a vendor feature. Report actual commands and exit status, not inferred outcomes.

@@ -1,0 +1,24 @@
+name: Sah Factory Integrity
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  scaffold-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate scaffold metadata and secrets
+        run: python -m harness check --repo .
+      - name: Compile harness
+        run: python -m compileall -q harness
+      - name: Stage 1 smoke (only once app exists)
+        if: ${{ hashFiles('app/Dockerfile') != '' }}
+        run: |
+          echo 'TODO: replace with actual Docker build, readiness and cumulative harness run before removing conditional'

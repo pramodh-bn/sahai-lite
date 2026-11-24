@@ -1,0 +1,114 @@
+[
+  {
+    "seat": "coordinator",
+    "harness": "Codex",
+    "proposed_model": "gpt-5.6-sol",
+    "proposed_effort": "medium",
+    "purpose": "Coordinates stage queue and delegates; no production code.",
+    "verified_in_band": false
+  },
+  {
+    "seat": "architect",
+    "harness": "Codex",
+    "proposed_model": "gpt-5.6-sol",
+    "proposed_effort": "high",
+    "purpose": "Architecture, ADRs, state machine, tradeoffs.",
+    "verified_in_band": false
+  },
+  {
+    "seat": "product",
+    "harness": "OpenCode",
+    "proposed_model": "deepseek/deepseek-v3.2",
+    "proposed_effort": "high",
+    "purpose": "User journeys, behavior specs, demo narrative.",
+    "verified_in_band": false
+  },
+  {
+    "seat": "api-scout",
+    "harness": "Claude Code",
+    "proposed_model": "claude-haiku-5-5",
+    "proposed_effort": "medium",
+    "purpose": "Minimal real vendor API experiments and evidence.",
+    "verified_in_band": false
+  },
+  {
+    "seat": "harness-engineer",
+    "harness": "Codex",
+    "proposed_model": "gpt-5.6-sol",
+    "proposed_effort": "medium",
+    "purpose": "Independent black-box conformance and failure injection.",
+    "verified_in_band": false
+  },
+  {
+    "seat": "backend",
+    "harness": "OpenCode",
+    "proposed_model": "qwen/qwen3-coder",
+    "proposed_effort": "medium",
+    "purpose": "Orchestrator, state, APIs.",
+    "verified_in_band": false
+  },
+  {
+    "seat": "frontend",
+    "harness": "Antigravity",
+    "proposed_model": "runtime-selected",
+    "proposed_effort": "default",
+    "purpose": "Responsive UI implementation; mandate injected per task.",
+    "verified_in_band": false
+  },
+  {
+    "seat": "napster-media",
+    "harness": "Claude Code",
+    "proposed_model": "claude-haiku-5-5",
+    "proposed_effort": "medium",
+    "purpose": "Napster integration and video/avatar lifecycle.",
+    "verified_in_band": false
+  },
+  {
+    "seat": "evaluation",
+    "harness": "OpenCode",
+    "proposed_model": "deepseek/deepseek-v3.2",
+    "proposed_effort": "high",
+    "purpose": "Evidence-based evaluation, deterministic scoring.",
+    "verified_in_band": false
+  },
+  {
+    "seat": "ui-tester",
+    "harness": "Codex",
+    "proposed_model": "gpt-5.6-sol",
+    "proposed_effort": "medium",
+    "purpose": "Playwright browser tests, screenshots and accessibility.",
+    "verified_in_band": false
+  },
+  {
+    "seat": "security",
+    "harness": "OpenCode",
+    "proposed_model": "deepseek/deepseek-v3.2",
+    "proposed_effort": "medium",
+    "purpose": "Security, privacy, budget, consent and secrets.",
+    "verified_in_band": false
+  },
+  {
+    "seat": "reviewer",
+    "harness": "Claude Code",
+    "proposed_model": "claude-haiku-5-5",
+    "proposed_effort": "high",
+    "purpose": "Independent PR review, adversarial tests.",
+    "verified_in_band": false
+  },
+  {
+    "seat": "release-integrator",
+    "harness": "Codex",
+    "proposed_model": "gpt-5.6-sol",
+    "proposed_effort": "medium",
+    "purpose": "CI, gated merges, deployment, stage tags.",
+    "verified_in_band": false
+  },
+  {
+    "seat": "reporter",
+    "harness": "OpenCode",
+    "proposed_model": "deepseek/deepseek-v3.2",
+    "proposed_effort": "low",
+    "purpose": "Evidence ledger, cost audit, demo/README.",
+    "verified_in_band": false
+  }
+]

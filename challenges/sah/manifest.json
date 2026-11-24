@@ -1,0 +1,92 @@
+{
+  "track": "sah",
+  "version": 1,
+  "cumulative": true,
+  "application_tree": "shared-root",
+  "stages": [
+    {
+      "stage": 1,
+      "slug": "foundation-and-audit",
+      "spec": "challenges/sah/spec/stage-01.md",
+      "delivered_by": "stage-01/RUN.md",
+      "depends_on": null
+    },
+    {
+      "stage": 2,
+      "slug": "scenario-and-script-contract",
+      "spec": "challenges/sah/spec/stage-02.md",
+      "delivered_by": "stage-02/RUN.md",
+      "depends_on": 1
+    },
+    {
+      "stage": 3,
+      "slug": "rehearsal-state-machine",
+      "spec": "challenges/sah/spec/stage-03.md",
+      "delivered_by": "stage-03/RUN.md",
+      "depends_on": 2
+    },
+    {
+      "stage": 4,
+      "slug": "napster-capability-proof",
+      "spec": "challenges/sah/spec/stage-04.md",
+      "delivered_by": "stage-04/RUN.md",
+      "depends_on": 3
+    },
+    {
+      "stage": 5,
+      "slug": "avatar-and-media-rendering",
+      "spec": "challenges/sah/spec/stage-05.md",
+      "delivered_by": "stage-05/RUN.md",
+      "depends_on": 4
+    },
+    {
+      "stage": 6,
+      "slug": "human-handoff-and-counterpart",
+      "spec": "challenges/sah/spec/stage-06.md",
+      "delivered_by": "stage-06/RUN.md",
+      "depends_on": 5
+    },
+    {
+      "stage": 7,
+      "slug": "hidden-needs-and-scoring",
+      "spec": "challenges/sah/spec/stage-07.md",
+      "delivered_by": "stage-07/RUN.md",
+      "depends_on": 6
+    },
+    {
+      "stage": 8,
+      "slug": "mirror-moment-and-retry",
+      "spec": "challenges/sah/spec/stage-08.md",
+      "delivered_by": "stage-08/RUN.md",
+      "depends_on": 7
+    },
+    {
+      "stage": 9,
+      "slug": "ui-quality-and-accessibility",
+      "spec": "challenges/sah/spec/stage-09.md",
+      "delivered_by": "stage-09/RUN.md",
+      "depends_on": 8
+    },
+    {
+      "stage": 10,
+      "slug": "resilience-and-budget",
+      "spec": "challenges/sah/spec/stage-10.md",
+      "delivered_by": "stage-10/RUN.md",
+      "depends_on": 9
+    },
+    {
+      "stage": 11,
+      "slug": "privacy,-security-and-operations",
+      "spec": "challenges/sah/spec/stage-11.md",
+      "delivered_by": "stage-11/RUN.md",
+      "depends_on": 10
+    },
+    {
+      "stage": 12,
+      "slug": "hackathon-release-and-evidence",
+      "spec": "challenges/sah/spec/stage-12.md",
+      "delivered_by": "stage-12/RUN.md",
+      "depends_on": 11
+    }
+  ]
+}
