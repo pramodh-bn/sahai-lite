@@ -45,3 +45,5 @@ A *software factory*, not a large group chat: specialized agents receive a contr
 - Session dialogue and scorecard are attributable to recorded turns; deterministic state transitions must be testable offline. No unsupported claims about improved confidence or performance.
 - A mock is always labeled MOCK. A prerecorded video is labeled PRERECORDED. Live is marked LIVE only on verified end-to-end execution.
 - The double *never* joins real calls. No biometric authentication claims. The application supports deleting uploaded likeness and sessions.
+
+V2: independent Hackathon Judge evaluates product at stages 6, 9 and 12. See docs/OPERATING_PROTOCOL.md for authority, recovery and cost controls.

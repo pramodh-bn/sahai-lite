@@ -1,0 +1,2 @@
+# Three-minute demo target
+0:00–0:25 workplace stakes and freezing; 0:25–0:55 embodied stand-in demonstrates; 0:55–1:35 Take My Seat and practice; 1:35–2:15 evidence-based Mirror Moment and retry; 2:15–2:40 improved response under same scenario; 2:40–3:00 close, real versus recorded disclosure. Record actual working product, captions and clean audio. No invented results. Prepare offline replay labeled as such and verify post-expiry availability.

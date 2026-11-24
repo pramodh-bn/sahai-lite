@@ -27,3 +27,6 @@ This kit is designed to be **merged** into an existing `D:\Workspace\sahai` Git 
 
 ## Honesty about autonomy
 This zip cannot configure your machine, grant keys, run BAND Desktop for days, or guarantee vendor API behavior. A local always-on controller and permissions are prerequisites. No live tool, model or API has been tested by this kit.
+
+## Version 2
+Start with `MASTER_PROMPT.md`, `agents/roster.json`, `mandates/` and `docs/OPERATING_PROTOCOL.md`. Includes 15 seats, 12 stage specs, submission spec, capability matrix and judging worksheet. Merge into existing checkout without overwriting unrelated files; inspect diff first. Harness is still a scaffold, not completed acceptance tests. Model IDs and official rules require verification. No remote changes have been made.

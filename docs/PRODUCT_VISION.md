@@ -1,0 +1,2 @@
+# Sah
+An embodied AI rehearsal coach for high-stakes workplace conversations. Watch a stand-in model a difficult conversation, take your seat, practice with the same counterpart and receive evidence-linked feedback. Mirror Moment compares a pivotal exchange; retry from pivot. First scenario: salary negotiation with a hidden budget constraint. No real-meeting proxy, no claim of proven learning outcomes. Presence mode is optional after core is verified. Personal likeness/voice requires explicit consent; stock identity must be labeled.

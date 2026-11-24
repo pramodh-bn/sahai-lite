@@ -110,5 +110,13 @@
     "proposed_effort": "low",
     "purpose": "Evidence ledger, cost audit, demo/README.",
     "verified_in_band": false
+  },
+  {
+    "seat": "hackathon-judge",
+    "harness": "Codex",
+    "proposed_model": "gpt-5.6-sol",
+    "proposed_effort": "medium",
+    "purpose": "Independent rubric and demo evaluation; no implementation",
+    "verified_in_band": false
   }
 ]

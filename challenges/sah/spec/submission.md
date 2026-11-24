@@ -1,0 +1,2 @@
+# Submission acceptance
+Reporter verifies current official rules and form; Judge evaluates exact release SHA; Integrator reproduces clean build and cumulative suite. Deliver source URL, runnable demo, <=3-minute video and <=500-word description subject to verified rules, real/mock matrix, evidence and known limitations. Check consent, secrets, expiry and offline replay. Owner handles final external submission unless explicitly authorized.

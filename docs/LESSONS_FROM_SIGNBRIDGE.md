@@ -1,0 +1,2 @@
+# Prior prototype lessons (user-reported)
+Autonomous microphone-driven Omniagent did not reliably behave as relay-only TTS; prompting is not a control API. Sign-Speak key unavailable; prerecorded filename captions were simulation. Signapse asynchronous latency 6–15 seconds observed. Rapid sessions triggered 409/429; restart did not clear upstream cooldown. Shared port 8080 caused harness collisions. Mitigate with capability-first probes, single-flight queue, bounded cooldown/backoff, unique ports, deterministic offline fixtures, truthful labels and independent live evidence.
