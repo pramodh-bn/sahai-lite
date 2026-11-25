@@ -1,0 +1,2 @@
+# Sah Factory v3 Lite
+Extract into a NEW clean worktree on dev-v3, not main/dev. Stop the old room first. Keep the archive branch and original checkout. See SETUP.md. Create three fresh BAND agents using mandates; add them to one fresh room. Send MASTER_PROMPT.md to Lead only. No supervisor required. Specs are acceptance requirements, not implemented tests. The Verifier must create executable tests before Builder implements each stage.
