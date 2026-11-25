@@ -17,7 +17,10 @@
 ## Dispatch Scope
 **Select CPython 3.12.16 + FastAPI/Uvicorn runtime stack** with formal ADR covering:
 1. **Technology Selection:** CPython 3.12.16 + FastAPI/Uvicorn over Flask and Node/TypeScript alternatives
-2. **Digest/Platform Policy:** `python:3.12.16-slim-bookworm@sha256:44cf1793efa7c7a476bb0f2cff81443f4a072c90c1cb127e2924933daa3e8c64`, CI `linux/amd64`, record resolved child manifest
+2. **Digest/Platform Policy:** 
+   - Index digest: `python:3.12.16-slim-bookworm@sha256:44cf1793efa7c7a476bb0f2cff81443f4a072c90c1cb127e2924933daa3e8c64`
+   - CI platform: `linux/amd64`
+   - Record resolved child manifest (e.g., `sha256:1475c4f5b6bcb7d35e57661d6f5d7429ec4041275633c15f2b49350ac898276d`)
 3. **Service Contracts:** Readiness (`/health`), version (`/version`), mode, ephemeral-port binding
 4. **Boundaries:** Napster adapter interface, session management, companion creation
 5. **Migration/Rollback:** Upgrade paths, backward compatibility, rollback procedures

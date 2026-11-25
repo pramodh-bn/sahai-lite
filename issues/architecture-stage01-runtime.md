@@ -36,7 +36,7 @@ python -m harness check --repo .
 2. **Digest/Platform Policy:** 
    - Multi-arch index digest in shared Dockerfile (for arm64 compatibility)
    - `linux/amd64` declared for CI
-   - Resolved child manifest `sha256:44cf1793efa7c7a476bb0f2cff81443f4a072c90c1cb127e2924933daa3e8c64` recorded in run evidence
+   - Resolved child manifest (e.g., `sha256:1475c4f5b6bcb7d35e57661d6f5d7429ec4041275633c15f2b49350ac898276d` for `linux/amd64`) recorded in run evidence
 3. **Service Contracts:** Readiness (`/health`), version (`/version`), mode, ephemeral-port binding
 4. **Boundaries:** Napster adapter interface, session management, companion creation
 5. **Migration/Rollback:** Upgrade paths, backward compatibility, rollback procedures
