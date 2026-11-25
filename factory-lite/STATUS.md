@@ -1,9 +1,9 @@
 # Status
 Stage: 1
-Task: LITE-S1-PREFLIGHT
-Owner: Lead
-State: BLOCKED
-Base SHA: 63317de28d3efd663767b72aada354198f1366da
-PR: none
-Evidence: origin has only main and dev; origin/dev-v3 is absent. Local integration checkout D:\Workspace\sahai-lite-lead is clean on local dev-v3 at the base SHA. GitHub, Docker, Node, npm, and Python are available. Verifier and Builder are room members, but their runtime model settings and clean worktrees could not be confirmed from Lead's granted access.
-Next: Owner must create origin/dev-v3 at 63317de28d3efd663767b72aada354198f1366da (or explicitly authorize the one-time protected-branch bootstrap) and confirm the Verifier/Builder runtime models and separate clean worktrees; then Lead can dispatch the Stage 1 acceptance-test assignment.
+Task: LITE-S1-VERIFY-TESTS-01
+Owner: Verifier
+State: ASSIGNED
+Base SHA: 32e8c6f07933737393ea22e729f1a134dae7039d
+PR: pending
+Evidence: origin/dev-v3 exists; Lead integration checkout is clean and GitHub, Docker, Node, npm, and Python are available. Stage 1 acceptance command: py -3.12 -m unittest discover -s factory-lite/tests -p "test_*.py" -v.
+Next: Verifier creates a test-only PR targeting dev-v3, proves the contract red on the exact base (including a deliberate broken-service failure), documents Napster feasibility without paid/live calls, and reports exact SHA/PR/command exits/evidence plus runtime model and clean separate-worktree confirmation.
