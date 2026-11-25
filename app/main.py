@@ -24,11 +24,11 @@ app = FastAPI(title=SERVICE_NAME, version=APP_VERSION)
 def health() -> dict:
     """Health endpoint - reports process readiness only.
     
-    Returns HTTP 200 with {"status":"ok"} only after routing and required
-    local-store initialization are ready. Reports process readiness, not
-    third-party availability.
+    Returns HTTP 200 with {"status":"ok","version":"<actual checkout/build SHA>"} 
+    only after routing and required local-store initialization are ready. 
+    Reports process readiness, not third-party availability.
     """
-    return {"status": "ok"}
+    return {"status": "ok", "version": GIT_SHA}
 
 
 @app.get("/version")
