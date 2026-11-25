@@ -1,21 +1,25 @@
-# Windows setup
-Stop old Sah agents in Desktop (not unrelated agents). Preserve any uncommitted changes separately; do not reset or clean. Run in PowerShell:
+# Fresh repository setup (Windows PowerShell)
+Stop the old Sah agents. Leave their repository and workspaces untouched. If the new repository is already cloned, skip clone. If the destination already exists, inspect it; do not overwrite it.
 ```powershell
-cd D:\Workspace\sahai
-git status --short
-git fetch origin
-git log --all --graph --oneline --decorate -40
+cd D:\Workspace
+git clone https://github.com/pramodh-bn/sahai-lite.git
+cd sahai-lite
+git remote -v
+git status
 ```
-If dirty, stop and preserve work. Inspect history and choose the exact commit before v2; do not guess. Then run (replace BASE_SHA):
+Extract this ZIP into the new checkout, review the files, then run the following on the initial branch (normally main). If main already has unrelated changes, stop and inspect.
 ```powershell
-$base = 'BASE_SHA'
-git show --stat $base
-if ($LASTEXITCODE -ne 0) { throw 'Invalid baseline' }
-git branch archive/factory-v2 origin/dev
-if ($LASTEXITCODE -ne 0) { throw 'Archive branch failed; inspect existing branch' }
-git push origin archive/factory-v2
-if ($LASTEXITCODE -ne 0) { throw 'Archive push failed' }
-git worktree add -b dev-v3 D:\Workspace\sahai-lite $base
-if ($LASTEXITCODE -ne 0) { throw 'Worktree creation failed' }
+git add MASTER_PROMPT.md README.md SETUP.md mandates factory-lite
+git diff --cached --stat
+git commit -m "chore: initialize Sah v3 Lite factory"
+git push -u origin HEAD:main
+git branch dev-v3
+git push -u origin dev-v3
+git tag factory-v3-lite-start
+git push origin factory-v3-lite-start
+git worktree add D:\Workspace\sahai-lite-lead dev-v3
+git worktree add -b lite/builder/bootstrap D:\Workspace\sahai-lite-builder dev-v3
+git worktree add -b lite/verifier/bootstrap D:\Workspace\sahai-lite-verifier dev-v3
+git worktree list
 ```
-If baseline contains v2 files, inspect and remove only obsolete factory files in the NEW branch, commit the removal; do not remove original history. Extract ZIP contents into D:\Workspace\sahai-lite. Inspect files and commit only intended kit files, then push `git push -u origin dev-v3`. Do not force push. Use this checkout for Lead; create separate Builder and Verifier worktrees from origin/dev-v3, e.g. D:\Workspace\sahai-lite-builder and D:\Workspace\sahai-lite-verifier. Never share writable worktrees. Configure fresh agents in Desktop, one room, no old mandates or agents. Use model selectors to confirm actual availability; candidate model labels in mandates are not guaranteed. Disable room membership/agent creation grants where possible. Give only necessary filesystem and Git permissions. Do not grant blanket permission to spend money. Branch protection if available; otherwise acknowledge that prompt restrictions are not enforcement. Set actual OpenRouter key cap separately before paid use. Paste MASTER_PROMPT.md mentioning only Lead. No need to send it to Builder or Verifier. Stop old room before launch; stop the new room if recursive messages recur.
+Stop if any command fails; do not force push. The initial owner bootstrap push to main is the only direct main write authorized here. Agents use PRs targeting dev-v3 only. Lead uses sahai-lite-lead; Builder and Verifier use their respective worktrees and create task branches from the assigned exact base SHA. Configure fresh agents with mandates in BAND Desktop and select actual available models. Restrict permissions and set external paid-provider caps. Add only the three agents to Sah-Factory-v3-Lite; send MASTER_PROMPT.md only to Lead. Monitor the first 30 minutes or Stage 1, whichever comes first. Stop on recursive messaging. No paid live API calls without owner authorization.
