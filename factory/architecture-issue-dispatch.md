@@ -72,4 +72,4 @@ git diff --exit-code
 - Architect recommendation: CPython 3.12.16 + FastAPI/Uvicorn
 - Factory state tracking: `factory/state.json`
 
-**Status:** DISPATCHED - Awaiting architect ADR work
+**Status:** DISPATCHED - GitHub Issue #6 created, awaiting architect ADR work

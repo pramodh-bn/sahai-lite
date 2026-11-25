@@ -1,6 +1,7 @@
 # Architecture Issue: Stage-01 Runtime Stack ADR
 
 **Issue ID:** ARCH-001  
+**GitHub Issue:** #6 (https://github.com/pramodh-bn/sahai/issues/6)  
 **Created:** November 24, 2026  
 **Coordinator:** @pramodh.nanjayya/coordinator  
 **Architect:** @pramodh.nanjayya/architect  
