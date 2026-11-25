@@ -20,12 +20,14 @@ import sys
 import time
 import unittest
 from pathlib import Path
+from urllib.parse import urlparse
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 RUN_DOC = REPO_ROOT / "app" / "RUN.md"
 HARNESS = REPO_ROOT / "factory-lite" / "tests" / "harness" / "health_check.py"
 STARTUP_TIMEOUT_S = 20
 POLL_INTERVAL_S = 0.5
+ALLOWED_HEALTH_HOSTS = {"localhost", "127.0.0.1", "::1"}
 
 
 def extract_section_block(text, heading):
@@ -33,11 +35,40 @@ def extract_section_block(text, heading):
     return m.group(1).strip() if m else None
 
 
+def assert_local_health_url(url):
+    """Reject a documented health URL unless its hostname is local. Enforces
+    the suite's no-external-call guarantee before anything is launched or
+    polled."""
+    hostname = urlparse(url).hostname
+    if hostname not in ALLOWED_HEALTH_HOSTS:
+        raise AssertionError(
+            f"documented health URL {url!r} has non-local hostname {hostname!r}; "
+            f"only {sorted(ALLOWED_HEALTH_HOSTS)} are allowed"
+        )
+
+
 def git_head_sha():
     out = subprocess.run(
         ["git", "rev-parse", "HEAD"], cwd=REPO_ROOT, capture_output=True, text=True, check=True
     )
     return out.stdout.strip()
+
+
+class TestLocalHealthUrlGuard(unittest.TestCase):
+    """Proves the no-external-call guard itself works, independent of
+    whether app/RUN.md exists yet."""
+
+    def test_rejects_non_local_health_url(self):
+        with self.assertRaises(AssertionError):
+            assert_local_health_url("http://example.com:8000/health")
+
+    def test_accepts_localhost_and_loopback_urls(self):
+        for url in (
+            "http://localhost:8000/health",
+            "http://127.0.0.1:8000/health",
+            "http://[::1]:8000/health",
+        ):
+            assert_local_health_url(url)  # must not raise
 
 
 class TestHealthReportsActualBuildSha(unittest.TestCase):
@@ -68,6 +99,7 @@ class TestHealthReportsActualBuildSha(unittest.TestCase):
             health_url.startswith("http://") or health_url.startswith("https://"),
             f"health URL malformed: {health_url!r}",
         )
+        assert_local_health_url(health_url)
 
         expected_sha = git_head_sha()
 

@@ -14,6 +14,8 @@ import time
 import unittest
 from pathlib import Path
 
+from test_req2_health_version import assert_local_health_url
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 HARNESS = REPO_ROOT / "factory-lite" / "tests" / "harness" / "health_check.py"
 STARTUP_TIMEOUT_S = 30
@@ -71,6 +73,7 @@ class TestCleanCheckoutStartup(unittest.TestCase):
         health_block = extract_section_block(text, "Health")
         self.assertIsNotNone(health_block, "no '## Health' URL block in clean checkout's RUN.md")
         health_url = health_block.splitlines()[0].strip()
+        assert_local_health_url(health_url)
 
         self.proc = subprocess.Popen(shlex.split(startup_cmd[0]), cwd=self.tmpdir)
 
