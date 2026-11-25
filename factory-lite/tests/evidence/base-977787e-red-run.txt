@@ -1,0 +1,882 @@
+test_run_doc_exists (test_req1_startup_command.TestDocumentedStartupCommand.test_run_doc_exists) ... ok
+test_run_doc_has_exactly_one_command (test_req1_startup_command.TestDocumentedStartupCommand.test_run_doc_has_exactly_one_command) ... ok
+test_health_endpoint_reports_actual_build_sha (test_req2_health_version.TestHealthReportsActualBuildSha.test_health_endpoint_reports_actual_build_sha) ...  * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 01:05:35] "GET /health HTTP/1.1" 200 -
+ok
+test_accepts_localhost_and_loopback_urls (test_req2_health_version.TestLocalHealthUrlGuard.test_accepts_localhost_and_loopback_urls) ... ok
+test_rejects_non_local_health_url (test_req2_health_version.TestLocalHealthUrlGuard.test_rejects_non_local_health_url) ... ok
+test_container_runs_as_non_root_uid (test_req3_container_nonroot.TestContainerRunsNonRoot.test_container_runs_as_non_root_uid) ... ok
+test_dockerfile_exists (test_req3_container_nonroot.TestContainerRunsNonRoot.test_dockerfile_exists) ... ok
+test_app_dir_exists (test_req4_dependency_lock.TestDependencyLockExists.test_app_dir_exists) ... ok
+test_dependency_lock_file_nonempty (test_req4_dependency_lock.TestDependencyLockExists.test_dependency_lock_file_nonempty) ... ok
+test_dependency_lock_file_present (test_req4_dependency_lock.TestDependencyLockExists.test_dependency_lock_file_present) ... ok
+test_no_env_file_with_real_values_is_tracked (test_req5_no_secrets.TestNoRepositorySecrets.test_no_env_file_with_real_values_is_tracked) ... ok
+test_no_tracked_file_matches_secret_patterns (test_req5_no_secrets.TestNoRepositorySecrets.test_no_tracked_file_matches_secret_patterns) ... ok
+test_harness_exits_nonzero_for_broken_service (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_exits_nonzero_for_broken_service) ... ok
+test_harness_exits_nonzero_for_unavailable_service (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_exits_nonzero_for_unavailable_service) ... ok
+test_harness_exits_nonzero_on_sha_mismatch (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_exits_nonzero_on_sha_mismatch) ... ok
+test_harness_exits_zero_for_conforming_healthy_service (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_exits_zero_for_conforming_healthy_service) ... ok
+test_harness_script_exists (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_script_exists) ... ok
+test_clean_checkout_of_head_starts_and_becomes_healthy (test_req7_clean_checkout_startup.TestCleanCheckoutStartup.test_clean_checkout_of_head_starts_and_becomes_healthy) ...  * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 01:05:44] "GET /health HTTP/1.1" 200 -
+ok
+test_doc_states_no_live_or_paid_calls_were_made (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_doc_states_no_live_or_paid_calls_were_made) ... ok
+test_evidence_section_cites_http_source (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_evidence_section_cites_http_source) ... ok
+test_feasibility_doc_contains_no_executable_live_call_markers (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_feasibility_doc_contains_no_executable_live_call_markers) ... ok
+test_feasibility_doc_exists (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_feasibility_doc_exists) ... ok
+test_feasibility_doc_has_required_sections (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_feasibility_doc_has_required_sections) ... ok
+test_no_napster_credential_files_tracked (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_no_napster_credential_files_tracked) ... ok
+test_required_sections_have_substantive_content (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_required_sections_have_substantive_content) ... ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 01:05:47] "GET /health HTTP/1.1" 200 -
+test_advance_on_unknown_session_is_not_found (test_s2_req1_transitions.TestDeterministicTransitions.test_advance_on_unknown_session_is_not_found) ... 127.0.0.1 - - [25/Nov/2026 01:05:49] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 01:05:49] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [25/Nov/2026 01:05:49] "POST /api/rehearsal/sessions/does-not-exist/advance HTTP/1.1" 404 -
+FAIL
+test_invalid_transition_from_demo_directly_to_practice_is_rejected (test_s2_req1_transitions.TestDeterministicTransitions.test_invalid_transition_from_demo_directly_to_practice_is_rejected) ... 127.0.0.1 - - [25/Nov/2026 01:05:51] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+test_invalid_transition_to_unknown_state_is_rejected (test_s2_req1_transitions.TestDeterministicTransitions.test_invalid_transition_to_unknown_state_is_rejected) ... 127.0.0.1 - - [25/Nov/2026 01:05:53] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+test_new_session_starts_in_demo_state_for_alex_dana_scenario (test_s2_req1_transitions.TestDeterministicTransitions.test_new_session_starts_in_demo_state_for_alex_dana_scenario) ... 127.0.0.1 - - [25/Nov/2026 01:05:55] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+test_repeating_the_same_valid_advance_twice_is_rejected_the_second_time (test_s2_req1_transitions.TestDeterministicTransitions.test_repeating_the_same_valid_advance_twice_is_rejected_the_second_time)
+Transitions are one-shot and deterministic: once in take_my_seat, ... 127.0.0.1 - - [25/Nov/2026 01:05:57] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+test_valid_transition_sequence_is_deterministic (test_s2_req1_transitions.TestDeterministicTransitions.test_valid_transition_sequence_is_deterministic) ... 127.0.0.1 - - [25/Nov/2026 01:05:59] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 01:06:02] "GET /health HTTP/1.1" 200 -
+test_counterpart_retains_state_across_turns_in_the_same_session (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_counterpart_retains_state_across_turns_in_the_same_session)
+The counterpart must not be a stateless echo: asking the same ... 127.0.0.1 - - [25/Nov/2026 01:06:04] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+test_hidden_need_not_revealed_by_neutral_opening_utterance (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_hidden_need_not_revealed_by_neutral_opening_utterance) ... 127.0.0.1 - - [25/Nov/2026 01:06:06] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+test_hidden_need_revealed_only_after_explicit_budget_probe (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_hidden_need_revealed_only_after_explicit_budget_probe) ... 127.0.0.1 - - [25/Nov/2026 01:06:06] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 01:06:06] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [25/Nov/2026 01:06:08] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+test_practice_rejected_outside_practice_state (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_practice_rejected_outside_practice_state) ... 127.0.0.1 - - [25/Nov/2026 01:06:08] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 01:06:08] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [25/Nov/2026 01:06:10] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 01:06:12] "GET /health HTTP/1.1" 200 -
+test_evidence_references_actual_submitted_utterances (test_s2_req3_evidence_scoring.TestEvidenceScoring.test_evidence_references_actual_submitted_utterances) ... 127.0.0.1 - - [25/Nov/2026 01:06:14] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+test_feedback_rejected_outside_practice_state (test_s2_req3_evidence_scoring.TestEvidenceScoring.test_feedback_rejected_outside_practice_state) ... 127.0.0.1 - - [25/Nov/2026 01:06:16] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+test_scoring_is_deterministic_on_repeated_read (test_s2_req3_evidence_scoring.TestEvidenceScoring.test_scoring_is_deterministic_on_repeated_read) ... 127.0.0.1 - - [25/Nov/2026 01:06:18] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 01:06:21] "GET /health HTTP/1.1" 200 -
+test_first_attempt_is_preserved_unchanged_after_retry (test_s2_req4_retry_pivot.TestRetryRestoresPivotAndPreservesFirstAttempt.test_first_attempt_is_preserved_unchanged_after_retry) ... 127.0.0.1 - - [25/Nov/2026 01:06:23] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+test_retry_rejected_outside_feedback_state (test_s2_req4_retry_pivot.TestRetryRestoresPivotAndPreservesFirstAttempt.test_retry_rejected_outside_feedback_state) ... 127.0.0.1 - - [25/Nov/2026 01:06:25] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+test_retry_starts_a_new_attempt_at_the_practice_pivot (test_s2_req4_retry_pivot.TestRetryRestoresPivotAndPreservesFirstAttempt.test_retry_starts_a_new_attempt_at_the_practice_pivot) ... 127.0.0.1 - - [25/Nov/2026 01:06:27] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 01:06:29] "GET /health HTTP/1.1" 200 -
+test_action_on_nonexistent_session_rejected_even_with_other_sessions_open (test_s2_req5_isolation_replay.TestIsolationAndReplay.test_action_on_nonexistent_session_rejected_even_with_other_sessions_open) ... 127.0.0.1 - - [25/Nov/2026 01:06:31] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+test_feedback_endpoint_is_replay_safe_once_in_feedback_state (test_s2_req5_isolation_replay.TestIsolationAndReplay.test_feedback_endpoint_is_replay_safe_once_in_feedback_state)
+Calling /feedback again while already in the feedback state must ... 127.0.0.1 - - [25/Nov/2026 01:06:33] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+test_replaying_a_read_is_side_effect_free (test_s2_req5_isolation_replay.TestIsolationAndReplay.test_replaying_a_read_is_side_effect_free) ... 127.0.0.1 - - [25/Nov/2026 01:06:35] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+test_two_sessions_are_isolated_from_each_other (test_s2_req5_isolation_replay.TestIsolationAndReplay.test_two_sessions_are_isolated_from_each_other) ... 127.0.0.1 - - [25/Nov/2026 01:06:36] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 01:06:36] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [25/Nov/2026 01:06:37] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 01:06:38] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 01:06:38] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [25/Nov/2026 01:06:40] "GET /health HTTP/1.1" 200 -
+test_session_creation_response_labels_offline_mode (test_s2_req6_offline_mode.TestOfflineModeLabeled.test_session_creation_response_labels_offline_mode) ... 127.0.0.1 - - [25/Nov/2026 01:06:42] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+test_session_snapshot_labels_offline_mode (test_s2_req6_offline_mode.TestOfflineModeLabeled.test_session_snapshot_labels_offline_mode) ... 127.0.0.1 - - [25/Nov/2026 01:06:44] "POST /api/rehearsal/sessions HTTP/1.1" 404 -
+FAIL
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 01:06:46] "GET /health HTTP/1.1" 200 -
+test_full_demo_to_retry_journey (test_s2_req7_ui_journey.TestRehearsalUiJourney.test_full_demo_to_retry_journey) ... 127.0.0.1 - - [25/Nov/2026 01:06:47] "GET / HTTP/1.1" 404 -
+127.0.0.1 - - [25/Nov/2026 01:06:49] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 01:06:49] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [25/Nov/2026 01:07:06] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 01:07:06] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [25/Nov/2026 01:07:08] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 01:07:08] "GET /v1/models HTTP/1.1" 404 -
+ERROR
+
+======================================================================
+ERROR: test_full_demo_to_retry_journey (test_s2_req7_ui_journey.TestRehearsalUiJourney.test_full_demo_to_retry_journey)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req7_ui_journey.py", line 79, in test_full_demo_to_retry_journey
+    self.page.click('[data-testid="start-demo"]')
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\sync_api\_generated.py", line 16300, in click
+    self._sync(
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_sync_base.py", line 124, in _sync
+    return task.result()
+           ^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\page.py", line 1125, in click
+    return await self._main_frame.click(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\frame.py", line 587, in click
+    return await self._channel.click(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\channel_owner.py", line 387, in finish
+    raise e from None
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\channel_owner.py", line 352, in finish
+    result = await zone.run_async(lambda: awaitable)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\utils\zones.py", line 58, in run_async
+    return await func()
+           ^^^^^^^^^^^^
+playwright._impl._errors.TimeoutError: Page.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("[data-testid=\"start-demo\"]")
+
+
+======================================================================
+FAIL: test_advance_on_unknown_session_is_not_found (test_s2_req1_transitions.TestDeterministicTransitions.test_advance_on_unknown_session_is_not_found)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req1_transitions.py", line 71, in test_advance_on_unknown_session_is_not_found
+    status, body = post_json("/api/rehearsal/sessions/does-not-exist/advance", {"to": "take_my_seat"})
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions/does-not-exist/advance returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_invalid_transition_from_demo_directly_to_practice_is_rejected (test_s2_req1_transitions.TestDeterministicTransitions.test_invalid_transition_from_demo_directly_to_practice_is_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req1_transitions.py", line 58, in test_invalid_transition_from_demo_directly_to_practice_is_rejected
+    _, created = post_json("/api/rehearsal/sessions")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_invalid_transition_to_unknown_state_is_rejected (test_s2_req1_transitions.TestDeterministicTransitions.test_invalid_transition_to_unknown_state_is_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req1_transitions.py", line 65, in test_invalid_transition_to_unknown_state_is_rejected
+    _, created = post_json("/api/rehearsal/sessions")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_new_session_starts_in_demo_state_for_alex_dana_scenario (test_s2_req1_transitions.TestDeterministicTransitions.test_new_session_starts_in_demo_state_for_alex_dana_scenario)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req1_transitions.py", line 34, in test_new_session_starts_in_demo_state_for_alex_dana_scenario
+    status, body = post_json("/api/rehearsal/sessions")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_repeating_the_same_valid_advance_twice_is_rejected_the_second_time (test_s2_req1_transitions.TestDeterministicTransitions.test_repeating_the_same_valid_advance_twice_is_rejected_the_second_time)
+Transitions are one-shot and deterministic: once in take_my_seat,
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req1_transitions.py", line 77, in test_repeating_the_same_valid_advance_twice_is_rejected_the_second_time
+    _, created = post_json("/api/rehearsal/sessions")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_valid_transition_sequence_is_deterministic (test_s2_req1_transitions.TestDeterministicTransitions.test_valid_transition_sequence_is_deterministic)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req1_transitions.py", line 41, in test_valid_transition_sequence_is_deterministic
+    _, created = post_json("/api/rehearsal/sessions")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_counterpart_retains_state_across_turns_in_the_same_session (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_counterpart_retains_state_across_turns_in_the_same_session)
+The counterpart must not be a stateless echo: asking the same
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req2_counterpart_hidden_need.py", line 77, in test_counterpart_retains_state_across_turns_in_the_same_session
+    sid = self._new_practice_session()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req2_counterpart_hidden_need.py", line 37, in _new_practice_session
+    _, created = post_json("/api/rehearsal/sessions")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_hidden_need_not_revealed_by_neutral_opening_utterance (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_hidden_need_not_revealed_by_neutral_opening_utterance)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req2_counterpart_hidden_need.py", line 43, in test_hidden_need_not_revealed_by_neutral_opening_utterance
+    sid = self._new_practice_session()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req2_counterpart_hidden_need.py", line 37, in _new_practice_session
+    _, created = post_json("/api/rehearsal/sessions")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_hidden_need_revealed_only_after_explicit_budget_probe (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_hidden_need_revealed_only_after_explicit_budget_probe)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req2_counterpart_hidden_need.py", line 50, in test_hidden_need_revealed_only_after_explicit_budget_probe
+    sid = self._new_practice_session()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req2_counterpart_hidden_need.py", line 37, in _new_practice_session
+    _, created = post_json("/api/rehearsal/sessions")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_practice_rejected_outside_practice_state (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_practice_rejected_outside_practice_state)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req2_counterpart_hidden_need.py", line 65, in test_practice_rejected_outside_practice_state
+    _, created = post_json("/api/rehearsal/sessions")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_evidence_references_actual_submitted_utterances (test_s2_req3_evidence_scoring.TestEvidenceScoring.test_evidence_references_actual_submitted_utterances)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req3_evidence_scoring.py", line 49, in test_evidence_references_actual_submitted_utterances
+    sid = self._session_with_practice_turns(utterances)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req3_evidence_scoring.py", line 30, in _session_with_practice_turns
+    _, created = post_json("/api/rehearsal/sessions")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_feedback_rejected_outside_practice_state (test_s2_req3_evidence_scoring.TestEvidenceScoring.test_feedback_rejected_outside_practice_state)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req3_evidence_scoring.py", line 39, in test_feedback_rejected_outside_practice_state
+    _, created = post_json("/api/rehearsal/sessions")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_scoring_is_deterministic_on_repeated_read (test_s2_req3_evidence_scoring.TestEvidenceScoring.test_scoring_is_deterministic_on_repeated_read)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req3_evidence_scoring.py", line 75, in test_scoring_is_deterministic_on_repeated_read
+    sid = self._session_with_practice_turns(["Let's talk about scope first."])
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req3_evidence_scoring.py", line 30, in _session_with_practice_turns
+    _, created = post_json("/api/rehearsal/sessions")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_first_attempt_is_preserved_unchanged_after_retry (test_s2_req4_retry_pivot.TestRetryRestoresPivotAndPreservesFirstAttempt.test_first_attempt_is_preserved_unchanged_after_retry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req4_retry_pivot.py", line 64, in test_first_attempt_is_preserved_unchanged_after_retry
+    sid, first_feedback = self._completed_first_attempt_session()
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req4_retry_pivot.py", line 28, in _completed_first_attempt_session
+    _, created = post_json("/api/rehearsal/sessions")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_retry_rejected_outside_feedback_state (test_s2_req4_retry_pivot.TestRetryRestoresPivotAndPreservesFirstAttempt.test_retry_rejected_outside_feedback_state)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req4_retry_pivot.py", line 38, in test_retry_rejected_outside_feedback_state
+    _, created = post_json("/api/rehearsal/sessions")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_retry_starts_a_new_attempt_at_the_practice_pivot (test_s2_req4_retry_pivot.TestRetryRestoresPivotAndPreservesFirstAttempt.test_retry_starts_a_new_attempt_at_the_practice_pivot)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req4_retry_pivot.py", line 44, in test_retry_starts_a_new_attempt_at_the_practice_pivot
+    sid, _ = self._completed_first_attempt_session()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req4_retry_pivot.py", line 28, in _completed_first_attempt_session
+    _, created = post_json("/api/rehearsal/sessions")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_action_on_nonexistent_session_rejected_even_with_other_sessions_open (test_s2_req5_isolation_replay.TestIsolationAndReplay.test_action_on_nonexistent_session_rejected_even_with_other_sessions_open)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req5_isolation_replay.py", line 55, in test_action_on_nonexistent_session_rejected_even_with_other_sessions_open
+    post_json("/api/rehearsal/sessions")  # some other real session exists
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_feedback_endpoint_is_replay_safe_once_in_feedback_state (test_s2_req5_isolation_replay.TestIsolationAndReplay.test_feedback_endpoint_is_replay_safe_once_in_feedback_state)
+Calling /feedback again while already in the feedback state must
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req5_isolation_replay.py", line 65, in test_feedback_endpoint_is_replay_safe_once_in_feedback_state
+    _, created = post_json("/api/rehearsal/sessions")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_replaying_a_read_is_side_effect_free (test_s2_req5_isolation_replay.TestIsolationAndReplay.test_replaying_a_read_is_side_effect_free)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req5_isolation_replay.py", line 44, in test_replaying_a_read_is_side_effect_free
+    _, created = post_json("/api/rehearsal/sessions")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_two_sessions_are_isolated_from_each_other (test_s2_req5_isolation_replay.TestIsolationAndReplay.test_two_sessions_are_isolated_from_each_other)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req5_isolation_replay.py", line 28, in test_two_sessions_are_isolated_from_each_other
+    _, created_a = post_json("/api/rehearsal/sessions")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_session_creation_response_labels_offline_mode (test_s2_req6_offline_mode.TestOfflineModeLabeled.test_session_creation_response_labels_offline_mode)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req6_offline_mode.py", line 27, in test_session_creation_response_labels_offline_mode
+    status, body = post_json("/api/rehearsal/sessions")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+======================================================================
+FAIL: test_session_snapshot_labels_offline_mode (test_s2_req6_offline_mode.TestOfflineModeLabeled.test_session_snapshot_labels_offline_mode)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 142, in _request
+    parsed = json.loads(body_text) if body_text else {}
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\json\decoder.py", line 356, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\test_s2_req6_offline_mode.py", line 32, in test_session_snapshot_labels_offline_mode
+    _, created = post_json("/api/rehearsal/sessions")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 150, in post_json
+    return _request("POST", app_base_url() + path, payload if payload is not None else {})
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S2-VERIFY-TESTS-01\factory-lite\tests\s2_helpers.py", line 144, in _request
+    raise ContractError(f"{method} {url} returned non-JSON body: {body_text!r} ({exc})")
+s2_helpers.ContractError: POST http://localhost:8000/api/rehearsal/sessions returned non-JSON body: '<!doctype html>\n<html lang=en>\n<title>404 Not Found</title>\n<h1>Not Found</h1>\n<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>\n' (Expecting value: line 1 column 1 (char 0))
+
+----------------------------------------------------------------------
+Ran 48 tests in 104.971s
+
+FAILED (failures=22, errors=1)
+EXIT_CODE=1

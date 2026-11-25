@@ -70,3 +70,101 @@ URLs explicitly asserted local by `assert_local_health_url()`, or the
 locally started Stage 1 process; `test_req8` only inspects doc text and
 tracked file names (citing a vendor doc URL in text is not a network call).
 No external network or paid API calls are made by this suite.
+
+---
+
+# Stage 2 acceptance contract (Verifier-authored, for Lead review)
+
+Translates `factory-lite/spec/stage-2.md` into executable, black-box tests
+(`test_s2_req*.py`) layered on top of the unchanged Stage 1 contract above
+and the unchanged Stage 1 app. Same acceptance command, same cumulative
+run. No application code is included. The spec names the Alex/Dana
+rehearsal behavior but does not pin a wire format, so this contract fixes
+the following conventions for Builder -- **flag all of these for Lead
+review before dispatching Builder**; changing them post-implementation
+needs separate rationale per `factory-lite/PROTOCOL.md`.
+
+## Stage 2 rehearsal API (new convention)
+
+Stage 2 is served by the *same* process as Stage 1 (same Req 1 startup
+command, same host:port as the Req 2 Health URL with `/health` dropped --
+see `s2_helpers.app_base_url()`). New JSON routes, all under
+`/api/rehearsal/`:
+
+| Method & path | Body | 200/201 response | Error cases |
+|---|---|---|---|
+| `POST /api/rehearsal/sessions` | (none) | `{"session_id", "state":"demo", "scenario":"alex_dana", "mode":"offline", "attempt":1}` | -- |
+| `POST /sessions/{id}/advance` | `{"to": state}` | `{"state": new_state}` | 409 `invalid_transition` for any `(from,to)` not in `{demo->take_my_seat, take_my_seat->practice}`; 404 for unknown `id` |
+| `POST /sessions/{id}/practice` | `{"utterance": str}` | `{"counterpart_reply": str, "hidden_need_revealed": bool}` | 409 `invalid_state` unless current state is `practice` |
+| `POST /sessions/{id}/feedback` | (none) | `{"state":"feedback", "evidence_score": int 0-100, "evidence":[{"utterance":str,"note":str},...]}` | 409 unless current state is `practice`; must be replay-safe (re-POST while already in `feedback` never changes the score) |
+| `POST /sessions/{id}/retry` | (none) | `{"state":"practice", "attempt": N+1, "pivot_restored": true}` | 409 unless current state is `feedback` |
+| `GET /sessions/{id}` | -- | full snapshot: `{"session_id","state","attempt","mode","hidden_need_revealed","transcript":[{"utterance":...},...],"evidence_score"?}` | 404 for unknown `id` |
+| `GET /sessions/{id}/attempts` | -- | `{"attempts":[{"attempt":1,"state":...,"evidence_score":...,"transcript":[...]},...]}` -- every prior attempt stays present and unmodified after `retry` | 404 for unknown `id` |
+
+Behavioral conventions fixed by the tests:
+- **Hidden need / discovery** (`test_s2_req2_counterpart_hidden_need.py`):
+  `hidden_need_revealed` must be `false` until an utterance in that attempt
+  mentions budget/cost/price/affording; it flips to and stays `true` for
+  the rest of that attempt. The counterpart must retain transcript state
+  turn to turn (not a stateless/generic reply).
+- **Evidence scoring** (`test_s2_req3_evidence_scoring.py`): every
+  `evidence[*].utterance` must be text the user actually sent in that
+  attempt (checked as a subset of the attempt's real utterances); score is
+  an int in [0, 100] and must not change on repeated reads of the same,
+  unmodified attempt (determinism).
+- **Retry / pivot** (`test_s2_req4_retry_pivot.py`): `retry` only valid
+  from `feedback`; it resets `transcript` to `[]` and `hidden_need_revealed`
+  to `false` (discovery must happen again each attempt -- this is the
+  "pivot" snapshot), while attempt 1's transcript/score remain retrievable
+  and unchanged via `/attempts`.
+- **Isolation / replay** (`test_s2_req5_isolation_replay.py`): two open
+  sessions never share state; repeated `GET`s are byte-identical; actions
+  against a nonexistent `session_id` are always 404, even with other real
+  sessions open.
+- **Offline mode labeling** (`test_s2_req6_offline_mode.py`): both session
+  creation and every snapshot must carry an explicit `"mode": "offline"`
+  field -- this must be visible in the API, not only in documentation.
+- **UI journey** (`test_s2_req7_ui_journey.py`): the spec's
+  "stand-in demonstration -> Take My Seat -> practice -> feedback -> retry"
+  language, and MASTER_PROMPT.md's "User watches... takes their seat...
+  practices... sees evidence-based feedback and retries", read as an
+  end-user UI, not an API-only flow. Convention: the same app serves this
+  UI at `/` (the Health URL's root), with these `data-testid` hooks, one
+  per state: `start-demo`, `take-my-seat`, `practice-input` (text input),
+  `send-utterance`, `feedback-score`, `retry-button`. This is the
+  Playwright "real browser journeys" check named in the Verifier mandate.
+  **New dev dependency**: this test requires the `playwright` Python
+  package plus a downloaded Chromium browser (`pip install playwright &&
+  playwright install chromium`) in whatever environment runs the
+  acceptance command -- flagging this explicitly since it's a new
+  requirement beyond Stage 1's stdlib-only tests. The test `SkipTest`s
+  (not a false pass) if `playwright` isn't importable, so its absence is
+  visible, not silently green.
+
+## Evidence this contract is red on the exact base
+
+Run against base SHA `977787ea97068ff942efec8575514c81930b31a7` (current
+`dev-v3` head; Stage 1 merged, nothing from Stage 2 implemented):
+`factory-lite/tests/evidence/base-977787e-red-run.txt` -- **48 tests total,
+25 Stage 1 tests stay green (`OK` for that cumulative suite, confirming no
+regression), 22 Stage 2 failures + 1 Stage 2 error, overall exit 1**. Every
+Stage 2 test fails for a real, legible reason: the `/api/rehearsal/*`
+routes don't exist yet, so Flask's own 404 HTML page is returned instead of
+JSON (surfaced as a clear `ContractError`, not a silent pass), and the
+Playwright journey times out waiting for `data-testid="start-demo"` on that
+same 404 page (captured in a screenshot, not committed --
+`factory-lite/tests/evidence/screenshots/.gitignore` excludes the PNGs;
+local path reported in the Verifier's terminal result). Every Stage 2 test
+encodes a specific, deliberately-checked behavior (e.g. "invalid transition
+must 409", "unknown session must 404", "hidden need must not leak") and
+each is failing today precisely because that behavior doesn't exist yet --
+satisfying the "deliberately failing case" requirement across the whole
+Stage 2 surface, not just one isolated fixture.
+
+## No paid/live calls (Stage 2)
+
+Every Stage 2 test talks only to `app_base_url()`, which is derived from
+and re-validated by the same `assert_local_health_url()` guard Stage 1
+uses (localhost/127.0.0.1/::1 only). The Playwright browser is launched
+locally and only ever navigates to that same local URL. No external
+network or paid API calls are made.
