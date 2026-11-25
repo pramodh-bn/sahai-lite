@@ -1,0 +1,122 @@
+test_run_doc_exists (test_req1_startup_command.TestDocumentedStartupCommand.test_run_doc_exists) ... FAIL
+test_run_doc_has_exactly_one_command (test_req1_startup_command.TestDocumentedStartupCommand.test_run_doc_has_exactly_one_command) ... FAIL
+test_health_endpoint_reports_actual_build_sha (test_req2_health_version.TestHealthReportsActualBuildSha.test_health_endpoint_reports_actual_build_sha) ... FAIL
+test_container_runs_as_non_root_uid (test_req3_container_nonroot.TestContainerRunsNonRoot.test_container_runs_as_non_root_uid) ... FAIL
+test_dockerfile_exists (test_req3_container_nonroot.TestContainerRunsNonRoot.test_dockerfile_exists) ... FAIL
+test_app_dir_exists (test_req4_dependency_lock.TestDependencyLockExists.test_app_dir_exists) ... FAIL
+test_dependency_lock_file_nonempty (test_req4_dependency_lock.TestDependencyLockExists.test_dependency_lock_file_nonempty) ... FAIL
+test_dependency_lock_file_present (test_req4_dependency_lock.TestDependencyLockExists.test_dependency_lock_file_present) ... FAIL
+test_no_env_file_with_real_values_is_tracked (test_req5_no_secrets.TestNoRepositorySecrets.test_no_env_file_with_real_values_is_tracked) ... ok
+test_no_tracked_file_matches_secret_patterns (test_req5_no_secrets.TestNoRepositorySecrets.test_no_tracked_file_matches_secret_patterns) ... ok
+test_harness_exits_nonzero_for_broken_service (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_exits_nonzero_for_broken_service) ... ok
+test_harness_exits_nonzero_for_unavailable_service (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_exits_nonzero_for_unavailable_service) ... ok
+test_harness_exits_nonzero_on_sha_mismatch (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_exits_nonzero_on_sha_mismatch) ... ok
+test_harness_exits_zero_for_conforming_healthy_service (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_exits_zero_for_conforming_healthy_service) ... ok
+test_harness_script_exists (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_script_exists) ... ok
+test_clean_checkout_of_head_starts_and_becomes_healthy (test_req7_clean_checkout_startup.TestCleanCheckoutStartup.test_clean_checkout_of_head_starts_and_becomes_healthy) ... FAIL
+test_feasibility_doc_contains_no_live_call_markers (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_feasibility_doc_contains_no_live_call_markers) ... FAIL
+test_feasibility_doc_exists (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_feasibility_doc_exists) ... FAIL
+test_feasibility_doc_has_required_sections (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_feasibility_doc_has_required_sections) ... FAIL
+test_no_napster_credential_files_tracked (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_no_napster_credential_files_tracked) ... ok
+
+======================================================================
+FAIL: test_run_doc_exists (test_req1_startup_command.TestDocumentedStartupCommand.test_run_doc_exists)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\factory-lite\tests\test_req1_startup_command.py", line 24, in test_run_doc_exists
+    self.assertTrue(RUN_DOC.is_file(), f"missing documented startup command at {RUN_DOC}")
+AssertionError: False is not true : missing documented startup command at D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\app\RUN.md
+
+======================================================================
+FAIL: test_run_doc_has_exactly_one_command (test_req1_startup_command.TestDocumentedStartupCommand.test_run_doc_has_exactly_one_command)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\factory-lite\tests\test_req1_startup_command.py", line 27, in test_run_doc_has_exactly_one_command
+    self.assertTrue(RUN_DOC.is_file(), f"missing {RUN_DOC}; cannot verify a single startup command")
+AssertionError: False is not true : missing D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\app\RUN.md; cannot verify a single startup command
+
+======================================================================
+FAIL: test_health_endpoint_reports_actual_build_sha (test_req2_health_version.TestHealthReportsActualBuildSha.test_health_endpoint_reports_actual_build_sha)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\factory-lite\tests\test_req2_health_version.py", line 56, in test_health_endpoint_reports_actual_build_sha
+    self.assertTrue(RUN_DOC.is_file(), f"missing {RUN_DOC}; cannot locate startup command")
+AssertionError: False is not true : missing D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\app\RUN.md; cannot locate startup command
+
+======================================================================
+FAIL: test_container_runs_as_non_root_uid (test_req3_container_nonroot.TestContainerRunsNonRoot.test_container_runs_as_non_root_uid)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\factory-lite\tests\test_req3_container_nonroot.py", line 22, in test_container_runs_as_non_root_uid
+    self.assertTrue(DOCKERFILE.is_file(), f"missing {DOCKERFILE}; cannot build image")
+AssertionError: False is not true : missing D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\app\Dockerfile; cannot build image
+
+======================================================================
+FAIL: test_dockerfile_exists (test_req3_container_nonroot.TestContainerRunsNonRoot.test_dockerfile_exists)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\factory-lite\tests\test_req3_container_nonroot.py", line 19, in test_dockerfile_exists
+    self.assertTrue(DOCKERFILE.is_file(), f"missing {DOCKERFILE}")
+AssertionError: False is not true : missing D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\app\Dockerfile
+
+======================================================================
+FAIL: test_app_dir_exists (test_req4_dependency_lock.TestDependencyLockExists.test_app_dir_exists)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\factory-lite\tests\test_req4_dependency_lock.py", line 24, in test_app_dir_exists
+    self.assertTrue(APP_DIR.is_dir(), f"missing {APP_DIR}")
+AssertionError: False is not true : missing D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\app
+
+======================================================================
+FAIL: test_dependency_lock_file_nonempty (test_req4_dependency_lock.TestDependencyLockExists.test_dependency_lock_file_nonempty)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\factory-lite\tests\test_req4_dependency_lock.py", line 32, in test_dependency_lock_file_nonempty
+    self.assertTrue(APP_DIR.is_dir(), f"missing {APP_DIR}")
+AssertionError: False is not true : missing D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\app
+
+======================================================================
+FAIL: test_dependency_lock_file_present (test_req4_dependency_lock.TestDependencyLockExists.test_dependency_lock_file_present)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\factory-lite\tests\test_req4_dependency_lock.py", line 27, in test_dependency_lock_file_present
+    self.assertTrue(APP_DIR.is_dir(), f"missing {APP_DIR}; cannot verify a lock file")
+AssertionError: False is not true : missing D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\app; cannot verify a lock file
+
+======================================================================
+FAIL: test_clean_checkout_of_head_starts_and_becomes_healthy (test_req7_clean_checkout_startup.TestCleanCheckoutStartup.test_clean_checkout_of_head_starts_and_becomes_healthy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\factory-lite\tests\test_req7_clean_checkout_startup.py", line 63, in test_clean_checkout_of_head_starts_and_becomes_healthy
+    self.assertTrue(run_doc.is_file(), f"missing {run_doc} in clean checkout; cannot verify startup")
+AssertionError: False is not true : missing C:\Users\User\AppData\Local\Temp\sahai-lite-clean-checkout-yquv_w9f\app\RUN.md in clean checkout; cannot verify startup
+
+======================================================================
+FAIL: test_feasibility_doc_contains_no_live_call_markers (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_feasibility_doc_contains_no_live_call_markers)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\factory-lite\tests\test_req8_napster_feasibility.py", line 39, in test_feasibility_doc_contains_no_live_call_markers
+    self.assertTrue(DOC.is_file(), f"missing {DOC}")
+AssertionError: False is not true : missing D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\factory-lite\docs\napster-feasibility.md
+
+======================================================================
+FAIL: test_feasibility_doc_exists (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_feasibility_doc_exists)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\factory-lite\tests\test_req8_napster_feasibility.py", line 30, in test_feasibility_doc_exists
+    self.assertTrue(DOC.is_file(), f"missing {DOC}")
+AssertionError: False is not true : missing D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\factory-lite\docs\napster-feasibility.md
+
+======================================================================
+FAIL: test_feasibility_doc_has_required_sections (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_feasibility_doc_has_required_sections)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\factory-lite\tests\test_req8_napster_feasibility.py", line 33, in test_feasibility_doc_has_required_sections
+    self.assertTrue(DOC.is_file(), f"missing {DOC}")
+AssertionError: False is not true : missing D:\Workspace\sahai-worktrees\verifier-LITE-S1-VERIFY-TESTS-01\factory-lite\docs\napster-feasibility.md
+
+----------------------------------------------------------------------
+Ran 20 tests in 4.655s
+
+FAILED (failures=12)
+EXIT_CODE=1
