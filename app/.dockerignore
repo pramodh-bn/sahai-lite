@@ -1,0 +1,70 @@
+# Exclude Git repository (ADR 0001 requirement)
+.git
+.gitignore
+.gitattributes
+
+# Exclude harness run directories (ADR 0001 requirement)
+runs/
+.harness/
+
+# Exclude local media and secret classes
+*.mp4
+*.mp3
+*.wav
+*.avi
+*.mov
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.webp
+*.svg
+
+# Secret patterns
+*.pem
+*.key
+*.crt
+*.cert
+*.pfx
+*.p12
+id_rsa
+id_dsa
+*.priv
+secret*
+password*
+token*
+credential*
+
+# IDE and build artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+.tox/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
