@@ -1,0 +1,3 @@
+# Local credentials and environment files
+/.secrets/
+/sahai-lite.env
