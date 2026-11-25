@@ -116,24 +116,6 @@ that file and CONTRACT.md). Stage 3 is **not certified** until that probe
 runs successfully with owner-authorized credentials and produces redacted
 evidence.
 
-## Unrelated prior-engagement context (not this project, not an official
-source -- cited separately so it is never mistaken for documentation)
-
-A different, unrelated project involving the same vendor (recalled from
-this agent's own memory of past sessions, not from any page fetched for
-this record) reported, informally: a hosted "Napster Omniagent" voice +
-video-face service billed at $0.0583/minute requiring a server-side
-`X-Api-Key`; a browser SDK that opens an external WebRTC signaling
-connection to `wss://avatar-signaling.napster.ai` only after an explicit
-user click to opt in to a live face; and a caution that Napster's API can
-reject requests sent with a default/unmodified HTTP client User-Agent
-(e.g. Python's default), so a non-default User-Agent should be set on any
-future live request. These are **not treated as capabilities of this
-record** -- they are unverified secondhand recollection about a different
-engagement, included only so Builder/Lead are aware of them as things to
-re-verify independently (e.g. against the WebRTC channel-deployment page)
-rather than being surprised by them later.
-
 ## Evidence sources (official documentation fetched for this record)
 
 - https://developers.napster.com/docs/whats-new

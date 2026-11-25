@@ -11,49 +11,40 @@ GATE: this module makes ZERO vendor calls unless BOTH
 `s3_live_gate.REQUIRED_CREDENTIAL_ENV_VARS` (currently just
 `NAPSTER_API_KEY`) are set. Without the gate, every test here is skipped
 with an explicit, non-certifying message -- never a false pass, never a
-silent no-op. Passing the cumulative `discover` run (which also collects
-this file, since it matches `test_*.py`) never certifies anything live;
-see factory-lite/docs/stage3-certification-status.md.
+silent no-op.
+
+This test is immutable: it invokes the exact same frozen
+app/napster_adapter.py CLI the offline req3/req4 tests exercise against a
+fake vendor (CONTRACT.md "Stage 3 adapter CLI"), only with
+NAPSTER_BASE_URL pointed at the real vendor instead of a local fixture.
+Builder makes this test pass by implementing app/napster_adapter.py
+correctly -- no edit to this file is ever required or permitted for that.
 
 No credential value, and no rehearsal transcript content, is ever printed
-or logged by this module, gate open or closed.
+or logged by this module, gate open or closed. Real evidence is validated
+with the same strengthened schema (s3_live_gate.validate_evidence_record)
+used offline -- a real run that produces a weak/incomplete evidence
+record fails this test, it does not pass.
 
 The Verifier authoring this file has NEVER run it with the gate enabled.
 """
 import json
-import time
+import os
+import tempfile
 import unittest
 from pathlib import Path
 
 try:
-    from s3_live_gate import REDACTED_EVIDENCE_SCHEMA_FIELDS, live_gate_status, redact
+    from s3_adapter_client import run_adapter
+    from s3_live_gate import CAPABILITIES, live_gate_status, validate_evidence_record
 except ImportError:
-    from .s3_live_gate import REDACTED_EVIDENCE_SCHEMA_FIELDS, live_gate_status, redact
+    from .s3_adapter_client import run_adapter
+    from .s3_live_gate import CAPABILITIES, live_gate_status, validate_evidence_record
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
-EVIDENCE_DIR = REPO_ROOT / "factory-lite" / "tests" / "evidence" / "live"
-CAPABILITIES = ("companion_avatar", "audio", "handoff")
-
-
-def write_redacted_evidence(probe_id, capability, outcome, http_status, evidence_text):
-    """Write one redacted evidence record for a real probe run. Any
-    sensitive-looking field is masked by redact() regardless of content."""
-    EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
-    record = redact({
-        "probe_id": probe_id,
-        "capability": capability,
-        "started_at": None,
-        "ended_at": None,
-        "outcome": outcome,
-        "http_status": http_status,
-        "redacted": True,
-        "evidence_text": evidence_text,
-    })
-    missing = [f for f in REDACTED_EVIDENCE_SCHEMA_FIELDS if f not in record]
-    assert not missing, f"evidence record missing required field(s): {missing}"
-    path = EVIDENCE_DIR / f"{probe_id}.json"
-    path.write_text(json.dumps(record, indent=2), encoding="utf-8")
-    return path
+# Documented, official Napster API base; only ever used when the owner has
+# explicitly enabled the live gate. Override with NAPSTER_LIVE_BASE_URL if
+# the owner's account requires a different documented base.
+DEFAULT_LIVE_BASE_URL = "https://api.napster.com"
 
 
 class TestAuthorizedLiveNapsterProbe(unittest.TestCase):
@@ -66,32 +57,46 @@ class TestAuthorizedLiveNapsterProbe(unittest.TestCase):
                 "This skip is intentional and non-certifying -- it is not a pass, "
                 "and the cumulative offline suite passing does not change that."
             )
-        cls._probe_started_at = time.time()
+        cls._tmp = tempfile.TemporaryDirectory(prefix="s3-live-probe-")
+        cls._state_dir = Path(cls._tmp.name) / "state"
+        cls._evidence_dir = Path(cls._tmp.name) / "evidence"
+        cls._state_dir.mkdir(parents=True)
+        cls._evidence_dir.mkdir(parents=True)
+        cls._base_url = os.environ.get("NAPSTER_LIVE_BASE_URL", DEFAULT_LIVE_BASE_URL)
+        cls._api_key = os.environ["NAPSTER_API_KEY"]
+
+    @classmethod
+    def tearDownClass(cls):
+        if hasattr(cls, "_tmp"):
+            cls._tmp.cleanup()
 
     def test_companion_avatar_probe(self):
-        self._run_capability_probe("companion_avatar")
+        self._run_and_validate("companion_avatar")
 
     def test_audio_probe(self):
-        self._run_capability_probe("audio")
+        self._run_and_validate("audio")
 
     def test_handoff_probe(self):
-        self._run_capability_probe("handoff")
+        self._run_and_validate("handoff")
 
-    def _run_capability_probe(self, capability):
-        # Reached only when the owner has explicitly enabled the gate.
-        # Intentionally left as a loud failure, not a fabricated pass:
-        # no credentials have ever been exercised against this body, so
-        # it must not claim real embodied evidence it never produced.
-        # A real implementation here must: use
-        # s3_live_gate.SessionRegistry to guarantee at most one session
-        # per capability and cleanup on success/error, use
-        # s3_live_gate.call_with_bounded_retry for 409/429, capture real
-        # redacted evidence via write_redacted_evidence(), and never
-        # print a credential or raw rehearsal transcript.
-        self.fail(
-            f"live probe body for {capability!r} is not implemented against the real "
-            f"Napster API; refusing to report a pass without real, redacted evidence"
+    def _run_and_validate(self, capability):
+        code, parsed, out, err = run_adapter(
+            capability, self._base_url, self._state_dir, self._evidence_dir, api_key=self._api_key,
         )
+        self.assertNotIn(self._api_key, out, "adapter stdout must never contain the raw credential")
+        self.assertNotIn(self._api_key, err, "adapter stderr must never contain the raw credential")
+        self.assertEqual(code, 0, f"live adapter run for {capability!r} did not report success: stdout={out!r} stderr={err!r}")
+        self.assertIsNotNone(parsed, "adapter must print one JSON line")
+        evidence_path = parsed.get("evidence_path")
+        self.assertTrue(evidence_path, "adapter must report its evidence file path")
+        record = json.loads(Path(evidence_path).read_text(encoding="utf-8"))
+        is_valid, problems = validate_evidence_record(record, credential_value=self._api_key)
+        self.assertTrue(is_valid, f"real evidence record failed schema validation: {problems}")
+        self.assertEqual(record.get("capability"), capability)
+        self.assertEqual(record.get("outcome"), "success")
+
+    def test_all_three_capabilities_are_covered(self):
+        self.assertEqual(set(CAPABILITIES), {"companion_avatar", "audio", "handoff"})
 
 
 if __name__ == "__main__":

@@ -1,31 +1,41 @@
-"""Shared, vendor-agnostic test tooling for the Stage 3 authorized live
-Napster probe. Not a test module itself (doesn't match test_*.py).
+"""Shared, vendor-agnostic test tooling for Stage 3 (factory-lite/spec/
+stage-3.md). Not a test module itself (doesn't match test_*.py).
 
-Defines, and is proven here (factory-lite/tests/test_s3_req3/4_*.py)
-against local fixtures only, never a real vendor:
+Session-lifecycle, cleanup, and bounded-retry *behavior* is owned by
+app/napster_adapter.py (see CONTRACT.md "Stage 3 adapter CLI") and is
+black-box tested there via subprocess against factory-lite/tests/
+s3_fake_vendor.py -- this module no longer simulates that behavior
+itself. What remains here is pure, reusable, non-simulating logic:
   - the live-authorization gate check (live_gate_status)
-  - a bounded-retry helper for 409/429 (call_with_bounded_retry)
-  - a session registry that rejects a duplicate start per capability and
-    guarantees cleanup exactly once on success or error (SessionRegistry)
-  - a redacted-evidence schema + redact() helper, used by
-    test_s3_live_napster.py if/when the owner enables the live gate
+  - a redaction helper (redact)
+  - the redacted-evidence schema validator (validate_evidence_record),
+    used identically by the offline adapter tests and by
+    test_s3_live_napster.py on a real run
 """
 import os
+import re
+from datetime import datetime
 
 LIVE_GATE_ENV = "SAH_NAPSTER_LIVE"
 REQUIRED_CREDENTIAL_ENV_VARS = ("NAPSTER_API_KEY",)
+
+# Documented expectation the app-owned adapter (app/napster_adapter.py)
+# must honor; enforced black-box in test_s3_req4_bounded_retry.py against
+# s3_fake_vendor.py, not by this module.
 MAX_RETRIES = 3
 RETRYABLE_STATUSES = (409, 429)
 
-REDACTED_EVIDENCE_SCHEMA_FIELDS = (
-    "probe_id",
-    "capability",
-    "started_at",
-    "ended_at",
-    "outcome",
-    "http_status",
-    "redacted",
-    "evidence_text",
+CAPABILITIES = ("companion_avatar", "audio", "handoff")
+VALID_OUTCOMES = ("success", "error")
+MAX_EVIDENCE_TEXT_LEN = 300
+FORBIDDEN_EVIDENCE_TEXT_MARKERS = (
+    "x-api-key",
+    "api_key",
+    "apikey",
+    "bearer ",
+    "authorization:",
+    "password",
+    "secret",
 )
 SENSITIVE_KEY_MARKERS = ("key", "token", "secret", "password", "credential", "authorization")
 
@@ -53,58 +63,72 @@ def redact(evidence):
     return out
 
 
-class DuplicateSessionError(Exception):
-    pass
+def _parse_iso8601(value):
+    if not isinstance(value, str) or not value:
+        return None
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
 
 
-class SessionRegistry:
-    """Tracks at most one active probe session per capability name;
-    rejects a duplicate start and guarantees cleanup() runs exactly once
-    per started session, whether its body succeeds or raises."""
+def validate_evidence_record(record, credential_value=None):
+    """Validate a redacted Stage 3 evidence record against the frozen
+    schema. Returns (is_valid, problems). Never raises on malformed
+    input -- a malformed record is simply invalid, with the reason
+    listed in problems. `credential_value`, if given, is compared
+    against evidence_text and rejected if it appears there, but the
+    credential value itself is never included in any problem message."""
+    problems = []
+    if not isinstance(record, dict):
+        return False, ["record is not a JSON object"]
 
-    def __init__(self):
-        self._active = set()
+    probe_id = record.get("probe_id")
+    if not isinstance(probe_id, str) or not probe_id.strip():
+        problems.append("probe_id must be a non-empty string")
 
-    def session(self, capability, cleanup_fn):
-        if capability in self._active:
-            raise DuplicateSessionError(f"a session for {capability!r} is already active")
-        self._active.add(capability)
-        return _SessionContext(self, capability, cleanup_fn)
+    capability = record.get("capability")
+    if capability not in CAPABILITIES:
+        problems.append(f"capability must be one of {CAPABILITIES}, got {capability!r}")
 
+    started_at = _parse_iso8601(record.get("started_at"))
+    if started_at is None:
+        problems.append("started_at must be a non-null ISO-8601 timestamp")
+    ended_at = _parse_iso8601(record.get("ended_at"))
+    if ended_at is None:
+        problems.append("ended_at must be a non-null ISO-8601 timestamp")
+    if started_at is not None and ended_at is not None and ended_at < started_at:
+        problems.append("ended_at must not be before started_at")
 
-class _SessionContext:
-    def __init__(self, registry, capability, cleanup_fn):
-        self._registry = registry
-        self._capability = capability
-        self._cleanup_fn = cleanup_fn
-        self._cleaned_up = False
+    outcome = record.get("outcome")
+    if outcome not in VALID_OUTCOMES:
+        problems.append(f"outcome must be one of {VALID_OUTCOMES}, got {outcome!r}")
 
-    def __enter__(self):
-        return self
+    http_status = record.get("http_status")
+    transport_result = record.get("transport_result")
+    has_status = isinstance(http_status, int) and not isinstance(http_status, bool)
+    has_transport = isinstance(transport_result, str) and bool(transport_result.strip())
+    if has_status and has_transport:
+        problems.append("exactly one of http_status / transport_result must be set, not both")
+    elif not has_status and not has_transport:
+        problems.append("exactly one of http_status (int) or transport_result (non-empty str) must be a concrete value")
 
-    def __exit__(self, exc_type, exc, tb):
-        self.cleanup()
-        return False  # never swallow exceptions
+    if record.get("redacted") is not True:
+        problems.append("redacted must be the literal boolean true")
 
-    def cleanup(self):
-        if not self._cleaned_up:
-            self._cleaned_up = True
-            self._registry._active.discard(self._capability)
-            self._cleanup_fn()
+    evidence_text = record.get("evidence_text")
+    if not isinstance(evidence_text, str) or not evidence_text.strip():
+        problems.append("evidence_text must be a non-empty string")
+    else:
+        if len(evidence_text) > MAX_EVIDENCE_TEXT_LEN:
+            problems.append(f"evidence_text exceeds {MAX_EVIDENCE_TEXT_LEN} characters")
+        if evidence_text.count("\n") > 2:
+            problems.append("evidence_text looks like a multi-line transcript, not a short summary")
+        low = evidence_text.lower()
+        hits = [m for m in FORBIDDEN_EVIDENCE_TEXT_MARKERS if m in low]
+        if hits:
+            problems.append(f"evidence_text contains forbidden marker(s): {hits}")
+        if credential_value and credential_value in evidence_text:
+            problems.append("evidence_text contains the raw credential value")
 
-
-def call_with_bounded_retry(fn, max_retries=MAX_RETRIES, retryable_statuses=RETRYABLE_STATUSES, sleep_fn=lambda seconds: None):
-    """Call fn() -> (status, result) up to 1 + max_retries times total.
-    Retries only while status is in retryable_statuses; any other status,
-    including a still-retryable one once the bound is hit, is returned
-    as-is (never raises on behalf of the caller). Returns
-    (status, result, attempts_made)."""
-    attempt = 0
-    while True:
-        attempt += 1
-        status, result = fn()
-        if status not in retryable_statuses:
-            return status, result, attempt
-        if attempt > max_retries:
-            return status, result, attempt
-        sleep_fn(min(2 ** attempt, 8))
+    return (len(problems) == 0), problems

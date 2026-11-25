@@ -1,70 +1,72 @@
 """Stage 3: "bounded retry for 409/429."
 
-Proves the Verifier-owned retry harness (s3_live_gate.call_with_bounded_retry)
-retries only on 409/429, stops after a bounded number of attempts, and
-never retries on any other status. Fixtures only -- the "vendor" here is a
-local Python callable, never a real network call.
-"""
-import unittest
+Black-box subprocess test of the frozen app/napster_adapter.py CLI
+against a local fake vendor (s3_fake_vendor.py) that scripts 409/429
+responses. Exercises the real app-owned integration; must fail against
+the exact base, where app/napster_adapter.py does not exist yet.
 
-from s3_live_gate import MAX_RETRIES, RETRYABLE_STATUSES, call_with_bounded_retry
+Per CONTRACT.md "Stage 3 adapter CLI": the adapter retries a 409/429
+response up to MAX_RETRIES (3) additional times (4 attempts total per
+vendor call) before giving up.
+"""
+import tempfile
+import unittest
+from pathlib import Path
+
+from s3_adapter_client import run_adapter
+from s3_fake_vendor import FakeVendorServer
+from s3_live_gate import MAX_RETRIES
 
 
 class TestBoundedRetry(unittest.TestCase):
-    def test_retries_on_409_then_succeeds(self):
-        calls = {"n": 0}
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory(prefix="s3-retry-test-")
+        self.state_dir = Path(self._tmp.name) / "state"
+        self.evidence_dir = Path(self._tmp.name) / "evidence"
+        self.state_dir.mkdir(parents=True)
+        self.evidence_dir.mkdir(parents=True)
 
-        def fn():
-            calls["n"] += 1
-            if calls["n"] < 3:
-                return 409, None
-            return 200, "ok"
+    def tearDown(self):
+        self._tmp.cleanup()
 
-        status, result, attempts = call_with_bounded_retry(fn, sleep_fn=lambda s: None)
-        self.assertEqual(status, 200)
-        self.assertEqual(result, "ok")
-        self.assertEqual(attempts, 3)
-        self.assertEqual(calls["n"], 3)
+    def test_retries_409_then_succeeds(self):
+        with FakeVendorServer() as vendor:
+            vendor.script("/v1/sessions", [409, 409, 200])
+            code, parsed, out, err = run_adapter("audio", vendor.base_url, self.state_dir, self.evidence_dir)
+            attempts = vendor.request_count("/v1/sessions")
+        self.assertEqual(code, 0, f"stdout={out!r} stderr={err!r}")
+        self.assertEqual(attempts, 3, "adapter must retry exactly until the vendor succeeds")
 
-    def test_retries_on_429_then_succeeds(self):
-        calls = {"n": 0}
-
-        def fn():
-            calls["n"] += 1
-            if calls["n"] < 2:
-                return 429, None
-            return 200, "ok"
-
-        status, result, attempts = call_with_bounded_retry(fn, sleep_fn=lambda s: None)
-        self.assertEqual(status, 200)
+    def test_retries_429_then_succeeds(self):
+        with FakeVendorServer() as vendor:
+            vendor.script("/v1/sessions", [429, 200])
+            code, parsed, out, err = run_adapter("companion_avatar", vendor.base_url, self.state_dir, self.evidence_dir)
+            attempts = vendor.request_count("/v1/sessions")
+        self.assertEqual(code, 0, f"stdout={out!r} stderr={err!r}")
         self.assertEqual(attempts, 2)
 
     def test_retry_is_bounded_not_infinite(self):
-        calls = {"n": 0}
-
-        def fn():
-            calls["n"] += 1
-            return 429, None
-
-        status, result, attempts = call_with_bounded_retry(fn, sleep_fn=lambda s: None)
-        self.assertEqual(status, 429, "a permanently-429 call must still return the real status, not raise or hang")
-        self.assertEqual(attempts, MAX_RETRIES + 1, "must stop at exactly 1 + MAX_RETRIES attempts")
-        self.assertEqual(calls["n"], attempts)
+        with FakeVendorServer() as vendor:
+            vendor.script("/v1/sessions", [429])  # repeats forever
+            code, parsed, out, err = run_adapter("handoff", vendor.base_url, self.state_dir, self.evidence_dir)
+            attempts = vendor.request_count("/v1/sessions")
+        self.assertNotEqual(code, 0, "a permanently-429 vendor must not be reported as success")
+        self.assertEqual(
+            attempts, MAX_RETRIES + 1,
+            f"adapter must stop at exactly 1 + MAX_RETRIES ({MAX_RETRIES}) attempts, made {attempts}",
+        )
+        self.assertFalse(
+            (self.state_dir / "handoff.lock").exists(),
+            "cleanup must still run after retries are exhausted",
+        )
 
     def test_non_retryable_status_is_not_retried(self):
-        calls = {"n": 0}
-
-        def fn():
-            calls["n"] += 1
-            return 500, "server error"
-
-        status, result, attempts = call_with_bounded_retry(fn, sleep_fn=lambda s: None)
-        self.assertEqual(status, 500)
-        self.assertEqual(attempts, 1)
-        self.assertEqual(calls["n"], 1)
-
-    def test_retryable_statuses_are_exactly_409_and_429(self):
-        self.assertEqual(set(RETRYABLE_STATUSES), {409, 429})
+        with FakeVendorServer() as vendor:
+            vendor.script("/v1/sessions", [500])
+            code, parsed, out, err = run_adapter("audio", vendor.base_url, self.state_dir, self.evidence_dir)
+            attempts = vendor.request_count("/v1/sessions")
+        self.assertNotEqual(code, 0)
+        self.assertEqual(attempts, 1, "a non-retryable status (500) must not trigger a retry loop")
 
 
 if __name__ == "__main__":
