@@ -1,0 +1,293 @@
+test_run_doc_exists (test_req1_startup_command.TestDocumentedStartupCommand.test_run_doc_exists) ... ok
+test_run_doc_has_exactly_one_command (test_req1_startup_command.TestDocumentedStartupCommand.test_run_doc_has_exactly_one_command) ... ok
+test_health_endpoint_reports_actual_build_sha (test_req2_health_version.TestHealthReportsActualBuildSha.test_health_endpoint_reports_actual_build_sha) ...  * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 08:32:25] "GET /health HTTP/1.1" 200 -
+ok
+test_accepts_localhost_and_loopback_urls (test_req2_health_version.TestLocalHealthUrlGuard.test_accepts_localhost_and_loopback_urls) ... ok
+test_rejects_non_local_health_url (test_req2_health_version.TestLocalHealthUrlGuard.test_rejects_non_local_health_url) ... ok
+test_container_runs_as_non_root_uid (test_req3_container_nonroot.TestContainerRunsNonRoot.test_container_runs_as_non_root_uid) ... ok
+test_dockerfile_exists (test_req3_container_nonroot.TestContainerRunsNonRoot.test_dockerfile_exists) ... ok
+test_app_dir_exists (test_req4_dependency_lock.TestDependencyLockExists.test_app_dir_exists) ... ok
+test_dependency_lock_file_nonempty (test_req4_dependency_lock.TestDependencyLockExists.test_dependency_lock_file_nonempty) ... ok
+test_dependency_lock_file_present (test_req4_dependency_lock.TestDependencyLockExists.test_dependency_lock_file_present) ... ok
+test_no_env_file_with_real_values_is_tracked (test_req5_no_secrets.TestNoRepositorySecrets.test_no_env_file_with_real_values_is_tracked) ... ok
+test_no_tracked_file_matches_secret_patterns (test_req5_no_secrets.TestNoRepositorySecrets.test_no_tracked_file_matches_secret_patterns) ... ok
+test_harness_exits_nonzero_for_broken_service (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_exits_nonzero_for_broken_service) ... ok
+test_harness_exits_nonzero_for_unavailable_service (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_exits_nonzero_for_unavailable_service) ... ok
+test_harness_exits_nonzero_on_sha_mismatch (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_exits_nonzero_on_sha_mismatch) ... ok
+test_harness_exits_zero_for_conforming_healthy_service (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_exits_zero_for_conforming_healthy_service) ... ok
+test_harness_script_exists (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_script_exists) ... ok
+test_clean_checkout_of_head_starts_and_becomes_healthy (test_req7_clean_checkout_startup.TestCleanCheckoutStartup.test_clean_checkout_of_head_starts_and_becomes_healthy) ...  * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 08:32:35] "GET /health HTTP/1.1" 200 -
+ok
+test_doc_states_no_live_or_paid_calls_were_made (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_doc_states_no_live_or_paid_calls_were_made) ... ok
+test_evidence_section_cites_http_source (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_evidence_section_cites_http_source) ... ok
+test_feasibility_doc_contains_no_executable_live_call_markers (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_feasibility_doc_contains_no_executable_live_call_markers) ... ok
+test_feasibility_doc_exists (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_feasibility_doc_exists) ... ok
+test_feasibility_doc_has_required_sections (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_feasibility_doc_has_required_sections) ... ok
+test_no_napster_credential_files_tracked (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_no_napster_credential_files_tracked) ... ok
+test_required_sections_have_substantive_content (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_required_sections_have_substantive_content) ... ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 08:32:37] "GET /health HTTP/1.1" 200 -
+test_advance_on_unknown_session_is_not_found (test_s2_req1_transitions.TestDeterministicTransitions.test_advance_on_unknown_session_is_not_found) ... 127.0.0.1 - - [25/Nov/2026 08:32:39] "POST /api/rehearsal/sessions/does-not-exist/advance HTTP/1.1" 404 -
+ok
+test_invalid_transition_from_demo_directly_to_practice_is_rejected (test_s2_req1_transitions.TestDeterministicTransitions.test_invalid_transition_from_demo_directly_to_practice_is_rejected) ... 127.0.0.1 - - [25/Nov/2026 08:32:41] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:32:43] "POST /api/rehearsal/sessions/235f18002408418e99cccc36ea2d5e68/advance HTTP/1.1" 409 -
+ok
+test_invalid_transition_to_unknown_state_is_rejected (test_s2_req1_transitions.TestDeterministicTransitions.test_invalid_transition_to_unknown_state_is_rejected) ... 127.0.0.1 - - [25/Nov/2026 08:32:45] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:32:47] "POST /api/rehearsal/sessions/9b99993231244b8d967275924a280aae/advance HTTP/1.1" 409 -
+ok
+test_new_session_starts_in_demo_state_for_alex_dana_scenario (test_s2_req1_transitions.TestDeterministicTransitions.test_new_session_starts_in_demo_state_for_alex_dana_scenario) ... 127.0.0.1 - - [25/Nov/2026 08:32:49] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+ok
+test_repeating_the_same_valid_advance_twice_is_rejected_the_second_time (test_s2_req1_transitions.TestDeterministicTransitions.test_repeating_the_same_valid_advance_twice_is_rejected_the_second_time)
+Transitions are one-shot and deterministic: once in take_my_seat, ... 127.0.0.1 - - [25/Nov/2026 08:32:52] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:32:54] "POST /api/rehearsal/sessions/51728bb2ff864780b7230c7988e5b3bc/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:32:56] "POST /api/rehearsal/sessions/51728bb2ff864780b7230c7988e5b3bc/advance HTTP/1.1" 409 -
+ok
+test_valid_transition_sequence_is_deterministic (test_s2_req1_transitions.TestDeterministicTransitions.test_valid_transition_sequence_is_deterministic) ... 127.0.0.1 - - [25/Nov/2026 08:32:58] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:33:00] "POST /api/rehearsal/sessions/ff221b0642e249aba9a089e7b91abb16/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:33:02] "POST /api/rehearsal/sessions/ff221b0642e249aba9a089e7b91abb16/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:33:04] "GET /api/rehearsal/sessions/ff221b0642e249aba9a089e7b91abb16 HTTP/1.1" 200 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 08:33:06] "GET /health HTTP/1.1" 200 -
+test_counterpart_retains_state_across_turns_in_the_same_session (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_counterpart_retains_state_across_turns_in_the_same_session)
+The counterpart must not be a stateless echo: asking the same ... 127.0.0.1 - - [25/Nov/2026 08:33:08] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:33:10] "POST /api/rehearsal/sessions/692b89e4bf354a588985a3a13b7d05a9/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:33:12] "POST /api/rehearsal/sessions/692b89e4bf354a588985a3a13b7d05a9/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:33:15] "POST /api/rehearsal/sessions/692b89e4bf354a588985a3a13b7d05a9/practice HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:33:17] "POST /api/rehearsal/sessions/692b89e4bf354a588985a3a13b7d05a9/practice HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:33:19] "GET /api/rehearsal/sessions/692b89e4bf354a588985a3a13b7d05a9 HTTP/1.1" 200 -
+ok
+test_hidden_need_not_revealed_by_neutral_opening_utterance (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_hidden_need_not_revealed_by_neutral_opening_utterance) ... 127.0.0.1 - - [25/Nov/2026 08:33:21] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:33:23] "POST /api/rehearsal/sessions/5d7ba3a380a948bcb3b9c378a181e5ff/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:33:25] "POST /api/rehearsal/sessions/5d7ba3a380a948bcb3b9c378a181e5ff/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:33:27] "POST /api/rehearsal/sessions/5d7ba3a380a948bcb3b9c378a181e5ff/practice HTTP/1.1" 200 -
+ok
+test_hidden_need_revealed_by_sign_on_only_probe_with_no_budget_keyword (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_hidden_need_revealed_by_sign_on_only_probe_with_no_budget_keyword)
+A probe about sign-on flexibility alone -- no budget/cost/price/ ... 127.0.0.1 - - [25/Nov/2026 08:33:29] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:33:31] "POST /api/rehearsal/sessions/a891a3b012b640a8a623954cd6e6b86a/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:33:33] "POST /api/rehearsal/sessions/a891a3b012b640a8a623954cd6e6b86a/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:33:35] "POST /api/rehearsal/sessions/a891a3b012b640a8a623954cd6e6b86a/practice HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:33:37] "POST /api/rehearsal/sessions/a891a3b012b640a8a623954cd6e6b86a/practice HTTP/1.1" 200 -
+ok
+test_hidden_need_revealed_only_after_explicit_budget_probe (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_hidden_need_revealed_only_after_explicit_budget_probe) ... 127.0.0.1 - - [25/Nov/2026 08:33:39] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:33:41] "POST /api/rehearsal/sessions/f287611c529940a6ab99f459bf0162bc/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:33:43] "POST /api/rehearsal/sessions/f287611c529940a6ab99f459bf0162bc/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:33:45] "POST /api/rehearsal/sessions/f287611c529940a6ab99f459bf0162bc/practice HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:33:47] "POST /api/rehearsal/sessions/f287611c529940a6ab99f459bf0162bc/practice HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:33:50] "POST /api/rehearsal/sessions/f287611c529940a6ab99f459bf0162bc/practice HTTP/1.1" 200 -
+ok
+test_practice_rejected_outside_practice_state (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_practice_rejected_outside_practice_state) ... 127.0.0.1 - - [25/Nov/2026 08:33:52] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:33:54] "POST /api/rehearsal/sessions/b4dd4c25ebd2481a963758346d9288d6/practice HTTP/1.1" 409 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 08:33:56] "GET /health HTTP/1.1" 200 -
+test_evidence_references_actual_submitted_utterances (test_s2_req3_evidence_scoring.TestEvidenceScoring.test_evidence_references_actual_submitted_utterances) ... 127.0.0.1 - - [25/Nov/2026 08:33:58] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:34:00] "POST /api/rehearsal/sessions/c19c05d8925f468ba4c7a19aa9296922/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:34:02] "POST /api/rehearsal/sessions/c19c05d8925f468ba4c7a19aa9296922/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:34:04] "POST /api/rehearsal/sessions/c19c05d8925f468ba4c7a19aa9296922/practice HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:34:06] "POST /api/rehearsal/sessions/c19c05d8925f468ba4c7a19aa9296922/practice HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:34:08] "POST /api/rehearsal/sessions/c19c05d8925f468ba4c7a19aa9296922/feedback HTTP/1.1" 200 -
+ok
+test_feedback_rejected_outside_practice_state (test_s2_req3_evidence_scoring.TestEvidenceScoring.test_feedback_rejected_outside_practice_state) ... 127.0.0.1 - - [25/Nov/2026 08:34:10] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:34:13] "POST /api/rehearsal/sessions/ce449c2b80004aca8eab164afc2e8f6c/feedback HTTP/1.1" 409 -
+ok
+test_scoring_is_deterministic_on_repeated_read (test_s2_req3_evidence_scoring.TestEvidenceScoring.test_scoring_is_deterministic_on_repeated_read) ... 127.0.0.1 - - [25/Nov/2026 08:34:15] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:34:17] "POST /api/rehearsal/sessions/0bfb2e5114694df8893d57baef194e9e/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:34:19] "POST /api/rehearsal/sessions/0bfb2e5114694df8893d57baef194e9e/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:34:21] "POST /api/rehearsal/sessions/0bfb2e5114694df8893d57baef194e9e/practice HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:34:23] "POST /api/rehearsal/sessions/0bfb2e5114694df8893d57baef194e9e/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:34:25] "GET /api/rehearsal/sessions/0bfb2e5114694df8893d57baef194e9e HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:34:27] "GET /api/rehearsal/sessions/0bfb2e5114694df8893d57baef194e9e HTTP/1.1" 200 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 08:34:29] "GET /health HTTP/1.1" 200 -
+test_first_attempt_is_preserved_unchanged_after_retry (test_s2_req4_retry_pivot.TestRetryRestoresPivotAndPreservesFirstAttempt.test_first_attempt_is_preserved_unchanged_after_retry) ... 127.0.0.1 - - [25/Nov/2026 08:34:31] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:34:33] "POST /api/rehearsal/sessions/d82c66d13959402cab312f17587ad4ae/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:34:35] "POST /api/rehearsal/sessions/d82c66d13959402cab312f17587ad4ae/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:34:37] "POST /api/rehearsal/sessions/d82c66d13959402cab312f17587ad4ae/practice HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:34:40] "POST /api/rehearsal/sessions/d82c66d13959402cab312f17587ad4ae/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:34:42] "POST /api/rehearsal/sessions/d82c66d13959402cab312f17587ad4ae/retry HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:34:44] "POST /api/rehearsal/sessions/d82c66d13959402cab312f17587ad4ae/practice HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:34:46] "GET /api/rehearsal/sessions/d82c66d13959402cab312f17587ad4ae/attempts HTTP/1.1" 200 -
+ok
+test_retry_rejected_outside_feedback_state (test_s2_req4_retry_pivot.TestRetryRestoresPivotAndPreservesFirstAttempt.test_retry_rejected_outside_feedback_state) ... 127.0.0.1 - - [25/Nov/2026 08:34:48] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:34:50] "POST /api/rehearsal/sessions/adb1a3a030b34ff3a2e86a7290510574/retry HTTP/1.1" 409 -
+ok
+test_retry_starts_a_new_attempt_at_the_practice_pivot (test_s2_req4_retry_pivot.TestRetryRestoresPivotAndPreservesFirstAttempt.test_retry_starts_a_new_attempt_at_the_practice_pivot) ... 127.0.0.1 - - [25/Nov/2026 08:34:52] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:34:54] "POST /api/rehearsal/sessions/f8b9f07d7a7f4c5dbde877535e162ccd/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:34:56] "POST /api/rehearsal/sessions/f8b9f07d7a7f4c5dbde877535e162ccd/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:34:58] "POST /api/rehearsal/sessions/f8b9f07d7a7f4c5dbde877535e162ccd/practice HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:00] "POST /api/rehearsal/sessions/f8b9f07d7a7f4c5dbde877535e162ccd/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:02] "POST /api/rehearsal/sessions/f8b9f07d7a7f4c5dbde877535e162ccd/retry HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:04] "GET /api/rehearsal/sessions/f8b9f07d7a7f4c5dbde877535e162ccd HTTP/1.1" 200 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 08:35:07] "GET /health HTTP/1.1" 200 -
+test_action_on_nonexistent_session_rejected_even_with_other_sessions_open (test_s2_req5_isolation_replay.TestIsolationAndReplay.test_action_on_nonexistent_session_rejected_even_with_other_sessions_open) ... 127.0.0.1 - - [25/Nov/2026 08:35:09] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:35:11] "POST /api/rehearsal/sessions/totally-bogus-id/practice HTTP/1.1" 404 -
+127.0.0.1 - - [25/Nov/2026 08:35:13] "GET /api/rehearsal/sessions/totally-bogus-id HTTP/1.1" 404 -
+ok
+test_feedback_endpoint_is_replay_safe_once_in_feedback_state (test_s2_req5_isolation_replay.TestIsolationAndReplay.test_feedback_endpoint_is_replay_safe_once_in_feedback_state)
+Calling /feedback again while already in the feedback state must ... 127.0.0.1 - - [25/Nov/2026 08:35:15] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:35:17] "POST /api/rehearsal/sessions/7309000742e04f5495df6dc12001a35b/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:19] "POST /api/rehearsal/sessions/7309000742e04f5495df6dc12001a35b/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:21] "POST /api/rehearsal/sessions/7309000742e04f5495df6dc12001a35b/practice HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:23] "POST /api/rehearsal/sessions/7309000742e04f5495df6dc12001a35b/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:25] "POST /api/rehearsal/sessions/7309000742e04f5495df6dc12001a35b/feedback HTTP/1.1" 409 -
+ok
+test_replaying_a_read_is_side_effect_free (test_s2_req5_isolation_replay.TestIsolationAndReplay.test_replaying_a_read_is_side_effect_free) ... 127.0.0.1 - - [25/Nov/2026 08:35:27] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:35:29] "POST /api/rehearsal/sessions/8bf490b273a54326972646b30152fd03/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:31] "GET /api/rehearsal/sessions/8bf490b273a54326972646b30152fd03 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:33] "GET /api/rehearsal/sessions/8bf490b273a54326972646b30152fd03 HTTP/1.1" 200 -
+ok
+test_two_sessions_are_isolated_from_each_other (test_s2_req5_isolation_replay.TestIsolationAndReplay.test_two_sessions_are_isolated_from_each_other) ... 127.0.0.1 - - [25/Nov/2026 08:35:36] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:35:38] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:35:40] "POST /api/rehearsal/sessions/ce24ba68be744e93980b7b220f7afb3d/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:42] "POST /api/rehearsal/sessions/ce24ba68be744e93980b7b220f7afb3d/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:44] "POST /api/rehearsal/sessions/ce24ba68be744e93980b7b220f7afb3d/practice HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:46] "GET /api/rehearsal/sessions/3302bf76e4064d15a6afbdccf7665e8a HTTP/1.1" 200 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 08:35:48] "GET /health HTTP/1.1" 200 -
+test_session_creation_response_labels_offline_mode (test_s2_req6_offline_mode.TestOfflineModeLabeled.test_session_creation_response_labels_offline_mode) ... 127.0.0.1 - - [25/Nov/2026 08:35:50] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+ok
+test_session_snapshot_labels_offline_mode (test_s2_req6_offline_mode.TestOfflineModeLabeled.test_session_snapshot_labels_offline_mode) ... 127.0.0.1 - - [25/Nov/2026 08:35:52] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:35:54] "GET /api/rehearsal/sessions/88e54078890b471897b8373420304f98 HTTP/1.1" 200 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 08:35:57] "GET /health HTTP/1.1" 200 -
+test_full_demo_to_retry_journey (test_s2_req7_ui_journey.TestRehearsalUiJourney.test_full_demo_to_retry_journey) ... 127.0.0.1 - - [25/Nov/2026 08:35:58] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:58] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:35:58] "POST /api/rehearsal/sessions/0ee9c4c1edae4e2f94a2c74ff55e9fa1/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:58] "POST /api/rehearsal/sessions/0ee9c4c1edae4e2f94a2c74ff55e9fa1/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:58] "POST /api/rehearsal/sessions/0ee9c4c1edae4e2f94a2c74ff55e9fa1/practice HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:58] "GET /api/rehearsal/sessions/0ee9c4c1edae4e2f94a2c74ff55e9fa1 HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:58] "POST /api/rehearsal/sessions/0ee9c4c1edae4e2f94a2c74ff55e9fa1/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:35:58] "POST /api/rehearsal/sessions/0ee9c4c1edae4e2f94a2c74ff55e9fa1/retry HTTP/1.1" 200 -
+ok
+setUpClass (test_s3_live_napster.TestAuthorizedLiveNapsterProbe) ... skipped "Stage 3 live probe BLOCKED, not authorized: SAH_NAPSTER_LIVE is not set to '1'. This skip is intentional and non-certifying -- it is not a pass, and the cumulative offline suite passing does not change that."
+test_account_capability_marked_unverified_pending_live_check (test_s3_req1_capability_record.TestStage3CapabilityRecord.test_account_capability_marked_unverified_pending_live_check) ... ok
+test_capability_record_exists (test_s3_req1_capability_record.TestStage3CapabilityRecord.test_capability_record_exists) ... ok
+test_cites_at_least_one_official_evidence_url (test_s3_req1_capability_record.TestStage3CapabilityRecord.test_cites_at_least_one_official_evidence_url) ... ok
+test_required_sections_present_and_substantive (test_s3_req1_capability_record.TestStage3CapabilityRecord.test_required_sections_present_and_substantive) ... ok
+test_states_no_live_calls_credentials_or_cost_were_used (test_s3_req1_capability_record.TestStage3CapabilityRecord.test_states_no_live_calls_credentials_or_cost_were_used) ... ok
+test_all_four_required_gates_are_tracked (test_s3_req2_certification_gate.TestCertificationGateHonest.test_all_four_required_gates_are_tracked) ... ok
+test_certification_status_doc_exists (test_s3_req2_certification_gate.TestCertificationGateHonest.test_certification_status_doc_exists) ... ok
+test_offline_suite_passing_is_explicitly_not_equated_with_certification (test_s3_req2_certification_gate.TestCertificationGateHonest.test_offline_suite_passing_is_explicitly_not_equated_with_certification) ... ok
+test_status_reads_not_certified_while_any_gate_is_unmet (test_s3_req2_certification_gate.TestCertificationGateHonest.test_status_reads_not_certified_while_any_gate_is_unmet) ... ok
+test_cleanup_is_idempotent_if_called_manually_before_context_exit (test_s3_req3_session_lifecycle.TestSessionLifecycle.test_cleanup_is_idempotent_if_called_manually_before_context_exit) ... ok
+test_cleanup_runs_on_error_and_the_capability_is_freed_afterward (test_s3_req3_session_lifecycle.TestSessionLifecycle.test_cleanup_runs_on_error_and_the_capability_is_freed_afterward) ... ok
+test_cleanup_runs_on_success (test_s3_req3_session_lifecycle.TestSessionLifecycle.test_cleanup_runs_on_success) ... ok
+test_different_capabilities_can_run_concurrently (test_s3_req3_session_lifecycle.TestSessionLifecycle.test_different_capabilities_can_run_concurrently) ... ok
+test_duplicate_session_for_same_capability_is_rejected (test_s3_req3_session_lifecycle.TestSessionLifecycle.test_duplicate_session_for_same_capability_is_rejected) ... ok
+test_non_retryable_status_is_not_retried (test_s3_req4_bounded_retry.TestBoundedRetry.test_non_retryable_status_is_not_retried) ... ok
+test_retries_on_409_then_succeeds (test_s3_req4_bounded_retry.TestBoundedRetry.test_retries_on_409_then_succeeds) ... ok
+test_retries_on_429_then_succeeds (test_s3_req4_bounded_retry.TestBoundedRetry.test_retries_on_429_then_succeeds) ... ok
+test_retry_is_bounded_not_infinite (test_s3_req4_bounded_retry.TestBoundedRetry.test_retry_is_bounded_not_infinite) ... ok
+test_retryable_statuses_are_exactly_409_and_429 (test_s3_req4_bounded_retry.TestBoundedRetry.test_retryable_statuses_are_exactly_409_and_429) ... ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.1.92:8000
+Press CTRL+C to quit
+127.0.0.1 - - [25/Nov/2026 08:36:01] "GET /health HTTP/1.1" 200 -
+test_voice_toggle_falls_back_to_text_practice_when_mic_denied (test_s3_req5_mic_denied_fallback.TestMicDeniedFallback.test_voice_toggle_falls_back_to_text_practice_when_mic_denied) ... 127.0.0.1 - - [25/Nov/2026 08:36:01] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:36:02] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [25/Nov/2026 08:36:02] "POST /api/rehearsal/sessions/bbc05a30fe104f41bf704f512f5d91cb/advance HTTP/1.1" 200 -
+127.0.0.1 - - [25/Nov/2026 08:36:02] "POST /api/rehearsal/sessions/bbc05a30fe104f41bf704f512f5d91cb/advance HTTP/1.1" 200 -
+ERROR
+test_no_tracked_file_claims_meeting_join_control_or_voice_cloning (test_s3_req6_no_fabrication_claims.TestNoFabricatedCapabilityClaims.test_no_tracked_file_claims_meeting_join_control_or_voice_cloning) ... ok
+
+======================================================================
+ERROR: test_voice_toggle_falls_back_to_text_practice_when_mic_denied (test_s3_req5_mic_denied_fallback.TestMicDeniedFallback.test_voice_toggle_falls_back_to_text_practice_when_mic_denied)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "D:\Workspace\sahai-worktrees\verifier-LITE-S3-VERIFY-TESTS-01\factory-lite\tests\test_s3_req5_mic_denied_fallback.py", line 58, in test_voice_toggle_falls_back_to_text_practice_when_mic_denied
+    page.click('[data-testid="voice-practice-toggle"]')
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\sync_api\_generated.py", line 16300, in click
+    self._sync(
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\_sync_base.py", line 124, in _sync
+    return task.result()
+           ^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\page.py", line 1125, in click
+    return await self._main_frame.click(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\frame.py", line 587, in click
+    return await self._channel.click(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\channel_owner.py", line 387, in finish
+    raise e from None
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\channel_owner.py", line 352, in finish
+    result = await zone.run_async(lambda: awaitable)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\site-packages\playwright\_impl\utils\zones.py", line 58, in run_async
+    return await func()
+           ^^^^^^^^^^^^
+playwright._impl._errors.TimeoutError: Page.click: Timeout 30000ms exceeded.
+Call log:
+  - waiting for locator("[data-testid=\"voice-practice-toggle\"]")
+
+
+----------------------------------------------------------------------
+Ran 70 tests in 249.658s
+
+FAILED (errors=1, skipped=1)
+EXIT_CODE=1

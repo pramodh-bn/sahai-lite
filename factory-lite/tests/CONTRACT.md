@@ -195,3 +195,99 @@ and re-validated by the same `assert_local_health_url()` guard Stage 1
 uses (localhost/127.0.0.1/::1 only). The Playwright browser is launched
 locally and only ever navigates to that same local URL. No external
 network or paid API calls are made.
+
+---
+
+# Stage 3 acceptance contract (Verifier-authored, for Lead review)
+
+Translates `factory-lite/spec/stage-3.md` into executable tests
+(`test_s3_req*.py`) plus one deliberately separate, gated live module
+(`test_s3_live_napster.py`), layered on the unchanged Stage 1-2 contract
+and app. **This contract never makes a vendor API call itself.** No
+application code is included. Flag all conventions below for Lead review
+before Builder starts.
+
+## Research done before writing any test (per stage-3.md "verify current
+vendor docs ... before coding")
+
+Official Napster documentation was read (fetch only, no signup/login/API
+call) and compiled into
+`factory-lite/docs/stage3-capability-record.md`, citing:
+`developers.napster.com/docs/introduction/{authentication,limits}`,
+`.../building-your-omniagent/companion`, and five 2026
+`.../whats-new/platform-api/*` changelog entries. Key findings: Napster's
+"Companion" product covers avatar/visual-identity and voice (including
+cloning a voice *from a submitted reference video's own audio track*, not
+from a live user); "handoff" is documented **only** as SIP-telephony call
+transfer between extensions; **no meeting-join, meeting-relay, or
+meeting-control capability of any kind is documented anywhere** (the
+words "Zoom", "Teams", "Meet", "meeting" do not appear on any page read);
+account-capability gates are explicit named errors
+(`CompanionV2NotEnabled`, `ProviderNotEnabled`, `InactiveSubscription`,
+etc.) that must be checked live, not assumed; no pricing/free-tier is
+documented. `docs.napster.ai` was attempted and failed (redirect loop) --
+not used as a source. See that file for full citations and the explicit
+list of unknowns.
+
+## Fixed conventions
+
+| Req | Spec text | Convention fixed by this contract | Test file |
+|---|---|---|---|
+| capability record | vendor docs + account capability before coding | `factory-lite/docs/stage3-capability-record.md` with substantive, non-placeholder `## Capabilities`/`## Unknowns`/account-capability sections, >=1 official evidence URL, explicit "no live API calls / no credentials / no cost" statement, and account capability explicitly marked **unverified** pending a live check | `test_s3_req1_capability_record.py` |
+| mock insufficient / certification gate | "mock tests separate and insufficient for stage certification"; PROTOCOL.md "No certification for missing evidence" | `factory-lite/docs/stage3-certification-status.md` must read **NOT CERTIFIED** and track exactly 4 named gates (live authorization, credentials present, account capability confirmed, redacted real evidence captured) until all 4 have evidence | `test_s3_req2_certification_gate.py` |
+| duplicate sessions / cleanup on error | reject duplicate sessions, cleanup on error | `factory-lite/tests/s3_live_gate.py`'s `SessionRegistry`: at most one active session per capability name, `cleanup()` guaranteed exactly once on success or exception. This is harness-level logic the live probe must use -- **no new HTTP endpoint is introduced for this**; see risk note below | `test_s3_req3_session_lifecycle.py` |
+| bounded retry for 409/429 | bounded retry for 409/429 | `s3_live_gate.call_with_bounded_retry`: retries only 409/429, stops after `MAX_RETRIES=3` additional attempts (4 total), any other status returned as-is, never raises on the caller's behalf | `test_s3_req4_bounded_retry.py` |
+| denied mic fallback | denied mic fallback | Stage 3 adds `data-testid="voice-practice-toggle"` to the existing Stage 2 UI at `/`; on mic denial (the default for a fresh, ungranted browser context), `data-testid="mic-denied-fallback"` becomes visible while `data-testid="practice-input"` stays usable | `test_s3_req5_mic_denied_fallback.py` (Playwright, reuses Stage 2's `s2_helpers`) |
+| no invented voice cloning / relay control | forbid fabricated capability claims | static scan of every git-tracked file for first-person claims of joining/controlling a live meeting or cloning a real user's voice (quoting Napster's own documented video-to-voice cloning is explicitly allowed) | `test_s3_req6_no_fabrication_claims.py` |
+| authorized live probe | "authorized bounded live probe for companion/avatar, audio and handoff"; redacted evidence; real embodied demonstration + practice | `test_s3_live_napster.py`, run only via `py -3.12 -m unittest factory-lite.tests.test_s3_live_napster -v`. Gate: `SAH_NAPSTER_LIVE=1` **and** `NAPSTER_API_KEY` (see `s3_live_gate.REQUIRED_CREDENTIAL_ENV_VARS`) must both be set, or every test in the module is skipped with an explicit, non-certifying message. The live probe body is intentionally a stub that **fails loudly** rather than fabricate a pass -- it must be replaced with a real, bounded-retry, cleanup-guaranteed call that writes a redacted evidence record via `write_redacted_evidence()` (schema: `s3_live_gate.REDACTED_EVIDENCE_SCHEMA_FIELDS`) before any claim of real embodied demonstration/practice can be made | `test_s3_live_napster.py` |
+
+## Contract risks for Lead review
+
+1. **No new HTTP wire format was introduced for the live-probe session
+   lifecycle/retry** (unlike Stage 2's `/api/rehearsal/*`). The spec
+   doesn't say whether the real Napster integration should be brokered
+   through a new server-side endpoint or driven more directly from the
+   client/Builder's own integration code, so this contract proves the
+   *session-registry and retry logic* as reusable, vendor-agnostic test
+   tooling (`s3_live_gate.py`) rather than inventing an HTTP contract for
+   it. If Builder's design needs a new endpoint, review that design
+   against these same invariants (one session per capability, cleanup
+   guaranteed, bounded retry) at implementation-review time.
+2. `test_s3_live_napster.py` matches `test_*.py`, so the cumulative
+   `discover` command also collects it; without the gate it reports as
+   **skipped** there (not failed), which does not change that command's
+   pass/fail status. This is intentional, not an oversight.
+3. The mic-denied-fallback convention adds one new UI control
+   (`voice-practice-toggle`) to the existing Stage 2 page; if Builder's
+   real voice UX differs, this `data-testid` convention needs revisiting
+   before Builder starts, same as any other UI convention in this file.
+4. `factory-lite/docs/stage3-capability-record.md` and
+   `test_s3_req1/2_*.py` already pass today (like Stage 1's req5/req6 and
+   Stage 2's req5/req6) because the Verifier produced the required
+   documentation research and certification-status tracking as part of
+   this assignment, per Lead's explicit instruction to research vendor
+   docs now, not defer it to Builder. The overall contract is still red
+   on the exact base because every other Stage 3 behavior genuinely
+   doesn't exist yet.
+
+## Evidence this contract is red on the exact base
+
+Run against base SHA `b0e276d52db7cdac643206b65c137b75f2ff251a` (current
+`dev-v3` head at the time of this assignment; Stage 1-2 merged, nothing
+from Stage 3 implemented):
+`factory-lite/tests/evidence/base-b0e276d-red-run.txt`. See the
+Verifier's terminal result for exact counts; Stage 1+2's 49 tests remain
+green, the new `test_s3_req5_mic_denied_fallback` fails/errors against the
+real app's missing UI control, and `test_s3_live_napster`'s 3 probes show
+as skipped (gate absent) -- all while `test_s3_req1/2/3/4/6` already pass
+as harness/documentation proofs, per risk note 4 above.
+
+## No paid/live calls (Stage 3)
+
+No test file in this contract -- including `test_s3_live_napster.py`
+without the gate -- makes a vendor API call, logs in, or spends credit.
+`s3_live_gate.py`'s retry/session-registry proofs use local Python
+callables as fixtures, never a network call. The mic-fallback Playwright
+test only talks to the same localhost app URL as Stage 1-2. The Verifier
+has never set `SAH_NAPSTER_LIVE=1` and has never run the live-only
+command with the gate enabled.

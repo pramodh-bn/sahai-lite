@@ -1,0 +1,7 @@
+setUpClass (factory-lite.tests.test_s3_live_napster.TestAuthorizedLiveNapsterProbe) ... skipped "Stage 3 live probe BLOCKED, not authorized: SAH_NAPSTER_LIVE is not set to '1'. This skip is intentional and non-certifying -- it is not a pass, and the cumulative offline suite passing does not change that."
+
+----------------------------------------------------------------------
+Ran 0 tests in 0.000s
+
+OK (skipped=1)
+EXIT=0
