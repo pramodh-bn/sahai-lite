@@ -102,11 +102,18 @@ see `s2_helpers.app_base_url()`). New JSON routes, all under
 | `GET /sessions/{id}/attempts` | -- | `{"attempts":[{"attempt":1,"state":...,"evidence_score":...,"transcript":[...]},...]}` -- every prior attempt stays present and unmodified after `retry` | 404 for unknown `id` |
 
 Behavioral conventions fixed by the tests:
-- **Hidden need / discovery** (`test_s2_req2_counterpart_hidden_need.py`):
-  `hidden_need_revealed` must be `false` until an utterance in that attempt
-  mentions budget/cost/price/affording; it flips to and stays `true` for
-  the rest of that attempt. The counterpart must retain transcript state
-  turn to turn (not a stateless/generic reply).
+- **Hidden need / discovery** (`test_s2_req2_counterpart_hidden_need.py`,
+  Repair R1): the hidden need is **composite** -- a hidden budget
+  constraint *and* hidden sign-on flexibility -- tracked by the single
+  `hidden_need_revealed` boolean. It must be `false` until an utterance in
+  that attempt probes *either* side: budget-side (budget/cost/price/
+  afford) or sign-on-side ("sign-on", "sign on", "signing bonus",
+  "flexible on sign-on", or contract terms generally). A probe from either
+  side flips it to `true` and it stays `true` for the rest of that attempt
+  regardless of which side triggered it (e.g. a sign-on-only probe with no
+  budget keyword at all must reveal it just as a budget probe does). The
+  counterpart must retain transcript state turn to turn (not a
+  stateless/generic reply).
 - **Evidence scoring** (`test_s2_req3_evidence_scoring.py`): every
   `evidence[*].utterance` must be text the user actually sent in that
   attempt (checked as a subset of the attempt's real utterances); score is
@@ -141,25 +148,45 @@ Behavioral conventions fixed by the tests:
   (not a false pass) if `playwright` isn't importable, so its absence is
   visible, not silently green.
 
+## Repair R1 (LITE-S2-VERIFY-TESTS-01-R1)
+
+Per Lead's repair assignment: `stage-2.md` names a hidden need with two
+dimensions -- "hidden budget constraint **and** sign-on flexibility" --
+but the original contract only tested the budget side. Repair R1:
+1. Redefined the hidden need as composite (budget + sign-on) and extended
+   the reveal trigger set to sign-on-side probes, as documented in the
+   "Hidden need / discovery" bullet above.
+2. Added `test_hidden_need_revealed_by_sign_on_only_probe_with_no_budget_keyword`
+   in `test_s2_req2_counterpart_hidden_need.py`: a sign-on-only probe with
+   no budget/cost/price/afford keyword anywhere still reveals the hidden
+   need and it stays revealed for the rest of the attempt.
+3. Everything else is unchanged: the `/api/rehearsal/*` wire format, the
+   UI served at `/`, the Playwright dependency, and all other Stage 2 test
+   files. No Stage 1 file touched; no app code.
+
 ## Evidence this contract is red on the exact base
 
-Run against base SHA `977787ea97068ff942efec8575514c81930b31a7` (current
-`dev-v3` head; Stage 1 merged, nothing from Stage 2 implemented):
-`factory-lite/tests/evidence/base-977787e-red-run.txt` -- **48 tests total,
-25 Stage 1 tests stay green (`OK` for that cumulative suite, confirming no
-regression), 22 Stage 2 failures + 1 Stage 2 error, overall exit 1**. Every
-Stage 2 test fails for a real, legible reason: the `/api/rehearsal/*`
-routes don't exist yet, so Flask's own 404 HTML page is returned instead of
-JSON (surfaced as a clear `ContractError`, not a silent pass), and the
-Playwright journey times out waiting for `data-testid="start-demo"` on that
-same 404 page (captured in a screenshot, not committed --
+Original run against base SHA `977787ea97068ff942efec8575514c81930b31a7`
+(current `dev-v3` head; Stage 1 merged, nothing from Stage 2 implemented):
+`factory-lite/tests/evidence/base-977787e-red-run.txt` -- 48 tests total,
+25 Stage 1 tests green, 22 Stage 2 failures + 1 Stage 2 error, exit 1.
+
+Repaired contract (R1), same base, same branch, test-only commit on top:
+`factory-lite/tests/evidence/base-977787e-red-run-R1.txt` -- see the
+Verifier's terminal result for the exact new totals. Every Stage 2 test
+fails for a real, legible reason: the `/api/rehearsal/*` routes don't
+exist yet, so Flask's own 404 HTML page is returned instead of JSON
+(surfaced as a clear `ContractError`, not a silent pass), and the
+Playwright journey times out waiting for `data-testid="start-demo"` on
+that same 404 page (captured in a screenshot, not committed --
 `factory-lite/tests/evidence/screenshots/.gitignore` excludes the PNGs;
 local path reported in the Verifier's terminal result). Every Stage 2 test
 encodes a specific, deliberately-checked behavior (e.g. "invalid transition
-must 409", "unknown session must 404", "hidden need must not leak") and
-each is failing today precisely because that behavior doesn't exist yet --
-satisfying the "deliberately failing case" requirement across the whole
-Stage 2 surface, not just one isolated fixture.
+must 409", "unknown session must 404", "hidden need must not leak on
+either the budget or sign-on side") and each is failing today precisely
+because that behavior doesn't exist yet -- satisfying the "deliberately
+failing case" requirement across the whole Stage 2 surface, not just one
+isolated fixture.
 
 ## No paid/live calls (Stage 2)
 
