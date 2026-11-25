@@ -1,6 +1,6 @@
 # Base image pinned by digest for reproducibility (ADR 0001)
-# python:3.12-slim@sha256:191083cdf6c7bda8c76158983163ead5d5cf7b77cf3033e805bb0f5296f51b4b
-FROM python:3.12-slim@sha256:191083cdf6c7bda8c76158983163ead5d5cf7b77cf3033e805bb0f5296f51b4b
+# python:3.12.16-slim-bookworm@sha256:44cf1793efa7c7a476bb0f2cff81443f4a072c90c1cb127e2924933daa3e8c64
+FROM python:3.12.16-slim-bookworm@sha256:44cf1793efa7c7a476bb0f2cff81443f4a072c90c1cb127e2924933daa3e8c64
 
 # Build metadata (Git SHA and version)
 ARG GIT_SHA
@@ -24,9 +24,10 @@ WORKDIR /app
 
 # Copy dependency files first for better caching
 COPY requirements.txt ./requirements.txt
+COPY requirements.lock ./requirements.lock
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install locked dependencies (ADR 0001 lock file requirement)
+RUN pip install --no-cache-dir -r requirements.lock
 
 # Copy application code
 COPY main.py ./

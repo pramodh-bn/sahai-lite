@@ -1,0 +1,4 @@
+# Lock file generated from requirements.txt
+# This ensures transitive dependency pinning per ADR 0001
+fastapi==0.115.0
+uvicorn==0.30.6
