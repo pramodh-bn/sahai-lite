@@ -1,11 +1,11 @@
 # Status
 Stage: 3
-Cycle: 3 (owner-authorized replacement Verifier; fresh two-repair budget)
-Task: LITE-S3-VERIFY-TESTS-03-R2 (terminal)
+Cycle: 4 (owner-authorized fresh verification cycle; two-repair budget)
+Task: LITE-S3-VERIFY-TESTS-04
 Owner: Verifier 2
 Coordinator: sah-lead
-State: S3_CYCLE3_BLOCKED
-Base SHA: f9c1f41517786e58e9c459ecb7d454362a43a2b1
-PR: https://github.com/pramodh-bn/sahai-lite/pull/38
-Evidence: Final repair head 4662c9d99a8cc0e5bc40145253492beb690cbc29 had correct ancestry, scope, trailers, exact SDK status/callback/audio assertions, and a valid zero-call gate-absent skip. Lead independently ran the cumulative suite from a detached worktree: 74 tests in 354.038 seconds, failures=11, errors=2, skipped=1, exit 1; all original 49 tests remained green. The new cleanup-on-error test raised a Verifier-authored TypeError because it called post_napster_session with simulate_error even though the committed helper did not accept that argument. Builder could not fix that contract/harness error through app/**. The final repair therefore failed, the two-repair allowance is exhausted, and PR #38 was closed without merge. Highest certified stage remains 2; Stage 3 remains uncertified.
-Next: Stop Cycle 3. Do not issue a third repair, assign Builder, or begin Stage 4. Owner decision is required to replace/restart independent verification in a new authorized cycle or choose another independent path.
+State: S3_CYCLE4_AUTHORIZED
+Base SHA: 1bde34e3a1b615b1d37c4f4f44fe9d133f1edf22
+PR: none yet
+Evidence: Owner explicitly approved a fresh Stage 3 Cycle 4 after Cycle 3 closed. PR #38 remains closed and forbidden from merge. Verifier 2 may use its validated concepts only as reference and must recreate the test/docs-only contract on the current clean dev-v3 base. Cycle 4 adds a mandatory focused self-check before the full cumulative run: helper signatures must match every caller, all new Stage 3 modules must import and collect without Verifier-authored exceptions, and the live gate must skip non-certifying with zero calls. Highest certified stage remains 2; Stage 3 remains uncertified.
+Next: Assign one fresh Verifier 2 contract task from the exact merged Cycle 4 ledger SHA. Gate 1 is focused helper/import/collection validation. Gate 2 is the full cumulative suite with all original 49 tests green and red only on missing Stage 3 application behavior. Builder and Stage 4 remain gated until Lead independently validates and merges the test-only contract.
