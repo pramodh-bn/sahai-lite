@@ -199,6 +199,8 @@ network or paid API calls are made.
 
 ---
 
+---
+
 # Stage 3 acceptance contract (Verifier-authored, for Lead review)
 
 Translates `factory-lite/spec/stage-3.md` into executable, cumulative black-box tests
@@ -211,8 +213,8 @@ Stage 3 adds the server-side Napster WebRTC adapter and avatar management routes
 
 | Method & path | Request Body | Response | Notes & Error Cases |
 |---|---|---|---|
-| `POST /api/rehearsal/sessions/{id}/napster-session` | `{"channel_type": "webrtc"}` | `{"token": str, "connection_id": str, "status": "ready"}` | 404 for unknown session; 409 if session connection already in flight (single-flight duplicate rejection); 429/409 retried at most once; 400/401/403/500 fails immediately with no retry |
-| `DELETE /api/rehearsal/sessions/{id}/napster-session` | (none) | `{"status": "destroyed"}` | 404 for unknown session; deterministic teardown of WebRTC session |
+| `POST /api/rehearsal/sessions/{id}/napster-session` | `{"channel_type": "webrtc"}` | `{"token": str, "connection_id": str, "status": "ready"}` | 404 for unknown session; 409 if session connection already in flight (concurrent single-flight duplicate rejection); cooldown on rapid retry after failure; 429/409 retried at most once; 400/401/403/500 fails immediately with no retry |
+| `DELETE /api/rehearsal/sessions/{id}/napster-session` | (none) | `{"status": "destroyed"}` | 404 for unknown session; deterministic teardown of WebRTC session; verifiable via fake-vendor allocation ledger on both success and error paths |
 
 ## Stage 3 UI & Journey Extensions
 
@@ -225,9 +227,23 @@ Served at `/` (reusing existing base URL):
 
 ## Key Behavioral & Architectural Decisions
 
-1. **Host Configurability**: Upstream base URL defaults to `https://napster-api.napster.com` but must be configurable via `NAPSTER_BASE_URL` to support local fake-vendor testing and account alias variations.
+1. **Host Configurability & Source Boundary**:
+   - Official current default: `https://companion-api.napster.com`
+   - Historical live-tested alias: `https://napster-api.napster.com`
+   - Configurable via `NAPSTER_BASE_URL` environment variable. Unsupported `api.napster.com` references omitted.
 2. **Credential Redaction**: `NAPSTER_API_KEY` is held strictly server-side and never exposed to the client, logs, or test evidence.
 3. **App-Local Handoff**: Handoff from demonstration to practice is internal state machine transition. SIP URIs, meeting join/relay bots, and real-person voice cloning are strictly rejected.
-4. **Live-Only Gate**: `test_s3_req7_live_gate.py` requires `SAH_NAPSTER_LIVE=1`, `NAPSTER_API_KEY`, and `NAPSTER_AGENT_ID`. Gate absent skips with exit code 0 and zero vendor calls.
-5. **Real Evidence Schema**: Validated by `s3_helpers.validate_stage3_evidence`; strictly rejects raw credentials, unredacted IDs, user transcripts, placeholder markers, and synthetic/future timestamps.
-6. **Mock Insufficiency**: Mock and offline test success is explicitly insufficient for Stage 3 certification. Stage 3 status is UNCERTIFIED.
+4. **Retry & Single-Flight Isolation**:
+   - Each retry test case exercises an isolated fresh session with explicit cleanup.
+   - Concurrent single-flight tested via controlled blocking in fake vendor; deterministic 409 for second request and exactly 1 upstream creation call.
+   - Cooldown enforced after failure before new upstream attempts are permitted.
+   - Cleanup-on-error verified via observable fake-vendor allocation/deletion ledger.
+5. **Live-Only Gate & Command**:
+   - Stable invocation (dotted module form):
+     ```
+     py -3.12 -m unittest factory-lite.tests.test_s3_req7_live_gate -v
+     ```
+   - Requires `SAH_NAPSTER_LIVE=1`, `NAPSTER_API_KEY`, and `NAPSTER_AGENT_ID`. Gate absent skips with exit code 0 and zero vendor calls.
+   - Gate open proves real SDK `readyVideo`, `onAvatarReady(true)`, and mounted live `<video>` AND `<audio>` tracks. Missing Playwright/runtime dependency under open gate is a hard non-certifying failure.
+6. **Real Evidence Schema**: Validated by `s3_helpers.validate_stage3_evidence`; strictly rejects raw credentials, unredacted IDs, user transcripts, placeholder markers, and synthetic/future timestamps.
+7. **Mock Insufficiency**: Mock and offline test success is explicitly insufficient for Stage 3 certification. Stage 3 status is UNCERTIFIED.

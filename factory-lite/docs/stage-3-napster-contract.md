@@ -13,13 +13,14 @@ Authoritative external references:
 
 ---
 
-## 2. Base Host Configurability & Alias Differences
+## 2. Base Host Configurability & Source Boundary
 
-Research across official documentation and historical live code reveals domain alias differences:
-- **Official current documentation**: References REST endpoints under `https://api.napster.com` and developer portal tools at `https://developers.napster.com`.
-- **Historical live service**: Validated against `https://napster-api.napster.com` for agent connection creation, with browser WebRTC signaling routed to `wss://avatar-signaling.napster.ai`.
+The source boundary is strictly partitioned between current official documentation and historical live references:
+- **Official Current Documentation**: Documents Realtime Companion endpoints under `https://companion-api.napster.com`. This is frozen as the official current default.
+- **Historical Live-Tested Alias**: The historical Koehashi reference validated WebRTC sessions against `https://napster-api.napster.com` with signaling at `wss://avatar-signaling.napster.ai`.
+- **Prohibited Unsupported Claims**: References or claims to bare `https://api.napster.com` are unsupported by current room material and strictly omitted.
 
-**Architectural Decision**: The server-side adapter must not hardcode either domain. The base host must remain strictly configurable via the `NAPSTER_BASE_URL` environment variable (defaulting to `https://napster-api.napster.com` or `https://api.napster.com`), permitting seamless routing to local test fixtures and accommodating any upstream DNS/domain alias variations without assumptions or code edits.
+**Architectural Decision**: The server-side adapter freezes `https://companion-api.napster.com` as the default base host, while keeping `NAPSTER_BASE_URL` strictly configurable via environment variables to support testing against the historical live alias (`https://napster-api.napster.com`) and local test fixtures (`http://127.0.0.1:<port>`).
 
 ---
 
@@ -46,17 +47,18 @@ To ensure security and keep credentials isolated:
    - Returns to browser: `{"token": "<ephemeral_token>", "connection_id": "<conn_id>", "status": "ready"}`.
 5. **Teardown / Cleanup Route**:
    - `DELETE /api/rehearsal/sessions/{id}/napster-session`
-   - Deterministically destroys active WebRTC sessions and releases local resources.
+   - Deterministically destroys active WebRTC sessions and releases local resources via an observable ledger.
 
 ---
 
-## 4. Fake Vendor Harness, Retries & Error Handling
+## 4. Fake Vendor Harness, Retries, Single-Flight & Cooldown
 
 Local fake-vendor tests assert robust network behavior without live vendor dependencies:
-- **Bounded Retry**: Exactly one retry attempt (maximum 2 attempts total) allowed only for transient upstream rate-limiting (`429`) or concurrency conflict (`409`).
+- **Bounded Retry**: Exactly one retry attempt (maximum 2 attempts total) allowed only for transient upstream rate-limiting (`429`) or concurrency conflict (`409`). Each retry test case must run against an isolated fresh rehearsal session with explicit teardown.
 - **No Retry on Client / Server Errors**: Errors such as `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found`, or `500 Internal Server Error` must fail immediately with no retry attempts.
-- **Single-Flight Duplicate Rejection**: If a connection attempt is already in flight for a rehearsal session, concurrent requests must return `409 Conflict`.
-- **Deterministic Cleanup**: On connection failure or session end, active WebRTC allocations must be cleaned up without leaking memory or file descriptors.
+- **Concurrent Single-Flight Duplicate Rejection**: Verified using controlled blocking in the fake vendor. When a connection request is in flight, any concurrent request for the same rehearsal session must deterministically return `409 Conflict`, ensuring only a single upstream creation call is made.
+- **Failure Cooldown**: Following a failed connection attempt, immediate rapid re-triggering is gated by cooldown (returning `409` or `429`) to prevent vendor hammering.
+- **Observable Cleanup Ledger**: The fake vendor maintains an observable ledger (`created`, `deleted`, `active`). Tests prove cleanup after both successful lifecycle and error/teardown paths, ensuring no connection allocations leak.
 
 ---
 
@@ -94,10 +96,14 @@ The Sahai handoff is strictly application-local:
 ## 7. Live-Only Gate & Certification Boundary
 
 To protect resources and comply with budget boundaries:
-- A separate immutable test module (`test_s3_req7_live_gate.py`) guards live vendor calls.
+- A separate immutable test module (`factory-lite.tests.test_s3_req7_live_gate`) guards live vendor calls.
+- **Stable Live Test Command**:
+  ```
+  py -3.12 -m unittest factory-lite.tests.test_s3_req7_live_gate -v
+  ```
 - **Prerequisites**: `SAH_NAPSTER_LIVE=1`, `NAPSTER_API_KEY`, and `NAPSTER_AGENT_ID`.
 - **Gate Absent**: Automatically skips with an explicit non-certifying skip message, exiting 0 with zero vendor calls.
-- **Gate Open**: Drives the real app and browser, validating full SDK lifecycle (`readyVideo`, `onAvatarReady(true)`), verifying live mounted `<video>` and `<audio>` tracks, and asserting that a mere HTTP 200/token cannot certify.
+- **Gate Open**: Drives the real app and browser, validating full SDK lifecycle (`readyVideo`, `onAvatarReady(true)`), verifying live mounted `<video>` AND `<audio>` tracks, and asserting that a mere HTTP 200/token cannot certify. Missing Playwright or browser runtime under an open gate is a hard non-certifying block/failure, never a skip.
 - **Non-Certifying Mock Boundary**: Mock vendor success or offline test runs are explicitly declared insufficient for Stage 3 certification.
 
 ---
@@ -107,7 +113,7 @@ To protect resources and comply with budget boundaries:
 Every Stage 3 evidence record must adhere to the following schema:
 - `start_time_utc` and `end_time_utc`: Valid non-null ISO-8601 UTC strings. Synthetic timestamps (e.g. 1970/2000 epoch or future timestamps) are strictly rejected.
 - `probe_correlation_hash`: 64-character lowercase hex SHA-256 string.
-- `http_probe`: Dictionary with `host`, `path`, `method`, and `status_code`.
+- `http_probe`: Dictionary with `host` (`companion-api.napster.com` or `napster-api.napster.com`), `path`, `method`, and `status_code`.
 - `ready_proof`: `{"event": "onAvatarReady", "avatar_ready": true, "status": "readyVideo"}`.
 - `media_proof`: `{"video_mounted": true, "audio_mounted": true, "video_track_live": true, "audio_track_live": true}`.
 - `cleanup_proof`: `{"session_destroyed": true, "resources_released": true}`.

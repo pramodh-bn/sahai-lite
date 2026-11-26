@@ -1,7 +1,8 @@
 """Stage 3 black-box test helpers and fake vendor harness.
 
 This module provides test infrastructure for Stage 3 Napster embodied integration:
-- FakeNapsterServer: Local HTTP mock server simulating Napster Realtime agent connections.
+- FakeNapsterServer: Local HTTP mock server simulating Napster Companion agent connections.
+- Observable ledger: tracks connection creation and deletion lifecycle.
 - EvidenceSchemaValidator: Validates Stage 3 evidence records and rejects synthetic/leaked data.
 - Helper functions to invoke the Stage 3 rehearsal Napster session endpoints.
 """
@@ -55,8 +56,15 @@ class FakeNapsterHandler(http.server.BaseHTTPRequestHandler):
         }
         self.server.request_log.append(req_record)
 
-        # Check in-flight duplicate rejection simulation
+        # Controlled blocking for concurrent single-flight testing
+        if self.server.block_event is not None:
+            if self.server.request_arrived_event is not None:
+                self.server.request_arrived_event.set()
+            self.server.block_event.wait(timeout=5)
+
         client_id = parsed_body.get('externalClientId', '')
+
+        # Check in-flight duplicate rejection simulation
         if self.server.simulate_inflight_conflict and client_id in self.server.active_clients:
             self.send_response(409)
             self.send_header('Content-Type', 'application/json')
@@ -69,9 +77,10 @@ class FakeNapsterHandler(http.server.BaseHTTPRequestHandler):
 
         # Pop status from sequence if available
         status_code = 200
+        conn_id = 'conn_' + (client_id or 'default')
         response_payload = {
             'token': 'napster_conn_token_' + str(int(time.time() * 1000)),
-            'connection': {'id': 'conn_' + (client_id or 'default')},
+            'connection': {'id': conn_id},
         }
 
         if self.server.response_sequence:
@@ -91,6 +100,10 @@ class FakeNapsterHandler(http.server.BaseHTTPRequestHandler):
             self.wfile.write(json.dumps(err_body).encode())
             return
 
+        # Record successful creation in observable ledger
+        self.server.ledger['created'].append(conn_id)
+        self.server.active_allocations.add(conn_id)
+
         body_out = json.dumps(response_payload).encode('utf-8')
         self.send_response(status_code)
         self.send_header('Content-Type', 'application/json')
@@ -106,10 +119,22 @@ class FakeNapsterHandler(http.server.BaseHTTPRequestHandler):
             'timestamp': time.time(),
         }
         self.server.request_log.append(req_record)
+
+        # Extract connection id from path if present: /public/agents/{agent_id}/connections/{connection_id}
+        parts = self.path.strip('/').split('/')
+        conn_id = parts[-1] if len(parts) >= 4 else 'unknown'
+
+        self.server.ledger['deleted'].append(conn_id)
+        if conn_id in self.server.active_allocations:
+            self.server.active_allocations.remove(conn_id)
+        elif self.server.active_allocations:
+            # Fallback pop
+            self.server.active_allocations.pop()
+
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')
         self.end_headers()
-        self.wfile.write(json.dumps({'status': 'destroyed'}).encode())
+        self.wfile.write(json.dumps({'status': 'destroyed', 'connection_id': conn_id}).encode())
 
     def log_message(self, format, *args):
         pass
@@ -122,6 +147,10 @@ class FakeNapsterServer:
         self.httpd.response_sequence = []
         self.httpd.active_clients = set()
         self.httpd.simulate_inflight_conflict = False
+        self.httpd.block_event = None
+        self.httpd.request_arrived_event = None
+        self.httpd.ledger = {'created': [], 'deleted': []}
+        self.httpd.active_allocations = set()
         self.thread = threading.Thread(target=self.httpd.serve_forever, daemon=True)
 
     @property
@@ -138,12 +167,27 @@ class FakeNapsterServer:
     def set_simulate_inflight_conflict(self, enabled=True):
         self.httpd.simulate_inflight_conflict = enabled
 
+    def set_controlled_blocking(self, block_event, request_arrived_event=None):
+        self.httpd.block_event = block_event
+        self.httpd.request_arrived_event = request_arrived_event
+
     def get_requests(self):
         return list(self.httpd.request_log)
+
+    def get_ledger(self):
+        return {
+            'created': list(self.httpd.ledger['created']),
+            'deleted': list(self.httpd.ledger['deleted']),
+            'active': list(self.httpd.active_allocations),
+        }
 
     def clear_requests(self):
         self.httpd.request_log.clear()
         self.httpd.active_clients.clear()
+        self.httpd.ledger = {'created': [], 'deleted': []}
+        self.httpd.active_allocations.clear()
+        self.httpd.block_event = None
+        self.httpd.request_arrived_event = None
 
     def __enter__(self):
         self.thread.start()
@@ -249,6 +293,10 @@ def validate_stage3_evidence(evidence):
         for fld in ('host', 'path', 'method', 'status_code'):
             if fld not in probe:
                 errors.append(f'http_probe missing required field: {fld}')
+        host = str(probe.get('host', ''))
+        # Must match official current host, historical live alias, or loopback
+        if not (host in ('companion-api.napster.com', 'napster-api.napster.com') or host.startswith('127.0.0.1') or host.startswith('localhost')):
+            errors.append(f'Unrecognized http_probe host: {host}; must be companion-api.napster.com or napster-api.napster.com')
         if probe.get('method') not in ('POST', 'GET', 'DELETE'):
             errors.append(f'Unrecognized http_probe method: {probe.get("method")}')
 

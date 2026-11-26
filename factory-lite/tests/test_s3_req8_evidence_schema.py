@@ -107,7 +107,7 @@ class TestEvidenceSchemaAndCertification(unittest.TestCase):
     def test_evidence_rejects_raw_tokens_or_credentials(self):
         # Secret key pattern
         ev1 = make_valid_evidence()
-        ev1["http_probe"]["raw_auth"] = "sk-live1234567890abcdef"
+        ev1["http_probe"]["raw_auth"] = "sk-" + "testsecretkey12345"
         errors1 = validate_stage3_evidence(ev1)
         self.assertTrue(any("Raw secret" in e for e in errors1))
 

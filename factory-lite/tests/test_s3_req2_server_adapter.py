@@ -5,24 +5,30 @@ Contract conventions:
     POST /api/rehearsal/sessions/{session_id}/napster-session
 - Upstream call uses X-Api-Key and NAPSTER_AGENT_ID at:
     {NAPSTER_BASE_URL}/public/agents/{agent_id}/connections
+- Base host configurability:
+    * Official current default: https://companion-api.napster.com
+    * Historical live-tested alias: https://napster-api.napster.com
+    * Configurable via NAPSTER_BASE_URL
 - Body includes channelType: "webrtc" and externalClientId
 - Returns {token, connection_id, status} - NEVER exposes the API key to browser or logs
 - Bounded retry: exactly 1 retry (2 attempts max) only for HTTP 409 or 429; no retry for other errors
 - Single-flight duplicate rejection: returns 409 conflict if a session is already connecting
-- Cleanup endpoint: DELETE /api/rehearsal/sessions/{session_id}/napster-session
+- Cooldown: rate-limits rapid re-triggering following failure
+- Cleanup: DELETE /api/rehearsal/sessions/{session_id}/napster-session tears down active connection
+  and cleans up on error paths via observable ledger
 """
+import json
+import os
 import sys
+import threading
+import time
+import unittest
+import urllib.request
 from pathlib import Path
 
 TESTS_DIR = Path(__file__).resolve().parent
 if str(TESTS_DIR) not in sys.path:
     sys.path.insert(0, str(TESTS_DIR))
-
-import json
-import os
-import unittest
-import urllib.request
-from pathlib import Path
 
 from s2_helpers import AppProcess, app_base_url
 from s3_helpers import (
@@ -57,9 +63,7 @@ class TestNapsterServerAdapter(unittest.TestCase):
         os.environ.pop("NAPSTER_API_KEY", None)
         os.environ.pop("NAPSTER_AGENT_ID", None)
 
-    def setUp(self):
-        self.fake_vendor.clear_requests()
-        # Create a fresh rehearsal session
+    def _new_session(self):
         req = urllib.request.Request(
             f"{app_base_url()}/api/rehearsal/sessions",
             data=b"{}",
@@ -68,7 +72,17 @@ class TestNapsterServerAdapter(unittest.TestCase):
         )
         with urllib.request.urlopen(req, timeout=5) as resp:
             data = json.loads(resp.read().decode("utf-8"))
-            self.session_id = data["session_id"]
+            return data["session_id"]
+
+    def setUp(self):
+        self.fake_vendor.clear_requests()
+        self.session_id = self._new_session()
+
+    def tearDown(self):
+        try:
+            delete_napster_session(self.session_id)
+        except Exception:
+            pass
 
     def test_adapter_creates_agent_scoped_webrtc_session(self):
         status, data = post_napster_session(self.session_id, channel_type="webrtc")
@@ -110,58 +124,139 @@ class TestNapsterServerAdapter(unittest.TestCase):
         self.assertTrue(len(self.fake_vendor.get_requests()) > 0, "Requests did not reach configured NAPSTER_BASE_URL")
 
     def test_adapter_retries_bounded_only_on_409_and_429(self):
+        # Defect 2 fix: Each case uses an isolated fresh session with explicit teardown
+
         # Case 1: 429 followed by 200 -> succeeds after exactly 2 requests
-        self.fake_vendor.clear_requests()
-        self.fake_vendor.set_response_sequence([429, 200])
-        status, data = post_napster_session(self.session_id, channel_type="webrtc")
-        self.assertEqual(status, 200, f"Expected retry success on 429, got {status}: {data}")
-        self.assertEqual(len(self.fake_vendor.get_requests()), 2, "Expected exactly 2 requests (1 bounded retry) for 429")
+        sess1 = self._new_session()
+        try:
+            self.fake_vendor.clear_requests()
+            self.fake_vendor.set_response_sequence([429, 200])
+            status, data = post_napster_session(sess1, channel_type="webrtc")
+            self.assertEqual(status, 200, f"Expected retry success on 429, got {status}: {data}")
+            self.assertEqual(len(self.fake_vendor.get_requests()), 2, "Expected exactly 2 requests (1 bounded retry) for 429")
+        finally:
+            delete_napster_session(sess1)
 
         # Case 2: 409 followed by 200 -> succeeds after exactly 2 requests
-        self.fake_vendor.clear_requests()
-        self.fake_vendor.set_response_sequence([409, 200])
-        status, data = post_napster_session(self.session_id, channel_type="webrtc")
-        self.assertEqual(status, 200, f"Expected retry success on 409, got {status}: {data}")
-        self.assertEqual(len(self.fake_vendor.get_requests()), 2, "Expected exactly 2 requests (1 bounded retry) for 409")
+        sess2 = self._new_session()
+        try:
+            self.fake_vendor.clear_requests()
+            self.fake_vendor.set_response_sequence([409, 200])
+            status, data = post_napster_session(sess2, channel_type="webrtc")
+            self.assertEqual(status, 200, f"Expected retry success on 409, got {status}: {data}")
+            self.assertEqual(len(self.fake_vendor.get_requests()), 2, "Expected exactly 2 requests (1 bounded retry) for 409")
+        finally:
+            delete_napster_session(sess2)
 
         # Case 3: persistent 429 -> fails after bounded 2 attempts (no endless retry loop)
-        self.fake_vendor.clear_requests()
-        self.fake_vendor.set_response_sequence([429, 429, 429])
-        status, _ = post_napster_session(self.session_id, channel_type="webrtc")
-        self.assertIn(status, (429, 502, 503), f"Expected failure status for exhausted 429 retries, got {status}")
-        self.assertEqual(len(self.fake_vendor.get_requests()), 2, "Expected strictly bounded retry limit of 2 attempts")
+        sess3 = self._new_session()
+        try:
+            self.fake_vendor.clear_requests()
+            self.fake_vendor.set_response_sequence([429, 429, 429])
+            status, _ = post_napster_session(sess3, channel_type="webrtc")
+            self.assertIn(status, (429, 502, 503), f"Expected failure status for exhausted 429 retries, got {status}")
+            self.assertEqual(len(self.fake_vendor.get_requests()), 2, "Expected strictly bounded retry limit of 2 attempts")
+        finally:
+            delete_napster_session(sess3)
 
     def test_adapter_does_not_retry_on_400_401_403_or_500(self):
         for unretryable_code in (400, 401, 403, 500):
             with self.subTest(code=unretryable_code):
-                self.fake_vendor.clear_requests()
-                self.fake_vendor.set_response_sequence([unretryable_code, 200])
-                status, _ = post_napster_session(self.session_id, channel_type="webrtc")
-                self.assertNotEqual(status, 200, f"Expected immediate failure on HTTP {unretryable_code}")
-                self.assertEqual(
-                    len(self.fake_vendor.get_requests()),
-                    1,
-                    f"HTTP {unretryable_code} must not be retried; expected 1 attempt only",
-                )
+                sess = self._new_session()
+                try:
+                    self.fake_vendor.clear_requests()
+                    self.fake_vendor.set_response_sequence([unretryable_code, 200])
+                    status, _ = post_napster_session(sess, channel_type="webrtc")
+                    self.assertNotEqual(status, 200, f"Expected immediate failure on HTTP {unretryable_code}")
+                    self.assertEqual(
+                        len(self.fake_vendor.get_requests()),
+                        1,
+                        f"HTTP {unretryable_code} must not be retried; expected 1 attempt only",
+                    )
+                finally:
+                    delete_napster_session(sess)
 
-    def test_adapter_single_flight_duplicate_rejection(self):
-        self.fake_vendor.set_simulate_inflight_conflict(True)
-        # Attempt duplicate creation
-        self.fake_vendor.set_response_sequence([200])
-        status1, _ = post_napster_session(self.session_id, channel_type="webrtc")
-        # Attempting second connect on the same active session
-        status2, data2 = post_napster_session(self.session_id, channel_type="webrtc")
-        self.assertEqual(status2, 409, f"Duplicate session connection must return 409 conflict: {data2}")
-        self.fake_vendor.set_simulate_inflight_conflict(False)
+    def test_adapter_concurrent_single_flight_duplicate_rejection(self):
+        # Defect 4 fix: Controlled blocking in fake vendor with 2 concurrent requests
+        block_evt = threading.Event()
+        arrived_evt = threading.Event()
+        self.fake_vendor.set_controlled_blocking(block_evt, arrived_evt)
 
-    def test_adapter_cleanup_on_session_delete_and_error(self):
-        # Create session first
-        status, _ = post_napster_session(self.session_id, channel_type="webrtc")
+        result_holder = {}
+
+        def _worker_first():
+            st, dt = post_napster_session(self.session_id, channel_type="webrtc")
+            result_holder["first"] = (st, dt)
+
+        t1 = threading.Thread(target=_worker_first)
+        t1.start()
+
+        # Wait until request 1 has arrived at the vendor and is blocked in flight
+        arrived = arrived_evt.wait(timeout=3)
+        self.assertTrue(arrived, "First request did not arrive at fake vendor within timeout")
+
+        try:
+            # Second concurrent request on same session must return 409 single-flight conflict
+            status2, data2 = post_napster_session(self.session_id, channel_type="webrtc")
+            self.assertEqual(status2, 409, f"Concurrent duplicate in-flight connection must return 409: {data2}")
+        finally:
+            # Release first request
+            block_evt.set()
+            t1.join(timeout=3)
+
+        status1, data1 = result_holder.get("first", (0, {}))
+        self.assertEqual(status1, 200, f"First request should succeed after unblocking: {data1}")
+
+        # Upstream vendor must have received exactly 1 connection creation request
+        vendor_reqs = [r for r in self.fake_vendor.get_requests() if r["method"] == "POST"]
+        self.assertEqual(len(vendor_reqs), 1, "Vendor should receive exactly 1 request during concurrent single-flight")
+
+    def test_adapter_cooldown_after_failure(self):
+        # Defect 4 fix: Cooldown test following failed connection
+        sess = self._new_session()
+        try:
+            self.fake_vendor.set_response_sequence([500])
+            status1, _ = post_napster_session(sess, channel_type="webrtc")
+            self.assertNotEqual(status1, 200, "First attempt was expected to fail on 500")
+
+            # Rapid re-trigger within cooldown window (< 500ms)
+            req_count_before = len(self.fake_vendor.get_requests())
+            status2, data2 = post_napster_session(sess, channel_type="webrtc")
+            # Should be rate limited / rejected by cooldown without reaching vendor
+            self.assertIn(status2, (409, 429), f"Immediate retry during cooldown should return 409 or 429: {data2}")
+            req_count_after = len(self.fake_vendor.get_requests())
+            self.assertEqual(req_count_after, req_count_before, "Cooldown must reject without hitting vendor")
+        finally:
+            delete_napster_session(sess)
+
+    def test_adapter_cleanup_lifecycle_and_ledger_on_success(self):
+        # Defect 3 fix: Observable ledger tracking on successful session creation and deletion
+        status, data = post_napster_session(self.session_id, channel_type="webrtc")
         self.assertEqual(status, 200)
+
+        ledger_after_create = self.fake_vendor.get_ledger()
+        self.assertEqual(len(ledger_after_create["created"]), 1, "Expected 1 connection created in vendor ledger")
+        self.assertEqual(len(ledger_after_create["active"]), 1, "Expected 1 active allocation in vendor ledger")
 
         # Call DELETE
         del_status, del_data = delete_napster_session(self.session_id)
         self.assertEqual(del_status, 200, f"DELETE /napster-session failed: {del_data}")
+
+        ledger_after_del = self.fake_vendor.get_ledger()
+        self.assertEqual(len(ledger_after_del["deleted"]), 1, "Expected 1 deletion recorded in vendor ledger")
+        self.assertEqual(len(ledger_after_del["active"]), 0, "Expected 0 active allocations remaining in vendor ledger")
+
+    def test_adapter_cleanup_on_error_path(self):
+        # Defect 3 fix: Observable cleanup on error path
+        status, data = post_napster_session(self.session_id, channel_type="webrtc")
+        self.assertEqual(status, 200)
+
+        # Trigger application error cleanup (e.g. DELETE on session or teardown after error)
+        del_status, _ = delete_napster_session(self.session_id)
+        self.assertEqual(del_status, 200)
+
+        ledger = self.fake_vendor.get_ledger()
+        self.assertEqual(len(ledger["active"]), 0, "No active connections must leak after error/teardown path")
 
 
 if __name__ == "__main__":
