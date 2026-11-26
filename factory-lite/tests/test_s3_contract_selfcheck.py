@@ -218,6 +218,15 @@ class TestStage3ContractSelfCheck(unittest.TestCase):
         self.assertIn("possible retained", code_str.lower())
         # Indeterminate cleanup guard when connection observed without session ID
         self.assertIn("request_counts['post_connection'] > 0", normalized_code)
+        # Fallback cleanup accepts no_active_connection only when post_connection == 0
+        self.assertIn("no_active_connection", normalized_code)
+        self.assertIn("request_counts['post_connection'] == 0", normalized_code)
+
+        # 10. Fake media and microphone permission without real person capture
+        self.assertIn("--use-fake-ui-for-media-stream", code_str)
+        self.assertIn("--use-fake-device-for-media-stream", code_str)
+        self.assertIn("grant_permissions", code_str)
+        self.assertIn('"microphone"', code_str)
 
         # 10. Live-Only Host Policy Enforcement
         self.assertIn("companion-api.napster.com", code_str)

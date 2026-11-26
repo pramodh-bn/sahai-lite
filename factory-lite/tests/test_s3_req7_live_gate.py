@@ -116,7 +116,12 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
             from playwright.sync_api import sync_playwright
 
             cls.playwright = sync_playwright().start()
-            cls.browser = cls.playwright.chromium.launch()
+            cls.browser = cls.playwright.chromium.launch(
+                args=[
+                    "--use-fake-ui-for-media-stream",
+                    "--use-fake-device-for-media-stream",
+                ]
+            )
         except Exception as exc:
             if cls.app is not None:
                 cls.app.stop()
@@ -162,7 +167,9 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
         cleanup_attempted = {"sent": False}
         request_counts = {"post_connection": 0, "delete_connection": 0}
 
-        page = self.browser.new_page()
+        context = self.browser.new_context()
+        context.grant_permissions(["microphone"], origin=app_base_url())
+        page = context.new_page()
 
         def on_request(request):
             url = request.url
@@ -219,6 +226,7 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
 
         page.on("response", on_response)
 
+        probe_exc = None
         try:
             page.goto(app_base_url() + "/", timeout=get_remaining_timeout_ms(reserve_s=CLEANUP_RESERVE_S))
 
@@ -411,44 +419,95 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
             self.assertTrue(release_eval["avatarReadyFalse"], "Avatar ready not false after disconnect")
             self.assertTrue(release_eval["sdkStatusUnavailable"], "SDK status not unavailable after disconnect")
 
+        except BaseException as exc:
+            probe_exc = exc
+            raise
         finally:
-            page.close()
+            try:
+                page.close()
+            except Exception:
+                pass
+            try:
+                context.close()
+            except Exception:
+                pass
+
+            cleanup_safe = False
+            cleanup_err_detail = None
+
             # Exactly-once cleanup guard:
             # If no DELETE request was observed at all:
             if not cleanup_attempted["sent"]:
                 if session_id_holder["session_id"]:
                     rem_cleanup_s = deadline - time.monotonic()
                     if rem_cleanup_s <= 0.0:
-                        raise RuntimeError(
+                        cleanup_safe = False
+                        cleanup_err_detail = (
                             f"Monotonic deadline exhausted before fallback cleanup could be issued "
                             f"(remaining={rem_cleanup_s:.3f}s <= 0); session {session_id_holder['session_id']} "
                             f"possibly retained upstream resource"
                         )
-                    cleanup_attempted["sent"] = True
-                    request_counts["delete_connection"] += 1
-                    status, res = delete_napster_session(
-                        session_id_holder["session_id"], timeout=rem_cleanup_s
-                    )
-                    if status == 200 and res.get("session_destroyed") is True:
-                        cleanup_holder["destroyed"] = True
-                        cleanup_holder["status_code"] = status
                     else:
-                        cleanup_holder["destroyed"] = False
+                        cleanup_attempted["sent"] = True
+                        request_counts["delete_connection"] += 1
+                        status, res = delete_napster_session(
+                            session_id_holder["session_id"], timeout=rem_cleanup_s
+                        )
                         cleanup_holder["status_code"] = status
-                        cleanup_holder["error"] = res
+                        if status == 200 and res.get("session_destroyed") is True:
+                            cleanup_safe = True
+                            cleanup_holder["destroyed"] = True
+                        elif status == 200 and res.get("status") == "no_active_connection":
+                            if request_counts["post_connection"] == 0:
+                                cleanup_safe = True
+                                cleanup_holder["destroyed"] = True
+                                cleanup_holder["no_active_connection"] = True
+                            else:
+                                cleanup_safe = False
+                                cleanup_holder["destroyed"] = False
+                                cleanup_err_detail = (
+                                    "POST connection was observed over the network but fallback DELETE "
+                                    "returned no_active_connection; inconsistent state with possible retained resource"
+                                )
+                                cleanup_holder["error"] = cleanup_err_detail
+                        else:
+                            cleanup_safe = False
+                            cleanup_holder["destroyed"] = False
+                            cleanup_holder["error"] = res
                 elif request_counts["post_connection"] > 0:
                     # Connection request was observed but no session ID is available for fallback
-                    raise RuntimeError(
+                    cleanup_safe = False
+                    cleanup_err_detail = (
                         "Connection request was observed but no session ID is available for fallback cleanup; "
                         "indeterminate state with possible retained resource"
                     )
+                else:
+                    # No connection POST observed and no session ID created
+                    cleanup_safe = True
+                    cleanup_holder["destroyed"] = True
+            else:
+                cleanup_safe = cleanup_holder.get("destroyed", False)
+                if not cleanup_safe:
+                    cleanup_err_detail = (
+                        f"Observed DELETE returned non-success: status={cleanup_holder.get('status_code')}, "
+                        f"detail={cleanup_holder.get('error')}"
+                    )
 
-            # If cleanup was attempted but failed or became indeterminate, fail prominently
-            if not cleanup_holder["destroyed"]:
-                raise RuntimeError(
+            if cleanup_safe:
+                # Cleanup is safe. If a probe exception occurred, let it re-raise without being masked
+                if probe_exc is not None:
+                    raise probe_exc
+            else:
+                cleanup_msg = (
                     f"Cleanup returned non-success or became indeterminate (possible retained upstream resource): "
-                    f"status={cleanup_holder['status_code']}, detail={cleanup_holder['error']}"
+                    f"status={cleanup_holder.get('status_code')}, detail={cleanup_err_detail or cleanup_holder.get('error')}"
                 )
+                if probe_exc is not None:
+                    raise RuntimeError(
+                        f"{cleanup_msg}; original probe failure was: {type(probe_exc).__name__}: {probe_exc}"
+                    ) from probe_exc
+                else:
+                    raise RuntimeError(cleanup_msg)
 
         elapsed = time.monotonic() - t0
         self.assertLessEqual(
