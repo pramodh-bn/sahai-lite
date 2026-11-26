@@ -15,6 +15,7 @@ import threading
 import time
 import urllib.error
 import urllib.request
+import urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -224,13 +225,13 @@ def post_napster_session(session_id, channel_type='webrtc', base_app_url=None, s
         return exc.code, data
 
 
-def delete_napster_session(session_id, base_app_url=None):
+def delete_napster_session(session_id, base_app_url=None, timeout=10):
     """Call the app's server-side Napster session teardown endpoint."""
     base = base_app_url or app_base_url()
     url = f'{base}/api/rehearsal/sessions/{session_id}/napster-session'
     req = urllib.request.Request(url, method='DELETE')
     try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
             data = json.loads(resp.read().decode('utf-8'))
             return resp.status, data
     except urllib.error.HTTPError as exc:
@@ -242,8 +243,11 @@ def delete_napster_session(session_id, base_app_url=None):
         return exc.code, data
 
 
-def validate_stage3_evidence(evidence):
-    """Validate Stage 3 evidence structure strictly per Requirement 8.
+OFFICIAL_CERTIFIED_HOST = "companion-api.napster.com"
+
+
+def validate_stage3_evidence(evidence, mode='offline'):
+    """Validate Stage 3 evidence structure strictly per Requirement 8 and Host Policy.
 
     Returns a list of error strings. Empty list indicates completely valid evidence.
     """
@@ -295,12 +299,50 @@ def validate_stage3_evidence(evidence):
         for fld in ('host', 'path', 'method', 'status_code'):
             if fld not in probe:
                 errors.append(f'http_probe missing required field: {fld}')
-        host = str(probe.get('host', ''))
-        # Must match official current host, historical live alias, or loopback
-        if not (host in ('companion-api.napster.com', 'napster-api.napster.com') or host.startswith('127.0.0.1') or host.startswith('localhost')):
-            errors.append(f'Unrecognized http_probe host: {host}; must be companion-api.napster.com or napster-api.napster.com')
-        if probe.get('method') not in ('POST', 'GET', 'DELETE'):
-            errors.append(f'Unrecognized http_probe method: {probe.get("method")}')
+        raw_host = str(probe.get('host', ''))
+        scheme = str(probe.get('scheme', 'https')).lower()
+        method = str(probe.get('method', ''))
+
+        if method not in ('POST', 'GET', 'DELETE'):
+            errors.append(f'Unrecognized http_probe method: {method}')
+
+        if '://' in raw_host:
+            parsed = urllib.parse.urlsplit(raw_host)
+            host_str = (parsed.hostname or '').lower()
+            if parsed.scheme:
+                scheme = parsed.scheme.lower()
+            if parsed.username or parsed.password:
+                errors.append('Userinfo is strictly forbidden in http_probe host')
+            if parsed.port and parsed.port not in (80, 443) and mode == 'live':
+                errors.append(f'Non-default port {parsed.port} is forbidden in http_probe')
+        elif '@' in raw_host:
+            errors.append('Userinfo is strictly forbidden in http_probe host')
+            host_str = raw_host.split('@')[-1].lower()
+            if ':' in host_str:
+                host_str, port_str = host_str.split(':', 1)
+                if port_str not in ('80', '443') and mode == 'live':
+                    errors.append(f'Non-default port {port_str} is forbidden in http_probe')
+        elif ':' in raw_host:
+            host_str, port_str = raw_host.split(':', 1)
+            host_str = host_str.lower()
+            if port_str not in ('80', '443') and mode == 'live':
+                errors.append(f'Non-default port {port_str} is forbidden in http_probe')
+        else:
+            host_str = raw_host.lower()
+
+        if mode == 'live':
+            # Credentialed certification requires HTTPS and exact approved real host companion-api.napster.com
+            if scheme != 'https':
+                errors.append(f"Live certification requires HTTPS scheme; got '{scheme}'")
+            if host_str != OFFICIAL_CERTIFIED_HOST:
+                errors.append(
+                    f"Live certification requires exact approved real host '{OFFICIAL_CERTIFIED_HOST}'; got '{raw_host}'. "
+                    "Loopback, private IPs, aliases, and historical hosts are non-certifying."
+                )
+        else:
+            # Offline/mock mode allows loopback (127.0.0.1, localhost) or known hosts
+            if not (host_str in (OFFICIAL_CERTIFIED_HOST, 'napster-api.napster.com') or host_str.startswith('127.0.0.1') or host_str.startswith('localhost')):
+                errors.append(f'Unrecognized http_probe host: {raw_host}; must be {OFFICIAL_CERTIFIED_HOST} or loopback')
 
     # 4. Ready proof
     ready_proof = evidence.get('ready_proof')
@@ -359,7 +401,7 @@ def is_stage3_certified(evidence=None, mode='offline'):
         return False, 'Mock/offline runs are explicitly insufficient for Stage 3 certification per Requirement 9.'
     if not evidence:
         return False, 'Missing live evidence payload.'
-    val_errors = validate_stage3_evidence(evidence)
+    val_errors = validate_stage3_evidence(evidence, mode=mode)
     if val_errors:
         return False, f'Evidence validation failed: {val_errors}'
     return True, 'Stage 3 verified and certified.'

@@ -15,6 +15,10 @@ Mandate:
     * personal rehearsal transcript or user utterances
     * placeholder markers (TODO, TBD, placeholder, fixture)
     * synthetic epoch timestamps (1970, 2000) or future timestamps
+- Host Policy & Certification Boundary:
+    * Offline/mock mode allows loopback (127.0.0.1, localhost) for fake-vendor testing
+    * Credentialed certification (mode='live') strictly requires HTTPS and exact approved host companion-api.napster.com
+    * Rejects localhost, loopback, private/link-local/test/documentation IPs, non-HTTPS, userinfo, non-default ports, DNS aliases, and historical hosts in live mode
 - Requirement 9:
     * Mock/offline success is explicitly insufficient for Stage 3 certification
 """
@@ -153,6 +157,101 @@ class TestEvidenceSchemaAndCertification(unittest.TestCase):
 
         certified3, _ = is_stage3_certified(None, mode="live")
         self.assertFalse(certified3, "Live mode with missing evidence must not be certified")
+
+    def test_evidence_rejects_loopback_in_live_certification_mode(self):
+        for host in ("127.0.0.1", "localhost", "127.0.0.1:8000"):
+            with self.subTest(host=host):
+                ev = make_valid_evidence()
+                ev["http_probe"]["host"] = host
+                # Valid in offline/mock mode
+                errs_offline = validate_stage3_evidence(ev, mode="offline")
+                self.assertEqual(errs_offline, [], f"Loopback host {host} should be valid in offline mode")
+
+                # Strictly rejected in live certification mode
+                errs_live = validate_stage3_evidence(ev, mode="live")
+                self.assertTrue(
+                    any("exact approved real host" in e or "Live certification requires" in e for e in errs_live),
+                    f"Expected live mode rejection for loopback host {host}, got: {errs_live}",
+                )
+                certified, reason = is_stage3_certified(ev, mode="live")
+                self.assertFalse(certified, f"Loopback host {host} certified under mode='live'")
+                self.assertIn("Evidence validation failed", reason)
+
+    def test_evidence_rejects_private_and_documentation_ips_in_live_mode(self):
+        for ip in ("10.0.0.1", "192.168.1.1", "172.16.0.1", "169.254.1.1", "192.0.2.1", "198.51.100.1", "203.0.113.1"):
+            with self.subTest(ip=ip):
+                ev = make_valid_evidence()
+                ev["http_probe"]["host"] = ip
+                errs_live = validate_stage3_evidence(ev, mode="live")
+                self.assertTrue(
+                    any("exact approved real host" in e for e in errs_live),
+                    f"Expected rejection for IP {ip}, got: {errs_live}",
+                )
+                certified, _ = is_stage3_certified(ev, mode="live")
+                self.assertFalse(certified, f"IP {ip} certified under mode='live'")
+
+    def test_evidence_rejects_non_https_and_userinfo_and_non_default_ports(self):
+        # Non-HTTPS URL in host
+        ev1 = make_valid_evidence()
+        ev1["http_probe"]["host"] = "http://companion-api.napster.com"
+        errs1 = validate_stage3_evidence(ev1, mode="live")
+        self.assertTrue(any("HTTPS" in e for e in errs1), f"Expected HTTPS error, got: {errs1}")
+        self.assertFalse(is_stage3_certified(ev1, mode="live")[0])
+
+        # Explicit non-https scheme in probe
+        ev2 = make_valid_evidence()
+        ev2["http_probe"]["scheme"] = "http"
+        errs2 = validate_stage3_evidence(ev2, mode="live")
+        self.assertTrue(any("HTTPS" in e for e in errs2), f"Expected HTTPS error, got: {errs2}")
+        self.assertFalse(is_stage3_certified(ev2, mode="live")[0])
+
+        # Userinfo in host
+        ev3 = make_valid_evidence()
+        ev3["http_probe"]["host"] = "user:secret@companion-api.napster.com"
+        errs3 = validate_stage3_evidence(ev3, mode="live")
+        self.assertTrue(any("Userinfo" in e for e in errs3), f"Expected Userinfo error, got: {errs3}")
+        self.assertFalse(is_stage3_certified(ev3, mode="live")[0])
+
+        # Non-default port
+        ev4 = make_valid_evidence()
+        ev4["http_probe"]["host"] = "companion-api.napster.com:8443"
+        errs4 = validate_stage3_evidence(ev4, mode="live")
+        self.assertTrue(any("Non-default port" in e for e in errs4), f"Expected Non-default port error, got: {errs4}")
+        self.assertFalse(is_stage3_certified(ev4, mode="live")[0])
+
+    def test_evidence_rejects_historical_and_unsupported_hosts_in_live_mode(self):
+        # Historical napster-api is reference only, non-certifying in live mode
+        ev1 = make_valid_evidence()
+        ev1["http_probe"]["host"] = "napster-api.napster.com"
+        errs_offline = validate_stage3_evidence(ev1, mode="offline")
+        self.assertEqual(errs_offline, [], "Historical host is valid in offline reference mode")
+        errs_live = validate_stage3_evidence(ev1, mode="live")
+        self.assertTrue(
+            any("exact approved real host" in e for e in errs_live),
+            f"Expected live mode rejection for historical host, got: {errs_live}",
+        )
+        self.assertFalse(is_stage3_certified(ev1, mode="live")[0])
+
+        # Unsupported DNS aliases
+        for host in ("api.napster.com", "fake.napster.com", "napster.internal"):
+            with self.subTest(host=host):
+                ev = make_valid_evidence()
+                ev["http_probe"]["host"] = host
+                errs = validate_stage3_evidence(ev, mode="live")
+                self.assertTrue(
+                    any("exact approved real host" in e or "Unrecognized" in e for e in errs),
+                    f"Expected rejection for unsupported host {host}, got: {errs}",
+                )
+                self.assertFalse(is_stage3_certified(ev, mode="live")[0])
+
+    def test_official_approved_host_passes_live_certification(self):
+        ev = make_valid_evidence()
+        ev["http_probe"]["host"] = "companion-api.napster.com"
+        ev["http_probe"]["scheme"] = "https"
+        errs_live = validate_stage3_evidence(ev, mode="live")
+        self.assertEqual(errs_live, [], f"Official approved host failed validation: {errs_live}")
+        certified, reason = is_stage3_certified(ev, mode="live")
+        self.assertTrue(certified, f"Official approved host failed certification: {reason}")
 
 
 if __name__ == "__main__":

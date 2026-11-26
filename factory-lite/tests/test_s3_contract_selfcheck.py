@@ -10,7 +10,7 @@ if str(TESTS_DIR) not in sys.path:
 
 
 class TestStage3ContractSelfCheck(unittest.TestCase):
-    """Verifier-owned meta-contract proving contract integrity and signature safety."""
+    """Verifier-owned meta-contract proving contract integrity, signature safety, and host policy."""
 
     def test_stage3_modules_import_cleanly(self):
         modules = [
@@ -46,6 +46,22 @@ class TestStage3ContractSelfCheck(unittest.TestCase):
             "simulate_error",
             sig_post.parameters,
             "post_napster_session must explicitly accept simulate_error parameter",
+        )
+
+        # Explicit check: delete_napster_session must accept timeout
+        sig_del = inspect.signature(s3_helpers.delete_napster_session)
+        self.assertIn(
+            "timeout",
+            sig_del.parameters,
+            "delete_napster_session must explicitly accept timeout parameter",
+        )
+
+        # Explicit check: validate_stage3_evidence must accept mode
+        sig_val = inspect.signature(s3_helpers.validate_stage3_evidence)
+        self.assertIn(
+            "mode",
+            sig_val.parameters,
+            "validate_stage3_evidence must explicitly accept mode parameter",
         )
 
         # AST scan of all test_s3_*.py files to ensure no call passes an unaccepted keyword
@@ -99,14 +115,106 @@ class TestStage3ContractSelfCheck(unittest.TestCase):
         live_file = TESTS_DIR / "test_s3_req7_live_gate.py"
         self.assertTrue(live_file.is_file(), "Missing stable live module test_s3_req7_live_gate.py")
 
-        tree = ast.parse(live_file.read_text(encoding="utf-8"), filename=str(live_file))
         code_str = live_file.read_text(encoding="utf-8")
+        tree = ast.parse(code_str, filename=str(live_file))
 
-        # Must check SAH_NAPSTER_LIVE, NAPSTER_API_KEY, and NAPSTER_AGENT_ID
+        # 1. Gate prerequisite checks
         self.assertIn("SAH_NAPSTER_LIVE", code_str)
         self.assertIn("NAPSTER_API_KEY", code_str)
         self.assertIn("NAPSTER_AGENT_ID", code_str)
         self.assertIn("SkipTest", code_str)
+
+        # 2. Under open gate must require fresh SAH_STAGE3_EVIDENCE_PATH and clean temp files
+        self.assertIn("SAH_STAGE3_EVIDENCE_PATH", code_str)
+        self.assertIn("evidence_path.exists()", code_str)
+        self.assertIn("temp_evidence.unlink()", code_str)
+
+        # 3. Statically reject direct preallocation / double-session logic in live gate
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                func_name = None
+                if isinstance(node.func, ast.Name):
+                    func_name = node.func.id
+                elif isinstance(node.func, ast.Attribute):
+                    func_name = node.func.attr
+                if func_name == "post_napster_session":
+                    self.fail(
+                        f"Direct preallocation call '{func_name}' forbidden in live gate; "
+                        "must use single browser-owned flow"
+                    )
+            elif isinstance(node, (ast.Import, ast.ImportFrom)):
+                for alias in node.names:
+                    if alias.name == "post_napster_session":
+                        self.fail(
+                            "Importing 'post_napster_session' is forbidden in live gate; "
+                            "must rely strictly on single browser-owned session creation"
+                        )
+
+        # 4. Monotonic deadline helper & remaining-time use
+        self.assertIn("monotonic", code_str)
+        self.assertIn("get_remaining_timeout_ms", code_str)
+        self.assertIn("CLEANUP_RESERVE_S", code_str)
+
+        # 5. Exact observed POST status 200 without fallback default substitution
+        self.assertNotIn('post_status"] or 200', code_str)
+        self.assertNotIn("post_status'] or 200", code_str)
+        normalized_code = code_str.replace('"', "'")
+        self.assertIn("conn_hash_holder['post_status']", normalized_code)
+        found_post_status_200 = False
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                func_name = getattr(node.func, "attr", None) or getattr(node.func, "id", None)
+                if func_name == "assertEqual":
+                    args_dump = [ast.dump(a) for a in node.args]
+                    if any("post_status" in s for s in args_dump) and any("200" in s for s in args_dump):
+                        found_post_status_200 = True
+        self.assertTrue(found_post_status_200, "Must assert post_status == 200")
+
+        # 6. Request observer accounting for outgoing requests
+        self.assertIn('page.on("request"', code_str)
+        self.assertIn("cleanup_attempted['sent'] = True", normalized_code)
+
+        # 7. Deadline-bound click actions
+        self.assertIn("connect_btn.click(timeout=", code_str)
+        self.assertIn("disconnect_btn.click(timeout=", code_str)
+
+        # 8. Deadline-bound wait_for_function for readiness and release predicates
+        wait_for_func_calls = [
+            node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and getattr(node.func, "attr", None) == "wait_for_function"
+        ]
+        self.assertGreaterEqual(
+            len(wait_for_func_calls),
+            2,
+            "Must use page.wait_for_function for both readiness and release predicates",
+        )
+
+        # 9. Exactly-once cleanup guard & deterministic observation
+        self.assertIn("expect_response", code_str)
+        self.assertIn("cleanup_attempted", code_str)
+        self.assertIn("delete_napster_session", code_str)
+        self.assertIn("timeout=rem_cleanup_s", code_str)
+        self.assertIn("possible retained", code_str.lower())
+        # Indeterminate cleanup guard when connection observed without session ID
+        self.assertIn("request_counts['post_connection'] > 0", normalized_code)
+
+        # 10. Live-Only Host Policy Enforcement
+        self.assertIn("companion-api.napster.com", code_str)
+        self.assertIn("derive_and_validate_live_vendor_host", code_str)
+        self.assertIn("mode='live'", normalized_code)
+
+        # 11. Non-sensitive operational telemetry in evidence
+        self.assertIn("active_duration_seconds", code_str)
+        self.assertIn("connection_create_requests", code_str)
+        self.assertIn("cleanup_requests", code_str)
+
+        # 12. Evidence validation, certification, and atomic writing
+        self.assertIn("validate_stage3_evidence", code_str)
+        self.assertIn("is_stage3_certified", code_str)
+        self.assertIn("replace", code_str)  # Atomic rename via Path.replace
+        self.assertIn("hashlib.sha256", code_str)  # SHA-256 correlation hash
 
 
 if __name__ == "__main__":
