@@ -278,7 +278,7 @@ Stage 3 is certified at `82e9406` (tag `lite-stage-3-passed`). The adapter in `a
 | U3 | Exact **Cascade** per-minute price and whether twin *generation* (vs conversation) is billable | Budget approval and demo cost ceiling | **Owner/Napster** |
 | U4 | Transcript/memory **retention periods** and whether memory can be purged per `externalClientId` | GDPR/CCPA erasure commitments | **Napster** |
 | U5 | Are unknown connection-body fields (e.g. `providerSettings`) ignored or rejected? | Determines whether the stale Stage 3 handoff field is harmless | **Napster** |
-| U6 | Does a twin`readyToUse` gate apply to **agent creation** only, or also to first connection? | Retry/UX design | **Napster** |
+| U6 | Does a twin `readyToUse` gate apply to **agent creation** only, or also to first connection? | Retry/UX design | **Napster** |
 | U7 | Does the Web SDK require camera permission in addition to microphone for `rectangle`/`silhouette` views? | Denied-permission fallback design | **Napster** |
 | U8 | Signalling host `wss://avatar-signaling.napster.ai` — still current for SDK 2.0.0? | Network allow-list and Stage 3 evidence | **Napster** |
 | U9 | Concurrency: does a failed/abandoned POST count toward the 5-per-transport limit before `connection_timeout`? | Burst rehearsal design | **Napster** |
