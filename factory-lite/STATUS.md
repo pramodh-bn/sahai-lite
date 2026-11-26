@@ -1,11 +1,11 @@
 # Status
 Stage: 3
-Cycle: 2 (owner-authorized restart; two-repair budget reset for this cycle)
-Task: LITE-S3-VERIFY-TESTS-02
-Owner: Verifier
-Coordinator: Lead (overnight takeover handed to sah-lead; see factory-lite/HANDOFF.md)
-State: S3_CYCLE2_BLOCKED_VERIFIER_RUNTIME_FAILED
-Base SHA: 73ae4c08d1d50a7a49181fabce40f3e80382e268
-PR: none for LITE-S3-VERIFY-TESTS-02
-Evidence: Final Cycle 2 repair 2 failed and the two-repair budget is exhausted. After an owner restart and an explicit resume nudge, the Verifier created the correct clean worktree D:\Workspace\sahai-worktrees\verifier-LITE-S3-VERIFY-TESTS-02-R2 at exact base 73ae4c08d1d50a7a49181fabce40f3e80382e268 but made no edits or commits, pushed no origin branch, opened no PR, and its runtime then entered Failed/running=false. No valid Stage 3 test artifact or live evidence exists. Highest certified stage remains 2; Stage 3 remains uncertified.
-Next: Stop Cycle 2. Do not restart Verifier again under this cycle, issue a third repair, dispatch Builder, merge rejected PR #22, or start Stage 4. Owner must replace the Verifier runtime or explicitly authorize a different independent verification path and a new cycle from current dev-v3.
+Cycle: 3 (owner-authorized replacement Verifier; fresh two-repair budget)
+Task: LITE-S3-VERIFY-TESTS-03
+Owner: Verifier 2
+Coordinator: sah-lead
+State: S3_CYCLE3_TEST_CONTRACT_ASSIGNED
+Base SHA: 564560897c43c724bb07c16aa1e445628589328e
+PR: none yet
+Evidence: Owner added Verifier 2 and explicitly authorized it to replace the failed Verifier and restart the Stage 3 job. Verifier 2 passed a read-only runtime preflight: Antigravity/Google DeepMind ACP backend, correct origin https://github.com/pramodh-bn/sahai-lite.git, current origin/dev-v3 564560897c43c724bb07c16aa1e445628589328e, and writable separate-worktree capability. Cycle 1 and Cycle 2 remain closed; rejected PR #22 and all prior placeholder/untracked artifacts remain forbidden. Highest certified stage remains 2; Stage 3 remains uncertified.
+Next: Assign Verifier 2 the executable cumulative Stage 3 black-box contract from the exact merged Cycle 3 ledger SHA. Require the real agent-scoped Napster connection/token/Web SDK lifecycle, preservation of all 49 prior tests, explicit gated live readiness/media evidence, cleanup/retry/single-flight/mic fallback, redaction, and a numbered test-only PR. Builder and Stage 4 remain gated until Lead approves and integrates the contract.
