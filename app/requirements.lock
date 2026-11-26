@@ -1,0 +1,4 @@
+# This is a generated requirements lock file
+# Generated on: Thu Nov 26 2026
+fastapi==0.115.0
+uvicorn==0.30.6

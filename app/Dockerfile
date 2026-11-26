@@ -23,10 +23,10 @@ RUN groupadd -r appuser && useradd -r -g appuser appuser
 WORKDIR /app
 
 # Copy dependency files first for better caching
-COPY requirements.txt ./requirements.txt
+COPY requirements.lock ./requirements.lock
 
 # Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.lock
 
 # Copy application code
 COPY main.py ./
