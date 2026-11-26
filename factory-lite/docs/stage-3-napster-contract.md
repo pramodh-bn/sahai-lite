@@ -166,3 +166,25 @@ Under assignment `LITE-S3-LIVE-CONTRACT-02`, the live contract and evidence vali
    - Evidence records `connection_create_requests: 1`, `cleanup_requests: 1`, and measured `active_duration_seconds: <= 30.0`. Validated via `validate_stage3_evidence(evidence, mode='live')` and `is_stage3_certified(evidence, mode='live')` before atomic replacement to `SAH_STAGE3_EVIDENCE_PATH`. Under gate-absent conditions, the test skips explicitly with zero calls and creates no files.
 9. **Strengthened 4-Test Meta-Contract Verification**:
    - `factory-lite/tests/test_s3_contract_selfcheck.py` maintains exactly 4 tests, verifying module imports, helper keyword compatibility (including `simulate_error` on `post_napster_session`, `timeout` on `delete_napster_session`, and `mode` on `validate_stage3_evidence`), absence of placeholder assertions, and comprehensive static structural checks for all live gate invariants and host policy rules.
+
+---
+
+## 11. Stage 3 Cycle 6 Evidence Capture Reachability (LITE-S3-LIVE-EVIDENCE-03)
+
+Under assignment `LITE-S3-LIVE-EVIDENCE-03`, the live contract hardens response-observation reachability and evidence generation to prevent broad route classification from consuming specific connection responses:
+1. **Pure Response-Observation Function (`observe_live_response`)**:
+   - Classifies incoming HTTP responses independently of external state.
+   - Specific-before-generic rule: the specific `/napster-session` POST (connection creation) is evaluated and handled before the generic `/api/rehearsal/sessions` POST.
+   - Mutually exclusive predicates ensure that URLs sharing the `/api/rehearsal/sessions` prefix (such as `/api/rehearsal/sessions/{id}/napster-session`) are never swallowed by generic session creation handlers.
+2. **In-Memory Token and ID Redaction**:
+   - For Napster POST 200 responses, the upstream `connection_id` is immediately converted into a 64-character lowercase SHA-256 hex string (`conn_hash_holder['hash']`).
+   - Raw connection IDs, tokens, or credentials are never stored in memory holders, logged, returned, or persisted.
+   - Malformed, empty, or missing connection IDs yield `None` and fail evidence validation and certification immediately without fabricating fallback defaults.
+3. **Dedicated Evidence Builder & Atomic Writer Path**:
+   - `build_stage3_live_evidence`: Constructs the strictly validated evidence dictionary.
+   - `write_atomic_stage3_evidence`: Implements atomic replacement via process-isolated temporary files with cleanup on failure.
+   - `build_validate_and_write_stage3_evidence`: Combines evidence creation, schema validation, certification check, and atomic write into a single validated path shared between live execution and contract-path dry runs.
+4. **Credential-Free Dry-Run Contract Validation**:
+   - An end-to-end dry-run test (`test_credential_free_stage3_evidence_builder_and_writer_dry_run`) exercises the exact evidence builder, validator, and atomic writer path using synthetic inputs and approved host parameters.
+   - This test strictly validates contract serialization and disk writing integrity without live vendor calls or credentials, explicitly labeled as non-certifying contract-path validation.
+
