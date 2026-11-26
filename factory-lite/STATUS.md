@@ -1,11 +1,11 @@
 # Status
 Stage: 3
 Cycle: 4 (owner-authorized fresh verification cycle; two-repair budget)
-Task: LITE-S3-VERIFY-TESTS-04
-Owner: Verifier 2
+Task: LITE-S3-BUILD-01
+Owner: Builder
 Coordinator: sah-lead
-State: S3_CYCLE4_AUTHORIZED
-Base SHA: 1bde34e3a1b615b1d37c4f4f44fe9d133f1edf22
-PR: none yet
-Evidence: Owner explicitly approved a fresh Stage 3 Cycle 4 after Cycle 3 closed. PR #38 remains closed and forbidden from merge. Verifier 2 may use its validated concepts only as reference and must recreate the test/docs-only contract on the current clean dev-v3 base. Cycle 4 adds a mandatory focused self-check before the full cumulative run: helper signatures must match every caller, all new Stage 3 modules must import and collect without Verifier-authored exceptions, and the live gate must skip non-certifying with zero calls. Highest certified stage remains 2; Stage 3 remains uncertified.
-Next: Assign one fresh Verifier 2 contract task from the exact merged Cycle 4 ledger SHA. Gate 1 is focused helper/import/collection validation. Gate 2 is the full cumulative suite with all original 49 tests green and red only on missing Stage 3 application behavior. Builder and Stage 4 remain gated until Lead independently validates and merges the test-only contract.
+State: S3_CYCLE4_IMPLEMENTATION_ASSIGNED
+Base SHA: e5518e0ff0e922254110336156c6efbd73a53c46
+PR: https://github.com/pramodh-bn/sahai-lite/pull/43 (merged test-only contract)
+Evidence: Verifier 2 delivered test/docs-only head bc9f66b8357f72b9d759a61de1557f20a6f44c2b. Lead independently validated exact ancestry, scope, trailers, the four-test helper/import/AST self-check, and the zero-call live gate. Lead independently ran the cumulative suite from a detached worktree: 78 tests in 355.481 seconds, failures=12, errors=1, skipped=1, exit 1; all original 49 tests and all four self-checks were green, with red results limited to missing Stage 3 endpoints and UI. PR #43 merged unchanged at e5518e0ff0e922254110336156c6efbd73a53c46. Highest certified stage remains 2; Stage 3 remains uncertified.
+Next: Builder implements only app/** against exact base e5518e0ff0e922254110336156c6efbd73a53c46, makes the 78-test cumulative suite green offline, preserves the immutable contract, and returns a numbered PR. No live gate is enabled during implementation. Lead then validates and assigns Verifier 2 to review the unchanged implementation SHA before any merge or live certification.
