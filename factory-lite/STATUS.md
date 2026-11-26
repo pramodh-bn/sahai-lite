@@ -1,11 +1,11 @@
 # Status
-Stage: 3
-Cycle: 6 (complete)
-Task: LITE-S3-CERTIFY-01
-Owner: sah-lead
-Coordinator: sah-lead
-State: STAGE_3_CERTIFIED
-Base SHA: 82e9406ff65d932a8bf19e8254fc6156536ccf2a
-PR: https://github.com/pramodh-bn/sahai-lite/pull/61 (merged live-evidence contract)
-Evidence: Lead independently reproduced the Cycle 6 pre-live gates at PR head 5752b491e84809802bd5db737fd154f14815ab74: 30 focused self-check, observer, host-policy, cleanup, and evidence-path tests passed; the gate-absent command made zero calls; and the cumulative suite ran 96 tests in 379.196s with one deliberate live skip. PR #61 then merged unchanged as 82e9406ff65d932a8bf19e8254fc6156536ccf2a. On that exact merged SHA, the single owner-authorized live probe used HTTPS companion-api.napster.com, made one connection POST 200, observed exact readyVideo and onAvatarReady(true), mounted live video and audio-owned live audio, made one cleanup DELETE 200, proved session destruction and resource release, and completed in 19.371s (16.594s active). The atomic artifact was redacted, contained only a SHA-256 correlation hash, passed validate_stage3_evidence(mode='live') with zero errors, and passed is_stage3_certified(mode='live'). No credential, token, or raw vendor identifier was logged or persisted. Lead reran the merged-SHA cumulative suite: 96 tests in 369.611s, OK with one deliberate live-gate skip. Tag lite-stage-3-passed points to 82e9406ff65d932a8bf19e8254fc6156536ccf2a.
-Next: Stage 3 is certified and the Stage 4 gate is open. Begin Stage 4 only through a new owner-directed assignment and preserve the certified Stage 3 SHA, tag, redacted evidence, and cleanup guarantees.
+Stage: 4
+Cycle: 1
+Task: LITE-S4-VERIFY-TESTS-01
+Owner: Verifier
+Coordinator: Lead 3
+State: S4_TEST_CONTRACT_ASSIGNED
+Base SHA: 71deef86230a704ded644232308d1703ddb35dfc
+PR: pending
+Evidence: Stage 3 is certified at 82e9406ff65d932a8bf19e8254fc6156536ccf2a (tag lite-stage-3-passed, PR #61); the Stage 4 gate is open. No Stage 4 work existed before this cycle. Owner directed Lead 3 to coordinate from 2026-11-26. The Stage 4 black-box acceptance contract must be authored against this exact base and proven red before any implementation is dispatched.
+Next: Verifier authors the executable Stage 4 acceptance contract from factory-lite/spec/stage-4.md: Playwright desktop and mobile journey scenario -> stand-in demo -> handoff -> practice -> evidence feedback -> retry from pivot; keyboard operation, mic denial, slow network, exactly-once session cleanup; avatar/voice consent, no real meeting participation, deletion and no sensitive logs; clean-checkout cumulative runs; README, under-3-minute demo script, under-500-word writeup, real/mock matrix and judging-rubric self-check. Include at least one deliberately failing case and a red-run evidence file. Branch lite/verifier/LITE-S4-VERIFY-TESTS-01, PR to dev-v3.
