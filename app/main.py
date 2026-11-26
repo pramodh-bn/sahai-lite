@@ -2,11 +2,21 @@ import os
 import subprocess
 from flask import Flask, Response, jsonify
 
+from napster import bp as napster_bp
 from rehearsal import bp as rehearsal_bp
 from ui import PAGE
 
 app = Flask(__name__)
 app.register_blueprint(rehearsal_bp)
+app.register_blueprint(napster_bp)
+
+# Vendored, unmodified Napster Web SDK 2.0.0 (SHA-256 pinned in app/ui.py and
+# app/vendor/napster-companion-api/2.0.0/PROVENANCE.md). Served same-origin only
+# after the user explicitly opts in; nothing is fetched on page load.
+SDK_DIR = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "vendor", "napster-companion-api", "2.0.0",
+)
 
 def get_git_sha():
     """Get the current git commit SHA, with fallback to 'unknown'"""
@@ -33,6 +43,12 @@ def health():
 @app.route('/')
 def index():
     return Response(PAGE, mimetype='text/html')
+
+@app.route('/vendor/napster-companion-api/2.0.0/bundle.js')
+def napster_sdk_bundle():
+    with open(os.path.join(SDK_DIR, 'bundle.js'), 'rb') as fh:
+        data = fh.read()
+    return Response(data, mimetype='text/javascript')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000)
