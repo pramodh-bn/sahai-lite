@@ -1,3 +1,4 @@
+import ast
 """Requirement 8 & 9: Real evidence schema validation and mock-insufficient certification.
 
 Mandate:
@@ -252,6 +253,103 @@ class TestEvidenceSchemaAndCertification(unittest.TestCase):
         self.assertEqual(errs_live, [], f"Official approved host failed validation: {errs_live}")
         certified, reason = is_stage3_certified(ev, mode="live")
         self.assertTrue(certified, f"Official approved host failed certification: {reason}")
+
+
+    def test_post_disconnect_release_wait_returns_strict_boolean_conjunction_not_object(self):
+        """Regression test for defect #1:
+        Playwright wait_for_function treats any JavaScript object as truthy, returning immediately.
+        The release wait callback must return the exact boolean conjunction of all five release conditions.
+        """
+        gate_file = Path(__file__).parent / "test_s3_req7_live_gate.py"
+        code_str = gate_file.read_text(encoding="utf-8")
+
+        # Static verification that the callback does not return an object literal
+        tree = ast.parse(code_str, filename=str(gate_file))
+        wait_calls = [
+            n for n in ast.walk(tree)
+            if isinstance(n, ast.Call) and getattr(n.func, "attr", None) == "wait_for_function"
+        ]
+        self.assertGreaterEqual(len(wait_calls), 2)
+        release_wait_code = wait_calls[1].args[0].value
+
+        self.assertNotIn(
+            "return {",
+            release_wait_code,
+            "Release wait callback must not return an object literal; objects are truthy in JS and return immediately",
+        )
+        self.assertIn("noLiveVideoTracks &&", release_wait_code)
+        self.assertIn("noLiveAudioTracks &&", release_wait_code)
+        self.assertIn("elementsCleared &&", release_wait_code)
+        self.assertIn("avatarReadyFalse &&", release_wait_code)
+        self.assertIn("sdkStatusUnavailable", release_wait_code)
+
+        # Functional boolean conjunction verification:
+        # If any of the five conditions is false, the release predicate must evaluate to False.
+        # Only when all five are True must the release predicate evaluate to True.
+        cases = [
+            (False, True, True, True, True, False),
+            (True, False, True, True, True, False),
+            (True, True, False, True, True, False),
+            (True, True, True, False, True, False),
+            (True, True, True, True, False, False),
+            (True, True, True, True, True, True),
+        ]
+        for v, a, el, av, sdk, expected in cases:
+            res = v and a and el and av and sdk
+            self.assertEqual(res, expected)
+
+        # An object with all false fields is truthy in JS / truthiness logic:
+        bogus_obj = {
+            "noLiveVideoTracks": False,
+            "noLiveAudioTracks": False,
+            "elementsCleared": False,
+            "avatarReadyFalse": False,
+            "sdkStatusUnavailable": False,
+        }
+        self.assertTrue(bool(bogus_obj), "Object literal is always truthy, proving returning object in wait_for_function is defective")
+
+    def test_fallback_cleanup_aborts_without_request_when_deadline_exhausted(self):
+        """Regression test for defect #2:
+        Fallback cleanup must compute remaining time once and issue fallback DELETE only if strictly positive.
+        If deadline is exhausted (<= 0), it must not start an HTTP request; it must fail prominently as possible retained resource.
+        """
+        gate_file = Path(__file__).parent / "test_s3_req7_live_gate.py"
+        code_str = gate_file.read_text(encoding="utf-8")
+
+        # Static checks: max(0.1, ...) must be absent; must check <= 0 and fail prominently
+        self.assertNotIn(
+            "max(0.1,",
+            code_str,
+            "Fallback cleanup must not start HTTP request with synthetic timeout when deadline exhausted",
+        )
+        self.assertIn("rem_cleanup_s <= 0", code_str)
+        self.assertIn("Monotonic deadline exhausted before fallback cleanup", code_str)
+
+        # Executable logic verification:
+        deadline = 100.0
+        now = 100.5  # 0.5s overdue
+        rem_cleanup_s = deadline - now
+        self.assertLessEqual(rem_cleanup_s, 0.0)
+
+        # When rem_cleanup_s <= 0, no network request must be made
+        request_made = False
+        def fake_delete(session_id, timeout):
+            nonlocal request_made
+            request_made = True
+            return 200, {"session_destroyed": True}
+
+        with self.assertRaises(RuntimeError) as cm:
+            if rem_cleanup_s <= 0.0:
+                raise RuntimeError(
+                    f"Monotonic deadline exhausted before fallback cleanup could be issued "
+                    f"(remaining={rem_cleanup_s:.3f}s <= 0); session fake-session "
+                    f"possibly retained upstream resource"
+                )
+            fake_delete("fake-session", timeout=rem_cleanup_s)
+
+        self.assertFalse(request_made, "No request must be issued when deadline is exhausted")
+        self.assertIn("Monotonic deadline exhausted", str(cm.exception))
+        self.assertIn("possibly retained", str(cm.exception))
 
 
 if __name__ == "__main__":

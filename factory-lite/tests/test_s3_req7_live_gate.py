@@ -355,6 +355,7 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
             )
 
             # Await the complete release predicate via page.wait_for_function
+            # Wait callback must return the exact boolean conjunction of all five release conditions
             page.wait_for_function('''() => {
                 const avatar = document.querySelector('[data-testid="napster-avatar"]');
                 const v = avatar ? avatar.querySelector("video") : null;
@@ -368,13 +369,19 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
                 const avatarReady = window.__napsterAvatarReady;
                 const sdkStatus = window.__napsterSdkStatus;
 
-                return {
-                    noLiveVideoTracks: !vLive,
-                    noLiveAudioTracks: !aLive,
-                    elementsCleared: (!v || v.srcObject === null) && (!a || a.srcObject === null),
-                    avatarReadyFalse: avatarReady === false,
-                    sdkStatusUnavailable: sdkStatus === "unavailable",
-                };
+                const noLiveVideoTracks = !vLive;
+                const noLiveAudioTracks = !aLive;
+                const elementsCleared = (!v || v.srcObject === null) && (!a || a.srcObject === null);
+                const avatarReadyFalse = avatarReady === false;
+                const sdkStatusUnavailable = sdkStatus === "unavailable";
+
+                return (
+                    noLiveVideoTracks &&
+                    noLiveAudioTracks &&
+                    elementsCleared &&
+                    avatarReadyFalse &&
+                    sdkStatusUnavailable
+                );
             }''', timeout=get_remaining_timeout_ms(reserve_s=0.0))
 
             release_eval = page.evaluate('''() => {
@@ -410,7 +417,13 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
             # If no DELETE request was observed at all:
             if not cleanup_attempted["sent"]:
                 if session_id_holder["session_id"]:
-                    rem_cleanup_s = max(0.1, deadline - time.monotonic())
+                    rem_cleanup_s = deadline - time.monotonic()
+                    if rem_cleanup_s <= 0.0:
+                        raise RuntimeError(
+                            f"Monotonic deadline exhausted before fallback cleanup could be issued "
+                            f"(remaining={rem_cleanup_s:.3f}s <= 0); session {session_id_holder['session_id']} "
+                            f"possibly retained upstream resource"
+                        )
                     cleanup_attempted["sent"] = True
                     request_counts["delete_connection"] += 1
                     status, res = delete_napster_session(

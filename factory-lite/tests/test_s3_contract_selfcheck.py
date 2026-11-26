@@ -190,12 +190,31 @@ class TestStage3ContractSelfCheck(unittest.TestCase):
             2,
             "Must use page.wait_for_function for both readiness and release predicates",
         )
+        # Release wait callback must return exact boolean conjunction, NOT an object
+        release_wait_code = wait_for_func_calls[1].args[0].value
+        self.assertNotIn(
+            "return {",
+            release_wait_code,
+            "Release wait callback must not return an object literal; objects are truthy in JS and return immediately",
+        )
+        self.assertIn("noLiveVideoTracks &&", release_wait_code)
+        self.assertIn("noLiveAudioTracks &&", release_wait_code)
+        self.assertIn("elementsCleared &&", release_wait_code)
+        self.assertIn("avatarReadyFalse &&", release_wait_code)
+        self.assertIn("sdkStatusUnavailable", release_wait_code)
 
         # 9. Exactly-once cleanup guard & deterministic observation
         self.assertIn("expect_response", code_str)
         self.assertIn("cleanup_attempted", code_str)
         self.assertIn("delete_napster_session", code_str)
         self.assertIn("timeout=rem_cleanup_s", code_str)
+        self.assertNotIn(
+            "max(0.1,",
+            code_str,
+            "Fallback cleanup must not start HTTP request with synthetic timeout when deadline exhausted",
+        )
+        self.assertIn("rem_cleanup_s <= 0", code_str)
+        self.assertIn("Monotonic deadline exhausted before fallback cleanup", code_str)
         self.assertIn("possible retained", code_str.lower())
         # Indeterminate cleanup guard when connection observed without session ID
         self.assertIn("request_counts['post_connection'] > 0", normalized_code)
