@@ -99,14 +99,49 @@ class TestStage3ContractSelfCheck(unittest.TestCase):
         live_file = TESTS_DIR / "test_s3_req7_live_gate.py"
         self.assertTrue(live_file.is_file(), "Missing stable live module test_s3_req7_live_gate.py")
 
-        tree = ast.parse(live_file.read_text(encoding="utf-8"), filename=str(live_file))
         code_str = live_file.read_text(encoding="utf-8")
+        tree = ast.parse(code_str, filename=str(live_file))
 
-        # Must check SAH_NAPSTER_LIVE, NAPSTER_API_KEY, and NAPSTER_AGENT_ID
+        # 1. Gate prerequisite checks
         self.assertIn("SAH_NAPSTER_LIVE", code_str)
         self.assertIn("NAPSTER_API_KEY", code_str)
         self.assertIn("NAPSTER_AGENT_ID", code_str)
         self.assertIn("SkipTest", code_str)
+
+        # 2. Under open gate must require SAH_STAGE3_EVIDENCE_PATH
+        self.assertIn("SAH_STAGE3_EVIDENCE_PATH", code_str)
+
+        # 3. Statically reject direct preallocation / double-session logic in live gate
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                func_name = None
+                if isinstance(node.func, ast.Name):
+                    func_name = node.func.id
+                elif isinstance(node.func, ast.Attribute):
+                    func_name = node.func.attr
+                if func_name == "post_napster_session":
+                    self.fail(
+                        f"Direct preallocation call '{func_name}' forbidden in live gate; "
+                        "must use single browser-owned flow"
+                    )
+            elif isinstance(node, (ast.Import, ast.ImportFrom)):
+                for alias in node.names:
+                    if alias.name == "post_napster_session":
+                        self.fail(
+                            "Importing 'post_napster_session' is forbidden in live gate; "
+                            "must rely strictly on single browser-owned session creation"
+                        )
+
+        # 4. Must require explicit disconnect/cleanup and release proof
+        self.assertIn("napster-disconnect", code_str)
+        self.assertIn("session_destroyed", code_str)
+        self.assertIn("delete_napster_session", code_str)
+
+        # 5. Must require evidence validation, certification, and atomic writing
+        self.assertIn("validate_stage3_evidence", code_str)
+        self.assertIn("is_stage3_certified", code_str)
+        self.assertIn("replace", code_str)  # Atomic rename via Path.replace
+        self.assertIn("hashlib.sha256", code_str)  # SHA-256 correlation hash
 
 
 if __name__ == "__main__":

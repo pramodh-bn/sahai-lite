@@ -130,3 +130,14 @@ Every Stage 3 evidence record must adhere to the following schema:
 - **Global**: `window.napsterCompanionApiSDK`
 - **Execution Budget**: Reliable end-to-end demo path bounded to `<= 180 seconds` (3 minutes).
 - **No Deploy / Submit**: External deployment scripts, cloud triggers, and submission actions are forbidden.
+
+---
+
+## 10. Post-Implementation Contract Repair: Single-Flow Live Gate & Atomic Evidence (LITE-S3-LIVE-CONTRACT-REPAIR-01)
+
+Following implementation verification, a pre-credential inspection identified a false-cleanup and missing-evidence defect in the initial live gate contract:
+1. **Single Browser-Owned Flow**: The live test previously called `post_napster_session()` directly in Python, then loaded the page and clicked connect (which created a second rehearsal/vendor session), but only cleaned up the first. Under repair `LITE-S3-LIVE-CONTRACT-REPAIR-01`, direct preallocation is strictly prohibited and statically rejected by the contract self-check. The live gate executes exactly one browser-owned session creation and connection flow.
+2. **In-Memory Observation & Redaction**: The single rehearsal session creation and single `/napster-session` POST are observed in-memory via browser response interception. Raw tokens and credentials are never stored, logged, or printed. The upstream connection ID is hashed immediately with SHA-256 (`probe_correlation_hash`) and the vendor route is recorded in redacted format (`/public/agents/[REDACTED]/connections`).
+3. **Explicit Disconnect & Media Release Proof**: The live gate clicks `[data-testid="napster-disconnect"]`, asserts the server response confirms `session_destroyed=true`, and proves all video/audio tracks have ended and avatar container elements are cleared. On any failure path, best-effort cleanup is performed using the captured rehearsal session ID; failure to clean up fails certification prominently.
+4. **Bounded 30-Second Budget**: The live test asserts that total active time including teardown does not exceed 30 seconds, with exactly 1 connection created and 1 connection deleted (no test-level retries).
+5. **Atomic Evidence Delivery**: The test constructs the live evidence payload, confirms validity with `validate_stage3_evidence`, verifies `is_stage3_certified(..., mode="live")`, and writes the JSON atomically to `SAH_STAGE3_EVIDENCE_PATH`. Under an open live gate, a missing or unwritable evidence path is a hard non-certifying failure (never a skip). In gate-absent mode, the test skips explicitly with zero calls and creates no files.
