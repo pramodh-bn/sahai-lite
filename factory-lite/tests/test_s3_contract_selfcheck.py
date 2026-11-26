@@ -48,6 +48,14 @@ class TestStage3ContractSelfCheck(unittest.TestCase):
             "post_napster_session must explicitly accept simulate_error parameter",
         )
 
+        # Explicit check: delete_napster_session must accept timeout
+        sig_del = inspect.signature(s3_helpers.delete_napster_session)
+        self.assertIn(
+            "timeout",
+            sig_del.parameters,
+            "delete_napster_session must explicitly accept timeout parameter",
+        )
+
         # AST scan of all test_s3_*.py files to ensure no call passes an unaccepted keyword
         for path in TESTS_DIR.glob("test_s3_*.py"):
             if path.name == "test_s3_contract_selfcheck.py":
@@ -154,22 +162,46 @@ class TestStage3ContractSelfCheck(unittest.TestCase):
                         found_post_status_200 = True
         self.assertTrue(found_post_status_200, "Must assert post_status == 200")
 
-        # 6. Exactly-once cleanup guard & deterministic observation
+        # 6. Request observer accounting for outgoing requests
+        self.assertIn('page.on("request"', code_str)
+        self.assertIn("cleanup_attempted['sent'] = True", normalized_code)
+
+        # 7. Deadline-bound click actions
+        self.assertIn("connect_btn.click(timeout=", code_str)
+        self.assertIn("disconnect_btn.click(timeout=", code_str)
+
+        # 8. Deadline-bound wait_for_function for readiness and release predicates
+        wait_for_func_calls = [
+            node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+            and getattr(node.func, "attr", None) == "wait_for_function"
+        ]
+        self.assertGreaterEqual(
+            len(wait_for_func_calls),
+            2,
+            "Must use page.wait_for_function for both readiness and release predicates",
+        )
+
+        # 9. Exactly-once cleanup guard & deterministic observation
         self.assertIn("expect_response", code_str)
         self.assertIn("cleanup_attempted", code_str)
         self.assertIn("delete_napster_session", code_str)
+        self.assertIn("timeout=rem_cleanup_s", code_str)
         self.assertIn("possible retained", code_str.lower())
+        # Indeterminate cleanup guard when connection observed without session ID
+        self.assertIn("request_counts['post_connection'] > 0", normalized_code)
 
-        # 7. Configured vendor host derivation & validation
+        # 10. Configured vendor host derivation & validation
         self.assertIn("NAPSTER_BASE_URL", code_str)
         self.assertIn("ALLOWED_VENDOR_HOSTS", code_str)
 
-        # 8. Non-sensitive operational telemetry in evidence
+        # 11. Non-sensitive operational telemetry in evidence
         self.assertIn("active_duration_seconds", code_str)
         self.assertIn("connection_create_requests", code_str)
         self.assertIn("cleanup_requests", code_str)
 
-        # 9. Evidence validation, certification, and atomic writing
+        # 12. Evidence validation, certification, and atomic writing
         self.assertIn("validate_stage3_evidence", code_str)
         self.assertIn("is_stage3_certified", code_str)
         self.assertIn("replace", code_str)  # Atomic rename via Path.replace

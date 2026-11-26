@@ -224,13 +224,13 @@ def post_napster_session(session_id, channel_type='webrtc', base_app_url=None, s
         return exc.code, data
 
 
-def delete_napster_session(session_id, base_app_url=None):
+def delete_napster_session(session_id, base_app_url=None, timeout=10):
     """Call the app's server-side Napster session teardown endpoint."""
     base = base_app_url or app_base_url()
     url = f'{base}/api/rehearsal/sessions/{session_id}/napster-session'
     req = urllib.request.Request(url, method='DELETE')
     try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
             data = json.loads(resp.read().decode('utf-8'))
             return resp.status, data
     except urllib.error.HTTPError as exc:

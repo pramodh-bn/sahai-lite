@@ -6,15 +6,18 @@ Mandate:
 - Gate open:
     * Single browser-owned flow without direct test preallocation.
     * Fresh evidence target required (SAH_STAGE3_EVIDENCE_PATH must not exist before test; temp file cleaned on write failure).
-    * Bounded duration: 30.0s monotonic deadline established at start; all waits and readiness checks use remaining milliseconds.
+    * Bounded duration: 30.0s monotonic deadline established at start; all waits, clicks, and checks use remaining milliseconds.
     * Reserved cleanup time (5.0s); halts waiting and triggers bounded cleanup immediately on deadline exhaustion.
-    * In-memory observation of single session creation and /napster-session POST (no printing/storing of raw tokens/IDs).
+    * Request observer counts outgoing connection POST and DELETE; cleanup_attempted['sent'] set only when outgoing DELETE request is observed.
+    * Explicit remaining-deadline timeout passed to connect_btn.click() and disconnect_btn.click().
     * Exact observed POST status 200 required without fallback substitution.
     * Actual configured vendor host derived from NAPSTER_BASE_URL (or official default) and validated against allowed host set.
     * Connection ID hashed immediately with SHA-256 for lowercase correlation hash; vendor path redacted as /public/agents/[REDACTED]/connections.
-    * Proves real SDK readyVideo and onAvatarReady(true), mounted live <video> and <audio> with audio-element-owned live track.
-    * Deterministic disconnect observation with expect_response; exactly-once cleanup tracking prevents duplicate DELETE requests.
-    * Fallback cleanup in finally issues DELETE only if no cleanup request was attempted.
+    * Deadline-bound page.wait_for_function awaits complete readiness predicate before evaluation (readyVideo, onAvatarReady(true), mounted live video, audio-owned live track).
+    * Deterministic disconnect observation with expect_response.
+    * Deadline-bound page.wait_for_function awaits complete release predicate before evaluation (no live tracks, cleared media, avatarReady false, sdkStatus unavailable).
+    * Fallback cleanup in finally runs only when no DELETE request was observed, passing remaining cleanup timeout to delete_napster_session().
+    * Indeterminate cleanup guard: if connection request was observed without a session ID for fallback, fails prominently.
     * Non-success or indeterminate cleanup fails certification prominently, reporting possible retained upstream resources (zero test retries).
     * Validates evidence with validate_stage3_evidence and is_stage3_certified(mode='live').
     * Evidence records non-sensitive telemetry: active_duration_seconds, connection_create_requests=1, cleanup_requests=1.
@@ -157,6 +160,17 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
 
         page = self.browser.new_page()
 
+        def on_request(request):
+            url = request.url
+            method = request.method
+            if "/napster-session" in url and method == "POST":
+                request_counts["post_connection"] += 1
+            elif "/napster-session" in url and method == "DELETE":
+                request_counts["delete_connection"] += 1
+                cleanup_attempted["sent"] = True
+
+        page.on("request", on_request)
+
         def on_response(response):
             url = response.url
             method = response.request.method
@@ -175,7 +189,6 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
                     except Exception:
                         pass
             elif "/napster-session" in url and method == "POST":
-                request_counts["post_connection"] += 1
                 conn_hash_holder["post_status"] = response.status
                 try:
                     data = response.json()
@@ -187,6 +200,18 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
                             ).hexdigest().lower()
                 except Exception:
                     pass
+            elif "/napster-session" in url and method == "DELETE":
+                cleanup_holder["status_code"] = response.status
+                try:
+                    del_data = response.json()
+                    if isinstance(del_data, dict):
+                        cleanup_holder["destroyed"] = (
+                            del_data.get("status") == "destroyed"
+                            and del_data.get("session_destroyed") is True
+                        )
+                        cleanup_holder["error"] = del_data.get("error")
+                except Exception as parse_err:
+                    cleanup_holder["error"] = str(parse_err)
 
         page.on("response", on_response)
 
@@ -195,7 +220,7 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
 
             connect_btn = page.locator('[data-testid="napster-connect"]')
             connect_btn.wait_for(state="visible", timeout=get_remaining_timeout_ms(reserve_s=CLEANUP_RESERVE_S))
-            connect_btn.click()
+            connect_btn.click(timeout=get_remaining_timeout_ms(reserve_s=CLEANUP_RESERVE_S))
 
             avatar = page.locator('[data-testid="napster-avatar"]')
             avatar.wait_for(state="visible", timeout=get_remaining_timeout_ms(reserve_s=CLEANUP_RESERVE_S))
@@ -207,6 +232,39 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
 
             status_el = page.locator('[data-testid="napster-status"]')
             status_el.wait_for(state="visible", timeout=get_remaining_timeout_ms(reserve_s=CLEANUP_RESERVE_S))
+
+            # Await the complete exact readiness predicate via page.wait_for_function
+            page.wait_for_function('''() => {
+                const avatar = document.querySelector('[data-testid="napster-avatar"]');
+                const v = avatar ? avatar.querySelector("video") : null;
+                const a = avatar ? avatar.querySelector("audio") : null;
+                const vStream = v ? v.srcObject : null;
+                const aStream = a ? a.srcObject : null;
+
+                const vTracks = vStream ? vStream.getVideoTracks() : [];
+                const aTracks = aStream ? aStream.getAudioTracks() : [];
+
+                const hasLiveVideo = vTracks.length > 0 && vTracks.some(t => t.readyState === "live");
+                const hasLiveAudioOnAudioElement = aTracks.length > 0 && aTracks.some(t => t.readyState === "live");
+
+                const statusEl = document.querySelector('[data-testid="napster-status"]');
+                const exactSdkStatus = window.__napsterSdkStatus !== undefined
+                    ? window.__napsterSdkStatus
+                    : (statusEl ? statusEl.getAttribute("data-sdk-status") : null);
+
+                const exactAvatarReadyArg = window.__napsterAvatarReady !== undefined
+                    ? window.__napsterAvatarReady
+                    : (statusEl && statusEl.getAttribute("data-avatar-ready") === "true");
+
+                return (
+                    !!v &&
+                    !!a &&
+                    hasLiveVideo &&
+                    hasLiveAudioOnAudioElement &&
+                    exactSdkStatus === "readyVideo" &&
+                    exactAvatarReadyArg === true
+                );
+            }''', timeout=get_remaining_timeout_ms(reserve_s=CLEANUP_RESERVE_S))
 
             media_eval = page.evaluate('''() => {
                 const avatar = document.querySelector('[data-testid="napster-avatar"]');
@@ -267,9 +325,7 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
                 lambda r: "/napster-session" in r.url and r.request.method == "DELETE",
                 timeout=cleanup_timeout_ms,
             ) as delete_info:
-                cleanup_attempted["sent"] = True
-                request_counts["delete_connection"] += 1
-                disconnect_btn.click()
+                disconnect_btn.click(timeout=cleanup_timeout_ms)
 
             delete_resp = delete_info.value
             cleanup_holder["status_code"] = delete_resp.status
@@ -293,6 +349,30 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
                 cleanup_holder["destroyed"],
                 f"DELETE response was not session_destroyed: {cleanup_holder}",
             )
+
+            # Await the complete release predicate via page.wait_for_function
+            page.wait_for_function('''() => {
+                const avatar = document.querySelector('[data-testid="napster-avatar"]');
+                const v = avatar ? avatar.querySelector("video") : null;
+                const a = avatar ? avatar.querySelector("audio") : null;
+                const vStream = v ? v.srcObject : null;
+                const aStream = a ? a.srcObject : null;
+
+                const vLive = vStream && vStream.getVideoTracks ? vStream.getVideoTracks().some(t => t.readyState === "live") : false;
+                const aLive = aStream && aStream.getAudioTracks ? aStream.getAudioTracks().some(t => t.readyState === "live") : false;
+
+                const avatarReady = window.__napsterAvatarReady;
+                const sdkStatus = window.__napsterSdkStatus;
+
+                return (
+                    !vLive &&
+                    !aLive &&
+                    (!v || v.srcObject === null) &&
+                    (!a || a.srcObject === null) &&
+                    avatarReady === false &&
+                    sdkStatus === "unavailable"
+                );
+            }''', timeout=get_remaining_timeout_ms(reserve_s=0.0))
 
             release_eval = page.evaluate('''() => {
                 const avatar = document.querySelector('[data-testid="napster-avatar"]');
@@ -323,18 +403,29 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
 
         finally:
             page.close()
-            # Exactly-once cleanup guard: issue fallback DELETE only if no cleanup request was attempted
-            if not cleanup_attempted["sent"] and session_id_holder["session_id"]:
-                cleanup_attempted["sent"] = True
-                request_counts["delete_connection"] += 1
-                status, res = delete_napster_session(session_id_holder["session_id"])
-                if status == 200 and res.get("session_destroyed") is True:
-                    cleanup_holder["destroyed"] = True
-                    cleanup_holder["status_code"] = status
-                else:
-                    cleanup_holder["destroyed"] = False
-                    cleanup_holder["status_code"] = status
-                    cleanup_holder["error"] = res
+            # Exactly-once cleanup guard:
+            # If no DELETE request was observed at all:
+            if not cleanup_attempted["sent"]:
+                if session_id_holder["session_id"]:
+                    rem_cleanup_s = max(0.1, deadline - time.monotonic())
+                    cleanup_attempted["sent"] = True
+                    request_counts["delete_connection"] += 1
+                    status, res = delete_napster_session(
+                        session_id_holder["session_id"], timeout=rem_cleanup_s
+                    )
+                    if status == 200 and res.get("session_destroyed") is True:
+                        cleanup_holder["destroyed"] = True
+                        cleanup_holder["status_code"] = status
+                    else:
+                        cleanup_holder["destroyed"] = False
+                        cleanup_holder["status_code"] = status
+                        cleanup_holder["error"] = res
+                elif request_counts["post_connection"] > 0:
+                    # Connection request was observed but no session ID is available for fallback
+                    raise RuntimeError(
+                        "Connection request was observed but no session ID is available for fallback cleanup; "
+                        "indeterminate state with possible retained resource"
+                    )
 
             # If cleanup was attempted but failed or became indeterminate, fail prominently
             if not cleanup_holder["destroyed"]:
