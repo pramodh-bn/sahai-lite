@@ -33,6 +33,16 @@ TESTS_DIR = Path(__file__).resolve().parent
 if str(TESTS_DIR) not in sys.path:
     sys.path.insert(0, str(TESTS_DIR))
 
+
+import hashlib
+import json
+from test_s3_req7_live_gate import (
+    observe_live_response,
+    build_stage3_live_evidence,
+    write_atomic_stage3_evidence,
+    build_validate_and_write_stage3_evidence,
+)
+
 from s3_helpers import validate_stage3_evidence, is_stage3_certified
 
 
@@ -457,6 +467,188 @@ class TestEvidenceSchemaAndCertification(unittest.TestCase):
         self.assertIn("Cleanup returned non-success", str(cm_b.exception))
         self.assertIn("Original probe failure", str(cm_b.exception))
         self.assertEqual(cm_b.exception.__cause__, probe_exc_b)
+
+
+
+    # --- Pure Observer & Evidence Dry-Run Tests (LITE-S3-LIVE-EVIDENCE-03) ---
+
+    def test_observer_captures_generic_session_post(self):
+        """Pure observer must extract session_id from generic rehearsal session POST."""
+        sess_holder = {"session_id": None}
+        conn_holder = {"hash": None, "post_status": None}
+        observe_live_response(
+            url="http://localhost:8000/api/rehearsal/sessions",
+            method="POST",
+            status=201,
+            data={"session_id": "sess-generic-123", "flow_state": "created"},
+            session_id_holder=sess_holder,
+            conn_hash_holder=conn_holder,
+        )
+        self.assertEqual(sess_holder["session_id"], "sess-generic-123")
+        self.assertIsNone(conn_holder["hash"])
+        self.assertIsNone(conn_holder["post_status"])
+
+    def test_observer_captures_napster_post_200_status_and_hash(self):
+        """Pure observer must capture status 200 and immediately compute SHA-256 hash."""
+        sess_holder = {"session_id": "sess-generic-123"}
+        conn_holder = {"hash": None, "post_status": None}
+        raw_id = "conn_live_abc_987654321"
+        expected_hash = hashlib.sha256(raw_id.encode("utf-8")).hexdigest().lower()
+
+        observe_live_response(
+            url="http://localhost:8000/api/rehearsal/sessions/sess-generic-123/napster-session",
+            method="POST",
+            status=200,
+            data={"connection_id": raw_id, "token": "ephemeral-token-xyz"},
+            session_id_holder=sess_holder,
+            conn_hash_holder=conn_holder,
+        )
+        self.assertEqual(conn_holder["post_status"], 200)
+        self.assertEqual(conn_holder["hash"], expected_hash)
+        self.assertEqual(len(conn_holder["hash"]), 64)
+
+    def test_observer_napster_classification_wins_despite_sharing_rehearsal_sessions_prefix(self):
+        """Regression for Cycle 5 failure: specific /napster-session POST must not be swallowed by /api/rehearsal/sessions."""
+        sess_holder = {"session_id": "original-session-5e7b6269"}
+        conn_holder = {"hash": None, "post_status": None}
+        raw_id = "conn_cycle5_win_111"
+        expected_hash = hashlib.sha256(raw_id.encode("utf-8")).hexdigest().lower()
+
+        # Notice this URL matches both '/api/rehearsal/sessions' and '/napster-session'
+        shared_prefix_url = "http://localhost:8000/api/rehearsal/sessions/5e7b6269a3524cc989e671e1f9618e11/napster-session"
+        observe_live_response(
+            url=shared_prefix_url,
+            method="POST",
+            status=200,
+            data={"connection_id": raw_id, "token": "tok_123"},
+            session_id_holder=sess_holder,
+            conn_hash_holder=conn_holder,
+        )
+        # Napster classification wins:
+        self.assertEqual(conn_holder["post_status"], 200)
+        self.assertEqual(conn_holder["hash"], expected_hash)
+        # Generic session_id is NOT overwritten or altered by napster-session response:
+        self.assertEqual(sess_holder["session_id"], "original-session-5e7b6269")
+
+    def test_observer_raw_token_and_connection_id_absent_from_holders(self):
+        """Raw connection ID and token must never be retained in memory holders."""
+        sess_holder = {"session_id": None}
+        conn_holder = {"hash": None, "post_status": None}
+        raw_conn_id = "sensitive_raw_conn_id_0001"
+        raw_token = "secret_raw_napster_token_9999"
+
+        observe_live_response(
+            url="http://localhost:8000/api/rehearsal/sessions/sess-1/napster-session",
+            method="POST",
+            status=200,
+            data={"connection_id": raw_conn_id, "token": raw_token},
+            session_id_holder=sess_holder,
+            conn_hash_holder=conn_holder,
+        )
+        # Neither raw_conn_id nor raw_token should be anywhere in holders
+        holders_dump = str(sess_holder) + str(conn_holder)
+        self.assertNotIn(raw_conn_id, holders_dump)
+        self.assertNotIn(raw_token, holders_dump)
+        self.assertNotIn("token", conn_holder)
+        self.assertNotIn("connection_id", conn_holder)
+        self.assertTrue(conn_holder["hash"])
+
+    def test_observer_malformed_or_missing_id_fails_certification(self):
+        """Malformed or missing connection ID in 200 response yields None hash and fails certification."""
+        for bad_data in [
+            {},
+            {"connection_id": None},
+            {"connection_id": ""},
+            {"connection_id": "   "},
+            {"other_key": "val"},
+            "not_a_dict",
+            None,
+        ]:
+            sess_holder = {"session_id": None}
+            conn_holder = {"hash": None, "post_status": None}
+            observe_live_response(
+                url="http://localhost:8000/api/rehearsal/sessions/sess-1/napster-session",
+                method="POST",
+                status=200,
+                data=bad_data,
+                session_id_holder=sess_holder,
+                conn_hash_holder=conn_holder,
+            )
+            self.assertEqual(conn_holder["post_status"], 200)
+            self.assertIsNone(conn_holder["hash"], f"Expected None hash for {bad_data}")
+
+            # Evidence built with None hash must fail validation and certification
+            bad_evidence = build_stage3_live_evidence(
+                start_time_utc="2026-11-26T12:00:00Z",
+                end_time_utc="2026-11-26T12:00:20Z",
+                elapsed_seconds=20.0,
+                post_connection_count=1,
+                delete_connection_count=1,
+                probe_correlation_hash=conn_holder["hash"],
+                post_status=conn_holder["post_status"],
+                configured_host="companion-api.napster.com",
+            )
+            val_errors = validate_stage3_evidence(bad_evidence, mode="live")
+            self.assertTrue(len(val_errors) > 0, f"Expected validation errors for {bad_data}")
+            certified, reason = is_stage3_certified(bad_evidence, mode="live")
+            self.assertFalse(certified, f"Expected non-certifying for {bad_data}")
+
+    def test_credential_free_stage3_evidence_builder_and_writer_dry_run(self):
+        """Credential-free end-to-end dry-run of the actual evidence builder and atomic writer path.
+
+        NOTE: Contract-path validation only; strictly non-certifying and does not constitute live evidence.
+        """
+        import tempfile
+        synthetic_conn_id = "dryrun_synthetic_connection_id_12345"
+        expected_hash = hashlib.sha256(synthetic_conn_id.encode("utf-8")).hexdigest().lower()
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            target_evidence_path = Path(tmpdir) / "sah_stage3_contract_dryrun.json"
+            start_utc = "2026-11-26T12:00:00Z"
+            end_utc = "2026-11-26T12:00:20Z"
+            elapsed = 20.390
+
+            evidence = build_validate_and_write_stage3_evidence(
+                start_time_utc=start_utc,
+                end_time_utc=end_utc,
+                elapsed_seconds=elapsed,
+                post_connection_count=1,
+                delete_connection_count=1,
+                probe_correlation_hash=expected_hash,
+                post_status=200,
+                configured_host="companion-api.napster.com",
+                target_path=target_evidence_path,
+                mode="live",
+            )
+
+            # File must exist on disk after atomic write
+            self.assertTrue(target_evidence_path.is_file(), "Dry-run evidence file was not created")
+
+            # Reload and verify contents from disk
+            reloaded = json.loads(target_evidence_path.read_text(encoding="utf-8"))
+            self.assertEqual(reloaded["start_time_utc"], start_utc)
+            self.assertEqual(reloaded["end_time_utc"], end_utc)
+            self.assertEqual(reloaded["active_duration_seconds"], elapsed)
+            self.assertEqual(reloaded["connection_create_requests"], 1)
+            self.assertEqual(reloaded["cleanup_requests"], 1)
+            self.assertEqual(reloaded["probe_correlation_hash"], expected_hash)
+            self.assertEqual(reloaded["http_probe"]["status_code"], 200)
+            self.assertEqual(reloaded["http_probe"]["host"], "companion-api.napster.com")
+            self.assertEqual(reloaded["http_probe"]["scheme"], "https")
+            self.assertEqual(reloaded["http_probe"]["path"], "/public/agents/[REDACTED]/connections")
+            self.assertTrue(reloaded["redacted"])
+            self.assertTrue(reloaded["ready_proof"]["avatar_ready"])
+            self.assertEqual(reloaded["ready_proof"]["status"], "readyVideo")
+            self.assertTrue(reloaded["media_proof"]["video_track_live"])
+            self.assertTrue(reloaded["media_proof"]["audio_track_live"])
+            self.assertTrue(reloaded["cleanup_proof"]["session_destroyed"])
+            self.assertTrue(reloaded["cleanup_proof"]["resources_released"])
+
+            # Verify reload passes live validation and certification
+            reloaded_errors = validate_stage3_evidence(reloaded, mode="live")
+            self.assertEqual(reloaded_errors, [])
+            reloaded_cert, reason = is_stage3_certified(reloaded, mode="live")
+            self.assertTrue(reloaded_cert, f"Reloaded dry-run evidence failed: {reason}")
 
 
 if __name__ == "__main__":

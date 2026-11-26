@@ -68,6 +68,161 @@ def derive_and_validate_live_vendor_host():
     return host
 
 
+
+def observe_live_response(
+    url: str,
+    method: str,
+    status: int,
+    data: object,
+    session_id_holder: dict,
+    conn_hash_holder: dict,
+    cleanup_holder: dict | None = None,
+) -> None:
+    """
+    Pure response-observation function used directly by the Playwright on_response callback.
+    Classifies the specific /napster-session POST before generic rehearsal-session POST.
+    Never retains or persists raw tokens or raw connection IDs.
+    """
+    method_upper = (method or "").upper()
+    url_str = url or ""
+
+    # 1. SPECIFIC FIRST: /napster-session POST (connection creation)
+    if method_upper == "POST" and "/napster-session" in url_str:
+        conn_hash_holder["post_status"] = status
+        if status == 200 and isinstance(data, dict):
+            conn_id = data.get("connection_id")
+            if isinstance(conn_id, str) and conn_id.strip():
+                # Immediately hash connection_id with SHA-256; never retain raw connection_id
+                conn_hash_holder["hash"] = hashlib.sha256(conn_id.encode("utf-8")).hexdigest().lower()
+            else:
+                conn_hash_holder["hash"] = None
+        else:
+            conn_hash_holder["hash"] = None
+        return
+
+    # 2. SPECIFIC: /napster-session DELETE (teardown/cleanup)
+    if method_upper == "DELETE" and "/napster-session" in url_str:
+        if cleanup_holder is not None:
+            cleanup_holder["status_code"] = status
+            if isinstance(data, dict):
+                cleanup_holder["destroyed"] = (
+                    data.get("status") == "destroyed"
+                    and data.get("session_destroyed") is True
+                )
+                cleanup_holder["error"] = data.get("error")
+                if data.get("status") == "no_active_connection":
+                    cleanup_holder["no_active_connection"] = True
+            else:
+                cleanup_holder["error"] = "non-dict or malformed delete response"
+        return
+
+    # 3. GENERIC: rehearsal session creation POST (mutually exclusive with /napster-session, /advance, etc.)
+    if method_upper == "POST" and "/api/rehearsal/sessions" in url_str:
+        if not (
+            "/napster-session" in url_str
+            or "/advance" in url_str
+            or "/practice" in url_str
+            or "/feedback" in url_str
+            or "/retry" in url_str
+        ):
+            if isinstance(data, dict) and "session_id" in data:
+                session_id_holder["session_id"] = data["session_id"]
+        return
+
+
+def build_stage3_live_evidence(
+    *,
+    start_time_utc: str,
+    end_time_utc: str,
+    elapsed_seconds: float,
+    post_connection_count: int,
+    delete_connection_count: int,
+    probe_correlation_hash: str | None,
+    post_status: int | None,
+    configured_host: str,
+) -> dict:
+    return {
+        "start_time_utc": start_time_utc,
+        "end_time_utc": end_time_utc,
+        "active_duration_seconds": round(elapsed_seconds, 3),
+        "connection_create_requests": post_connection_count,
+        "cleanup_requests": delete_connection_count,
+        "probe_correlation_hash": probe_correlation_hash,
+        "http_probe": {
+            "host": configured_host,
+            "scheme": "https",
+            "path": "/public/agents/[REDACTED]/connections",
+            "method": "POST",
+            "status_code": post_status,
+        },
+        "ready_proof": {
+            "event": "onAvatarReady",
+            "avatar_ready": True,
+            "status": "readyVideo",
+        },
+        "media_proof": {
+            "video_mounted": True,
+            "audio_mounted": True,
+            "video_track_live": True,
+            "audio_track_live": True,
+        },
+        "cleanup_proof": {
+            "session_destroyed": True,
+            "resources_released": True,
+        },
+        "redacted": True,
+    }
+
+
+def write_atomic_stage3_evidence(evidence: dict, target_path: Path) -> Path:
+    target_path = Path(target_path)
+    temp_evidence = target_path.with_suffix(f".tmp.{os.getpid()}")
+    try:
+        temp_evidence.write_text(json.dumps(evidence, indent=2), encoding="utf-8")
+        temp_evidence.replace(target_path)
+    except Exception:
+        if temp_evidence.exists():
+            try:
+                temp_evidence.unlink()
+            except Exception:
+                pass
+        raise
+    return target_path
+
+
+def build_validate_and_write_stage3_evidence(
+    *,
+    start_time_utc: str,
+    end_time_utc: str,
+    elapsed_seconds: float,
+    post_connection_count: int,
+    delete_connection_count: int,
+    probe_correlation_hash: str | None,
+    post_status: int | None,
+    configured_host: str,
+    target_path: Path,
+    mode: str = "live",
+) -> dict:
+    evidence = build_stage3_live_evidence(
+        start_time_utc=start_time_utc,
+        end_time_utc=end_time_utc,
+        elapsed_seconds=elapsed_seconds,
+        post_connection_count=post_connection_count,
+        delete_connection_count=delete_connection_count,
+        probe_correlation_hash=probe_correlation_hash,
+        post_status=post_status,
+        configured_host=configured_host,
+    )
+    val_errors = validate_stage3_evidence(evidence, mode=mode)
+    if val_errors:
+        raise ValueError(f"Stage 3 evidence validation failed ({mode=}): {val_errors}")
+    certified, reason = is_stage3_certified(evidence, mode=mode)
+    if not certified:
+        raise ValueError(f"Stage 3 evidence certification failed ({mode=}): {reason}")
+    write_atomic_stage3_evidence(evidence, target_path)
+    return evidence
+
+
 class TestNapsterLiveOnlyGate(unittest.TestCase):
     app = None
     playwright = None
@@ -185,45 +340,20 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
         def on_response(response):
             url = response.url
             method = response.request.method
-            if "/api/rehearsal/sessions" in url and method == "POST":
-                if not (
-                    url.endswith("/napster-session")
-                    or "/advance" in url
-                    or "/practice" in url
-                    or "/feedback" in url
-                    or "/retry" in url
-                ):
-                    try:
-                        data = response.json()
-                        if isinstance(data, dict) and "session_id" in data:
-                            session_id_holder["session_id"] = data["session_id"]
-                    except Exception:
-                        pass
-            elif "/napster-session" in url and method == "POST":
-                conn_hash_holder["post_status"] = response.status
-                try:
-                    data = response.json()
-                    if isinstance(data, dict):
-                        conn_id = data.get("connection_id")
-                        if conn_id:
-                            conn_hash_holder["hash"] = hashlib.sha256(
-                                conn_id.encode("utf-8")
-                            ).hexdigest().lower()
-                except Exception:
-                    pass
-            elif "/napster-session" in url and method == "DELETE":
-                cleanup_holder["status_code"] = response.status
-                try:
-                    del_data = response.json()
-                    if isinstance(del_data, dict):
-                        cleanup_holder["destroyed"] = (
-                            del_data.get("status") == "destroyed"
-                            and del_data.get("session_destroyed") is True
-                        )
-                        cleanup_holder["error"] = del_data.get("error")
-                except Exception as parse_err:
-                    cleanup_holder["error"] = str(parse_err)
-
+            status = response.status
+            try:
+                data = response.json()
+            except Exception:
+                data = None
+            observe_live_response(
+                url=url,
+                method=method,
+                status=status,
+                data=data,
+                session_id_holder=session_id_holder,
+                conn_hash_holder=conn_hash_holder,
+                cleanup_holder=cleanup_holder,
+            )
         page.on("response", on_response)
 
         probe_exc = None
@@ -536,55 +666,22 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
         )
 
         end_time_utc = datetime.now(timezone.utc).isoformat()
-        evidence = {
-            "start_time_utc": start_time_utc,
-            "end_time_utc": end_time_utc,
-            "active_duration_seconds": round(elapsed, 3),
-            "connection_create_requests": request_counts["post_connection"],
-            "cleanup_requests": request_counts["delete_connection"],
-            "probe_correlation_hash": conn_hash_holder["hash"],
-            "http_probe": {
-                "host": configured_host,
-                "scheme": "https",
-                "path": "/public/agents/[REDACTED]/connections",
-                "method": "POST",
-                "status_code": conn_hash_holder["post_status"],
-            },
-            "ready_proof": {
-                "event": "onAvatarReady",
-                "avatar_ready": True,
-                "status": "readyVideo",
-            },
-            "media_proof": {
-                "video_mounted": True,
-                "audio_mounted": True,
-                "video_track_live": True,
-                "audio_track_live": True,
-            },
-            "cleanup_proof": {
-                "session_destroyed": True,
-                "resources_released": True,
-            },
-            "redacted": True,
-        }
-
+        evidence = build_validate_and_write_stage3_evidence(
+            start_time_utc=start_time_utc,
+            end_time_utc=end_time_utc,
+            elapsed_seconds=elapsed,
+            post_connection_count=request_counts["post_connection"],
+            delete_connection_count=request_counts["delete_connection"],
+            probe_correlation_hash=conn_hash_holder["hash"],
+            post_status=conn_hash_holder["post_status"],
+            configured_host=configured_host,
+            target_path=self.evidence_path,
+            mode="live",
+        )
         val_errors = validate_stage3_evidence(evidence, mode="live")
         self.assertEqual(val_errors, [], f"Live evidence validation failed: {val_errors}")
         certified, reason = is_stage3_certified(evidence, mode="live")
         self.assertTrue(certified, f"Live evidence failed certification: {reason}")
-
-        # Atomic write of evidence JSON with cleanup of temp file on failure
-        temp_evidence = self.evidence_path.with_suffix(f".tmp.{os.getpid()}")
-        try:
-            temp_evidence.write_text(json.dumps(evidence, indent=2), encoding="utf-8")
-            temp_evidence.replace(self.evidence_path)
-        except Exception:
-            if temp_evidence.exists():
-                try:
-                    temp_evidence.unlink()
-                except Exception:
-                    pass
-            raise
 
 
 if __name__ == "__main__":

@@ -64,6 +64,17 @@ class TestStage3ContractSelfCheck(unittest.TestCase):
             "validate_stage3_evidence must explicitly accept mode parameter",
         )
 
+        # Explicit check: observe_live_response and build_validate_and_write_stage3_evidence signatures
+        import test_s3_req7_live_gate
+        sig_obs = inspect.signature(test_s3_req7_live_gate.observe_live_response)
+        for param in ("url", "method", "status", "data", "session_id_holder", "conn_hash_holder"):
+            self.assertIn(param, sig_obs.parameters)
+
+        sig_builder = inspect.signature(test_s3_req7_live_gate.build_validate_and_write_stage3_evidence)
+        for param in ("start_time_utc", "end_time_utc", "elapsed_seconds", "target_path", "mode"):
+            self.assertIn(param, sig_builder.parameters)
+
+
         # AST scan of all test_s3_*.py files to ensure no call passes an unaccepted keyword
         for path in TESTS_DIR.glob("test_s3_*.py"):
             if path.name == "test_s3_contract_selfcheck.py":
@@ -243,6 +254,56 @@ class TestStage3ContractSelfCheck(unittest.TestCase):
         self.assertIn("is_stage3_certified", code_str)
         self.assertIn("replace", code_str)  # Atomic rename via Path.replace
         self.assertIn("hashlib.sha256", code_str)  # SHA-256 correlation hash
+
+        # 13. Pure response observer, specific-before-generic classification & callback delegation
+        self.assertIn("def observe_live_response", code_str)
+        self.assertIn("observe_live_response(", code_str)
+
+        # Inspect AST of observe_live_response to verify specific-before-generic ordering
+        obs_func_node = None
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and node.name == "observe_live_response":
+                obs_func_node = node
+                break
+        self.assertIsNotNone(obs_func_node, "observe_live_response function definition not found in live gate")
+
+        # Extract top-level If statements inside observe_live_response
+        if_statements = [n for n in obs_func_node.body if isinstance(n, ast.If)]
+        self.assertGreaterEqual(
+            len(if_statements),
+            2,
+            "observe_live_response must have at least 2 top-level branch checks",
+        )
+        first_if_dump = ast.dump(if_statements[0].test)
+        self.assertIn(
+            "napster-session",
+            first_if_dump,
+            "Specific /napster-session branch must be evaluated first in observe_live_response",
+        )
+
+        # Statically verify no raw connection ID retention in holders
+        self.assertNotIn("conn_hash_holder['connection_id']", normalized_code)
+        self.assertNotIn("conn_hash_holder['hash'] = conn_id", normalized_code)
+
+        # Verify on_response callback delegates to observe_live_response
+        found_delegation = False
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and node.name == "on_response":
+                for child in ast.walk(node):
+                    if isinstance(child, ast.Call):
+                        fn_id = getattr(child.func, "id", None)
+                        if fn_id == "observe_live_response":
+                            found_delegation = True
+        self.assertTrue(
+            found_delegation,
+            "on_response callback must delegate directly to pure observe_live_response function",
+        )
+
+        # 14. Evidence builder & atomic writer dry-run path
+        self.assertIn("def build_stage3_live_evidence", code_str)
+        self.assertIn("def write_atomic_stage3_evidence", code_str)
+        self.assertIn("def build_validate_and_write_stage3_evidence", code_str)
+
 
 
 if __name__ == "__main__":
