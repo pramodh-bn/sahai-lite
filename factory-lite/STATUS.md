@@ -1,11 +1,11 @@
 # Status
 Stage: 3
-Cycle: 6 (owner-authorized narrow live-evidence verification cycle; two-repair budget)
-Task: LITE-S3-LIVE-EVIDENCE-03
-Owner: Verifier 2
+Cycle: 6 (complete)
+Task: LITE-S3-CERTIFY-01
+Owner: sah-lead
 Coordinator: sah-lead
-State: S3_CYCLE6_LIVE_EVIDENCE_CONTRACT_ASSIGNED
-Base SHA: 1b7536d15b70f2236ac9555d064ef42af1d9f259
-PR: https://github.com/pramodh-bn/sahai-lite/pull/45 (merged implementation)
-Evidence: Owner authorized Cycle 6 and challenged the repeated authorization loop. Cycle 5 already proved one real HTTPS connection POST 200, exact SDK readiness/media, one DELETE 200, and released resources in 20.390s; its only certifying failure was the unreachable response-capture branch that left the correlation hash null. Cycle 6 therefore does not reopen implementation or broad contract design. It is limited to making response observation and evidence assembly a directly executable, independently testable path before any credential is loaded. No new live call has occurred. Highest certified stage remains 2; Stage 3 remains uncertified.
-Next: Verifier 2 must extract or expose one pure response-observation function used by the actual Playwright callback, with executable tests proving a generic rehearsal POST captures the session ID, a Napster POST 200 captures status and a SHA-256 correlation hash without retaining the raw ID/token, and branch ordering cannot swallow the Napster response. A credential-free end-to-end dry run must feed synthetic observations through the actual evidence builder, live-mode validator, certification function, and atomic writer to a fresh temporary path, then verify the redacted artifact. Lead must independently repeat those exact gates before merge. Only then may one bounded live retry occur; no credential is loaded earlier. Preserve the proven host, readiness/media/release, deadline, and exactly-once cleanup contract. Stage 4 remains gated.
+State: STAGE_3_CERTIFIED
+Base SHA: 82e9406ff65d932a8bf19e8254fc6156536ccf2a
+PR: https://github.com/pramodh-bn/sahai-lite/pull/61 (merged live-evidence contract)
+Evidence: Lead independently reproduced the Cycle 6 pre-live gates at PR head 5752b491e84809802bd5db737fd154f14815ab74: 30 focused self-check, observer, host-policy, cleanup, and evidence-path tests passed; the gate-absent command made zero calls; and the cumulative suite ran 96 tests in 379.196s with one deliberate live skip. PR #61 then merged unchanged as 82e9406ff65d932a8bf19e8254fc6156536ccf2a. On that exact merged SHA, the single owner-authorized live probe used HTTPS companion-api.napster.com, made one connection POST 200, observed exact readyVideo and onAvatarReady(true), mounted live video and audio-owned live audio, made one cleanup DELETE 200, proved session destruction and resource release, and completed in 19.371s (16.594s active). The atomic artifact was redacted, contained only a SHA-256 correlation hash, passed validate_stage3_evidence(mode='live') with zero errors, and passed is_stage3_certified(mode='live'). No credential, token, or raw vendor identifier was logged or persisted. Lead reran the merged-SHA cumulative suite: 96 tests in 369.611s, OK with one deliberate live-gate skip. Tag lite-stage-3-passed points to 82e9406ff65d932a8bf19e8254fc6156536ccf2a.
+Next: Stage 3 is certified and the Stage 4 gate is open. Begin Stage 4 only through a new owner-directed assignment and preserve the certified Stage 3 SHA, tag, redacted evidence, and cleanup guarantees.
