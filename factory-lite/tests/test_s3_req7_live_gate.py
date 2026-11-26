@@ -112,7 +112,10 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
             status_el = page.locator('[data-testid="napster-status"]')
             status_el.wait_for(state="visible", timeout=30000)
 
-            # Evaluate browser media state: readyVideo, onAvatarReady(true), and live tracks for both video and audio
+            # Evaluate browser media state per Defect 1 (R2):
+            # 1. Exact SDK status recorded separately (must equal 'readyVideo', not inferred from generic text)
+            # 2. Exact onAvatarReady callback argument recorded separately (must strictly equal boolean True)
+            # 3. Mounted <audio> element itself must own a live audio track (no fallback to video element stream)
             media_eval = page.evaluate('''() => {
                 const avatar = document.querySelector(\'[data-testid="napster-avatar"]\');
                 const v = avatar ? avatar.querySelector("video") : null;
@@ -121,32 +124,49 @@ class TestNapsterLiveOnlyGate(unittest.TestCase):
                 const aStream = a ? a.srcObject : null;
 
                 const vTracks = vStream ? vStream.getVideoTracks() : [];
-                const aTracks = aStream ? aStream.getAudioTracks() : (vStream ? vStream.getAudioTracks() : []);
+                // Must be from the audio element itself, no fallback to video element stream
+                const aTracks = aStream ? aStream.getAudioTracks() : [];
 
-                const hasLiveVideo = vTracks.some(t => t.readyState === "live");
-                const hasLiveAudio = aTracks.some(t => t.readyState === "live");
+                const hasLiveVideo = vTracks.length > 0 && vTracks.some(t => t.readyState === "live");
+                const hasLiveAudioOnAudioElement = aTracks.length > 0 && aTracks.some(t => t.readyState === "live");
 
-                // Check SDK global or status element for readyVideo and onAvatarReady
-                const statusText = document.querySelector(\'[data-testid="napster-status"]\')?.textContent || "";
-                const isReadyVideo = statusText.toLowerCase().includes("ready") || statusText.toLowerCase().includes("connected");
-                const onAvatarReadyFired = !!(window.__napsterAvatarReady || isReadyVideo);
+                // Exact inspectable properties recorded separately per R2
+                const statusEl = document.querySelector(\'[data-testid="napster-status"]\');
+                const exactSdkStatus = window.__napsterSdkStatus !== undefined
+                    ? window.__napsterSdkStatus
+                    : (statusEl ? statusEl.getAttribute("data-sdk-status") : null);
+
+                const exactAvatarReadyArg = window.__napsterAvatarReady !== undefined
+                    ? window.__napsterAvatarReady
+                    : (statusEl && statusEl.getAttribute("data-avatar-ready") === "true");
 
                 return {
                     videoMounted: !!v,
                     audioMounted: !!a,
                     hasLiveVideo: hasLiveVideo,
-                    hasLiveAudio: hasLiveAudio,
-                    isReadyVideo: isReadyVideo,
-                    onAvatarReadyFired: onAvatarReadyFired,
+                    hasLiveAudioOnAudioElement: hasLiveAudioOnAudioElement,
+                    exactSdkStatus: exactSdkStatus,
+                    exactAvatarReadyArg: exactAvatarReadyArg,
                 };
             }''')
 
             self.assertTrue(media_eval["videoMounted"], "SDK failed to mount <video> element")
             self.assertTrue(media_eval["audioMounted"], "SDK failed to mount <audio> element")
             self.assertTrue(media_eval["hasLiveVideo"], "Mounted <video> has no live video track")
-            self.assertTrue(media_eval["hasLiveAudio"], "Mounted <audio> has no live audio track")
-            self.assertTrue(media_eval["isReadyVideo"], "SDK session status did not reach readyVideo")
-            self.assertTrue(media_eval["onAvatarReadyFired"], "SDK event onAvatarReady(true) did not fire")
+            self.assertTrue(
+                media_eval["hasLiveAudioOnAudioElement"],
+                "Mounted <audio> element itself must own a live audio track (no video stream fallback)"
+            )
+            self.assertEqual(
+                media_eval["exactSdkStatus"],
+                "readyVideo",
+                f"SDK status must be exact 'readyVideo', got {media_eval['exactSdkStatus']!r}"
+            )
+            self.assertIs(
+                media_eval["exactAvatarReadyArg"],
+                True,
+                f"onAvatarReady callback payload must strictly be boolean True, got {media_eval['exactAvatarReadyArg']!r}"
+            )
 
         finally:
             page.close()

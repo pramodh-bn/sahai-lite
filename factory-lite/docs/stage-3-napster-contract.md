@@ -58,7 +58,7 @@ Local fake-vendor tests assert robust network behavior without live vendor depen
 - **No Retry on Client / Server Errors**: Errors such as `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found`, or `500 Internal Server Error` must fail immediately with no retry attempts.
 - **Concurrent Single-Flight Duplicate Rejection**: Verified using controlled blocking in the fake vendor. When a connection request is in flight, any concurrent request for the same rehearsal session must deterministically return `409 Conflict`, ensuring only a single upstream creation call is made.
 - **Failure Cooldown**: Following a failed connection attempt, immediate rapid re-triggering is gated by cooldown (returning `409` or `429`) to prevent vendor hammering.
-- **Observable Cleanup Ledger**: The fake vendor maintains an observable ledger (`created`, `deleted`, `active`). Tests prove cleanup after both successful lifecycle and error/teardown paths, ensuring no connection allocations leak.
+- **Observable Cleanup Ledger & Automatic Rollback**: The fake vendor maintains an observable ledger (`created`, `deleted`, `active`). When a post-allocation error occurs (e.g. simulated via `simulate_error="post_allocation_failure"` or downstream initialization failure), the app adapter must automatically issue an upstream vendor `DELETE` to roll back the allocated connection (`created=1, deleted=1, active=0`) without requiring an explicit client teardown request.
 
 ---
 
@@ -103,7 +103,7 @@ To protect resources and comply with budget boundaries:
   ```
 - **Prerequisites**: `SAH_NAPSTER_LIVE=1`, `NAPSTER_API_KEY`, and `NAPSTER_AGENT_ID`.
 - **Gate Absent**: Automatically skips with an explicit non-certifying skip message, exiting 0 with zero vendor calls.
-- **Gate Open**: Drives the real app and browser, validating full SDK lifecycle (`readyVideo`, `onAvatarReady(true)`), verifying live mounted `<video>` AND `<audio>` tracks, and asserting that a mere HTTP 200/token cannot certify. Missing Playwright or browser runtime under an open gate is a hard non-certifying block/failure, never a skip.
+- **Gate Open**: Drives the real app and browser, requiring exact inspectable status `readyVideo` and exact callback argument `onAvatarReady(true)` (neither inferred from generic text or the other). Requires mounted `<video>` and `<audio>` elements, where the mounted `<audio>` element itself owns an active live audio track (no fallback to video stream). A mere HTTP 200/token cannot certify. Missing Playwright or browser runtime under an open gate is a hard non-certifying block/failure, never a skip.
 - **Non-Certifying Mock Boundary**: Mock vendor success or offline test runs are explicitly declared insufficient for Stage 3 certification.
 
 ---

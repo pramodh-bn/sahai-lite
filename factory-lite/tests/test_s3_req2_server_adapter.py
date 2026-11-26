@@ -247,16 +247,30 @@ class TestNapsterServerAdapter(unittest.TestCase):
         self.assertEqual(len(ledger_after_del["active"]), 0, "Expected 0 active allocations remaining in vendor ledger")
 
     def test_adapter_cleanup_on_error_path(self):
-        # Defect 3 fix: Observable cleanup on error path
-        status, data = post_napster_session(self.session_id, channel_type="webrtc")
-        self.assertEqual(status, 200)
+        # Defect 2 (R2) fix: Controlled post-allocation failure in fake vendor / app contract.
+        # The vendor creates a real ledger allocation (created=1). A downstream post-allocation
+        # failure (simulate_error="post_allocation_failure") triggers the app adapter to
+        # automatically issue an upstream vendor DELETE without the test calling DELETE.
+        sess = self._new_session()
+        self.fake_vendor.clear_requests()
+        try:
+            status, data = post_napster_session(
+                sess, channel_type="webrtc", simulate_error="post_allocation_failure"
+            )
+            self.assertNotEqual(status, 200, f"Post-allocation error must fail downstream: {data}")
+            self.assertIn(status, (500, 502), f"Expected 500 or 502 on post-allocation error, got {status}")
 
-        # Trigger application error cleanup (e.g. DELETE on session or teardown after error)
-        del_status, _ = delete_napster_session(self.session_id)
-        self.assertEqual(del_status, 200)
-
-        ledger = self.fake_vendor.get_ledger()
-        self.assertEqual(len(ledger["active"]), 0, "No active connections must leak after error/teardown path")
+            ledger = self.fake_vendor.get_ledger()
+            self.assertEqual(len(ledger["created"]), 1, "Vendor connection must be allocated initially")
+            self.assertEqual(
+                len(ledger["deleted"]), 1, "App must automatically issue vendor DELETE on post-allocation failure"
+            )
+            self.assertEqual(len(ledger["active"]), 0, "Active allocations must be rolled back to 0 on error")
+        finally:
+            try:
+                delete_napster_session(sess)
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":
