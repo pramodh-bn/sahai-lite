@@ -1,14 +1,15 @@
-# Vendored Napster Web SDK — provenance
+# Vendored Napster Web SDK - provenance
 
-`napster-sdk.js` is the **unmodified** standalone build of Napster's official
-browser SDK. It is served by this service same-origin at `/lib/napster-sdk.js`
-and loaded by the page only after the visitor presses **Connect live face**.
+`app/vendor/napster-companion-api/2.0.0/bundle.js` is Sah's tracked, **unmodified**
+copy of Napster's official standalone browser SDK build. Sah serves it same-origin
+at `/vendor/napster-companion-api/2.0.0/bundle.js`, and the page requests it only
+after the visitor opts in by pressing **Connect live face**.
 
 | Field | Value |
 | --- | --- |
 | Package | `@touchcastllc/napster-companion-api` |
 | Version | `2.0.0` (exact, not a floating channel) |
-| License | MIT (`napster-companion-api.LICENSE`, copied from the package) |
+| License | MIT (`LICENSE`, copied from the package) |
 | Source artifact | `lib/index.standalone.js` inside the npm tarball |
 | Size | 178617 bytes |
 | SHA-256 | `c1b2db52267af46e172e4c5fbb0c46b67f57729bc841b26ac4e112a14ddd025f` |
@@ -23,19 +24,33 @@ and loaded by the page only after the visitor presses **Connect live face**.
 npm pack @touchcastllc/napster-companion-api@2.0.0
 tar -xzf touchcastllc-napster-companion-api-2.0.0.tgz
 sha256sum package/lib/index.standalone.js   # must equal the SHA-256 above
-cmp package/lib/index.standalone.js stage-5/lib/napster-sdk.js
+cmp package/lib/index.standalone.js app/vendor/napster-companion-api/2.0.0/bundle.js
 ```
 
-`harness/test_face_speech.py` fails if the vendored file no longer matches the
-SHA-256 and size recorded here.
+Sah's offline proof and cumulative tests fail if the tracked
+`app/vendor/napster-companion-api/2.0.0/bundle.js` no longer matches the size and
+SHA-256 recorded here. `.gitattributes` marks the bundle `-text` so checkout
+cannot rewrite line endings and change the hash.
 
-## Runtime validation (live)
+## Historical Koehashi stage-5 reference evidence (not Sah certification)
 
-Validated in Microsoft Edge (headless, WebRTC loopback devices) against the live
-service with real credentials: the bundle is served same-origin, `SDK.init`
-resolves using the token from `POST /face-session`, the session status reaches
-`readyVideo`, `onAvatarReady` fires, and the SDK mounts live `<video>`/`<audio>`
-elements into `#napster-avatar`.
+The following runtime observation was captured in the earlier Koehashi stage-5
+work and is carried here only as historical reference. It is **not** evidence
+that Sah has validated anything.
+
+In that Koehashi run, Microsoft Edge (headless, WebRTC loopback devices) was used
+against the live service with real credentials: the bundle was served same-origin,
+`SDK.init` resolved using the token from `POST /face-session`, the session status
+reached `readyVideo`, `onAvatarReady` fired, and the SDK mounted live `<video>`/`<audio>`
+elements into `#napster-avatar`. Those `readyVideo`/`onAvatarReady`/media results
+belong to Koehashi stage 5 and must not be read as Sah acceptance or certification.
+
+## Sah live-gate status
+
+Sah has **not** yet enabled or passed its live gate. The live gate remains
+disabled and unexecuted, and Sah Stage 3 remains **UNCERTIFIED**. Sah's own
+evidence so far is offline only: the Flask test client against the local fake
+vendor, with no live credentials and no vendor or paid calls.
 
 ## Network behaviour (documented exception)
 
