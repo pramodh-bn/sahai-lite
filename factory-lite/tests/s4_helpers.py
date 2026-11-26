@@ -299,6 +299,16 @@ def validate_persona_profile(profile):
     if not isinstance(profile, dict):
         return ["P-SCHEMA-INVALID"]
 
+    # Reject unknown root fields
+    allowed_root_keys = {
+        "schema", "profile_id", "version", "status", "created_at_utc",
+        "identity", "likeness", "voice", "behavior", "personality",
+        "knowledge", "authority", "data", "consent", "provenance"
+    }
+    unknown_keys = set(profile.keys()) - allowed_root_keys
+    if unknown_keys:
+        violations.append("P-UNKNOWN-FIELDS")
+
     ident = profile.get("identity", {})
     if ident.get("kind") != "synthetic":
         violations.append("P-01")

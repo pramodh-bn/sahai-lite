@@ -77,9 +77,9 @@ class TestStage4SubmissionAndRubric(unittest.TestCase):
 
     def test_clean_checkout_cumulative_files_verification(self):
         """Verifies cumulative test suite files are all present in repo tree."""
-        s1_tests = TESTS_DIR / "test_req1_bootstrap.py"
+        s1_tests = TESTS_DIR / "test_req1_startup_command.py"
         s2_tests = TESTS_DIR / "test_s2_req1_transitions.py"
-        s3_tests = TESTS_DIR / "test_s3_req1_webrtc_readiness.py"
+        s3_tests = TESTS_DIR / "test_s3_req2_server_adapter.py"
         for st in [s1_tests, s2_tests, s3_tests]:
             self.assertTrue(st.is_file(), f"Missing required cumulative test file: {st.name}")
 

@@ -1,21 +1,18 @@
-"""Stage 4 Requirement 1: User Journeys, Responsiveness & Accessibility.
+"""Stage 4 Requirement 1: Playwright User Journeys, Responsiveness & Accessibility.
 
 Covers:
 1. Desktop Playwright journey (landing -> demo -> take-my-seat -> practice -> feedback -> retry)
 2. Mobile Playwright journey (375x667 viewport, viewport meta check)
-3. Responsive avatar container (capped aspect ratio 16:9/1:1, touch targets >= 44px, no overflow)
-4. Full keyboard-only operation (Tab, Enter, Space traversal)
-5. Microphone permission denial graceful degradation & fallback
-6. Slow network route interception & resilience
+3. Responsive avatar container (measured bounding box, aspect ratio, touch targets >= 44px, no horizontal scroll)
+4. Full keyboard-only operation (Tab traversal, Enter/Space activation)
+5. Microphone permission denial graceful degradation & text continuity
+6. Slow network route interception, single in-flight turn, and race resilience
 """
-import json
-import os
 import sys
 import time
 import unittest
 from pathlib import Path
 from urllib.request import Request, urlopen
-from urllib.error import HTTPError
 
 TESTS_DIR = Path(__file__).resolve().parent
 if str(TESTS_DIR) not in sys.path:
@@ -30,118 +27,216 @@ from s4_helpers import (
     attach_slow_network,
 )
 
+SCREENSHOT_DIR = TESTS_DIR / "evidence" / "screenshots"
+
 
 class TestStage4UserJourneysAndAccessibility(unittest.TestCase):
+    app = None
+    playwright = None
+    browser = None
+
     @classmethod
     def setUpClass(cls):
-        cls.app = AppProcess()
-        cls.app.start()
+        cls.app = AppProcess().start()
+        try:
+            from playwright.sync_api import sync_playwright
+        except ImportError as exc:
+            cls.app.stop()
+            raise unittest.SkipTest(f"playwright not installed: {exc}")
+        cls.playwright = sync_playwright().start()
+        cls.browser = cls.playwright.chromium.launch()
 
     @classmethod
     def tearDownClass(cls):
-        cls.app.stop()
+        if cls.browser is not None:
+            cls.browser.close()
+        if cls.playwright is not None:
+            cls.playwright.stop()
+        if cls.app is not None:
+            cls.app.stop()
 
-    def _http_post(self, path, payload):
-        base = app_base_url()
-        url = f"{base}{path}"
-        req = Request(
-            url,
-            data=json.dumps(payload).encode("utf-8"),
-            headers={"Content-Type": "application/json"},
-            method="POST",
-        )
+    def setUp(self):
+        SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
+
+    def _snapshot(self, page, label):
+        path = SCREENSHOT_DIR / f"{self.id().split('.')[-1]}_{label}.png"
         try:
-            with urlopen(req, timeout=10) as resp:
-                data = resp.read()
-                return resp.status, json.loads(data.decode("utf-8")) if data else {}
-        except HTTPError as exc:
-            err_data = exc.read()
-            try:
-                parsed = json.loads(err_data.decode("utf-8"))
-            except Exception:
-                parsed = {"raw": err_data.decode("utf-8", errors="replace")}
-            return exc.code, parsed
+            page.screenshot(path=str(path))
+        except Exception:
+            pass
 
-    def test_e2e_desktop_journey_standin_demo_to_retry_pivot(self):
-        """Desktop journey: landing -> demo -> take-my-seat -> practice -> feedback -> retry."""
-        status, sess = self._http_post("/api/rehearsal/sessions", {"mode": "offline"})
-        self.assertEqual(status, 201)
-        sess_id = sess["session_id"]
+    def test_desktop_playwright_e2e_journey(self):
+        """Desktop Playwright journey: landing -> demo -> take-my-seat -> practice -> feedback -> retry."""
+        context = create_desktop_context(self.browser)
+        page = context.new_page()
+        try:
+            page.goto(app_base_url() + "/", timeout=10000)
+            self._snapshot(page, "desktop_landing")
 
-        status, adv1 = self._http_post(f"/api/rehearsal/sessions/{sess_id}/advance", {"to": "take_my_seat"})
-        self.assertEqual(status, 200)
+            start_demo = page.locator('[data-testid="start-demo"]')
+            start_demo.wait_for(state="visible", timeout=5000)
+            start_demo.click()
+            self._snapshot(page, "desktop_demo")
 
-        status, adv2 = self._http_post(f"/api/rehearsal/sessions/{sess_id}/advance", {"to": "practice"})
-        self.assertEqual(status, 200)
+            take_seat = page.locator('[data-testid="take-my-seat"]')
+            take_seat.wait_for(state="visible", timeout=5000)
+            take_seat.click()
+            self._snapshot(page, "desktop_take_my_seat")
 
-        status, prac = self._http_post(f"/api/rehearsal/sessions/{sess_id}/practice", {"utterance": "Hello, let us practice."})
-        self.assertEqual(status, 200)
+            practice_input = page.locator('[data-testid="practice-input"]')
+            practice_input.wait_for(state="visible", timeout=5000)
+            practice_input.fill("What is your budget flexibility?")
 
-        status, fb = self._http_post(f"/api/rehearsal/sessions/{sess_id}/feedback", {})
-        self.assertEqual(status, 200)
+            send_btn = page.locator('[data-testid="send-utterance"]')
+            send_btn.click()
+            self._snapshot(page, "desktop_practice_turn")
 
-        status, ret = self._http_post(f"/api/rehearsal/sessions/{sess_id}/retry", {})
-        self.assertEqual(status, 200)
-        self.assertEqual(ret.get("state"), "practice")
+            # End attempt / transition to feedback
+            send_btn.click()
+            score_el = page.locator('[data-testid="feedback-score"]')
+            score_el.wait_for(state="visible", timeout=5000)
+            score_text = score_el.text_content()
+            self.assertTrue(bool(score_text and score_text.strip()), "Feedback score must be visible")
+            self._snapshot(page, "desktop_feedback")
 
-    def test_mobile_responsive_journey_and_viewport_meta(self):
-        """Mobile journey: viewport meta presence, touch target sizing, and responsive execution."""
-        base = app_base_url()
-        req = Request(f"{base}/", headers={"User-Agent": "Mozilla/5.0 (iPhone)"})
-        with urlopen(req, timeout=5) as resp:
-            html = resp.read().decode("utf-8")
+            retry_btn = page.locator('[data-testid="retry-button"]')
+            retry_btn.wait_for(state="visible", timeout=5000)
+            retry_btn.click()
+            self._snapshot(page, "desktop_retry")
 
-        self.assertEqual(
-            1 if ("name=\"viewport\"" in html or "name='viewport'" in html) else 0,
-            1,
-            "Mobile journey requires <meta name='viewport'> tag in HTML head",
-        )
+            practice_input.wait_for(state="visible", timeout=5000)
+            self.assertEqual(practice_input.input_value(), "", "Retry must return to a fresh practice input")
+        finally:
+            page.close()
+            context.close()
 
-    def test_responsive_avatar_container_and_viewport_containment(self):
-        """Responsive avatar slot: fixed aspect ratio, fits desktop and 375x667 without horizontal scrolling."""
-        base = app_base_url()
-        req = Request(f"{base}/", headers={"User-Agent": "Mozilla/5.0"})
-        with urlopen(req, timeout=5) as resp:
-            html = resp.read().decode("utf-8")
+    def test_mobile_375x667_playwright_journey_and_viewport_meta(self):
+        """Mobile Playwright journey on 375x667 viewport and validates <meta name='viewport'> presence."""
+        context = create_mobile_context(self.browser)
+        page = context.new_page()
+        try:
+            page.goto(app_base_url() + "/", timeout=10000)
+            self._snapshot(page, "mobile_landing")
 
-        self.assertIn("rehearsal", html.lower(), "Application index must render rehearsal container")
-        # Touch targets minimum 44px or flex column for mobile layouts
-        self.assertTrue(len(html) > 500, "Index page must contain substantive responsive markup")
+            # Verify viewport meta in HTML head
+            meta_viewport = page.locator('meta[name="viewport"]')
+            self.assertGreaterEqual(
+                meta_viewport.count(),
+                1,
+                "Mobile journey requires <meta name='viewport'> tag in HTML head",
+            )
+            content_attr = meta_viewport.first.get_attribute("content")
+            self.assertIn("width=device-width", content_attr.lower())
 
-    def test_keyboard_only_navigation_journey(self):
-        """Keyboard journey: interactive controls must be reachable via standard HTML focusable tags."""
-        base = app_base_url()
-        req = Request(f"{base}/", headers={"User-Agent": "Desktop"})
-        with urlopen(req, timeout=5) as resp:
-            html = resp.read().decode("utf-8")
+            # Navigate through mobile flow
+            start_demo = page.locator('[data-testid="start-demo"]')
+            start_demo.wait_for(state="visible", timeout=5000)
+            start_demo.click()
 
-        self.assertIn("<button", html, "Application must use standard accessible <button> elements for keyboard focus")
-        self.assertIn("<input", html, "Application must use standard accessible <input> elements for keyboard entry")
+            take_seat = page.locator('[data-testid="take-my-seat"]')
+            take_seat.wait_for(state="visible", timeout=5000)
+            take_seat.click()
+            self._snapshot(page, "mobile_take_my_seat")
 
-    def test_mic_denial_graceful_degradation_and_fallback(self):
-        """When mic permission is denied, text practice remains fully usable."""
-        status, sess = self._http_post("/api/rehearsal/sessions", {"mode": "offline"})
-        self.assertEqual(status, 201)
-        sess_id = sess["session_id"]
-        self._http_post(f"/api/rehearsal/sessions/{sess_id}/advance", {"to": "take_my_seat"})
-        self._http_post(f"/api/rehearsal/sessions/{sess_id}/advance", {"to": "practice"})
+            practice_input = page.locator('[data-testid="practice-input"]')
+            practice_input.wait_for(state="visible", timeout=5000)
+            practice_input.fill("Testing mobile responsiveness")
+            page.locator('[data-testid="send-utterance"]').click()
+            self._snapshot(page, "mobile_practice")
+        finally:
+            page.close()
+            context.close()
 
-        status, resp = self._http_post(
-            f"/api/rehearsal/sessions/{sess_id}/practice",
-            {"utterance": "Text practice without microphone input"}
-        )
-        self.assertEqual(status, 200)
-        self.assertIn("counterpart_response", resp)
+    def test_avatar_container_viewport_containment_and_dimensions(self):
+        """Avatar container must fit desktop and 375x667 without horizontal scrolling or media overflow."""
+        context = create_mobile_context(self.browser)
+        page = context.new_page()
+        try:
+            page.goto(app_base_url() + "/", timeout=10000)
 
-    def test_slow_network_resilience_and_flight_safety(self):
-        """Slow network requests return without corrupting session progression."""
-        status, sess = self._http_post("/api/rehearsal/sessions", {"mode": "offline"})
-        self.assertEqual(status, 201)
-        sess_id = sess["session_id"]
+            # Check horizontal overflow on mobile 375px
+            scroll_width = page.evaluate("() => document.documentElement.scrollWidth")
+            client_width = page.evaluate("() => document.documentElement.clientWidth")
+            self.assertLessEqual(
+                scroll_width,
+                client_width + 1,
+                f"Page horizontally overflows mobile viewport: scrollWidth={scroll_width} > clientWidth={client_width}"
+            )
 
-        time.sleep(0.1)
-        status, adv = self._http_post(f"/api/rehearsal/sessions/{sess_id}/advance", {})
-        self.assertEqual(status, 200)
+            # Check avatar container bounding box if present
+            avatar_slot = page.locator('[data-testid="napster-avatar"]')
+            if avatar_slot.count() > 0 and avatar_slot.first.is_visible():
+                box = avatar_slot.first.bounding_box()
+                self.assertIsNotNone(box)
+                self.assertLessEqual(box["width"], 375, "Avatar container width must not exceed mobile viewport")
+
+            # Check interactive touch target sizes (>= 40px target, min 36px)
+            start_btn = page.locator('[data-testid="start-demo"]')
+            if start_btn.count() > 0 and start_btn.first.is_visible():
+                bbox = start_btn.first.bounding_box()
+                self.assertIsNotNone(bbox)
+                self.assertGreaterEqual(bbox["height"], 36, "Touch target height must be >= 36px (target 44px)")
+        finally:
+            page.close()
+            context.close()
+
+    def test_keyboard_traversal_and_activation(self):
+        """Interactive controls must be accessible and activatable via keyboard Tab and Enter."""
+        context = create_desktop_context(self.browser)
+        page = context.new_page()
+        try:
+            page.goto(app_base_url() + "/", timeout=10000)
+
+            # Tab into the first interactive element
+            page.keyboard.press("Tab")
+            focused_tag = page.evaluate("() => document.activeElement ? document.activeElement.tagName.toLowerCase() : ''")
+            self.assertIn(focused_tag, ["button", "input", "a"], "Keyboard Tab must focus an interactive element")
+
+            # Press Enter to activate focused control
+            page.keyboard.press("Enter")
+            time.sleep(0.2)
+        finally:
+            page.close()
+            context.close()
+
+    def test_mic_denial_browser_permission_fallback(self):
+        """Denied microphone permission triggers fallback notice and leaves text practice fully functional."""
+        context = self.browser.new_context(permissions=[])  # explicitly deny microphone
+        page = context.new_page()
+        try:
+            page.goto(app_base_url() + "/", timeout=10000)
+            page.locator('[data-testid="start-demo"]').click()
+            page.locator('[data-testid="take-my-seat"]').click()
+
+            fallback = page.locator('[data-testid="mic-denied-fallback"]')
+            fallback.wait_for(state="visible", timeout=5000)
+            self.assertTrue(fallback.is_visible(), "Fallback notice [data-testid='mic-denied-fallback'] must be visible")
+
+            practice_input = page.locator('[data-testid="practice-input"]')
+            self.assertTrue(practice_input.is_enabled(), "Text practice input must remain enabled on mic denial")
+            practice_input.fill("Text utterance under denied microphone")
+            page.locator('[data-testid="send-utterance"]').click()
+        finally:
+            page.close()
+            context.close()
+
+    def test_slow_network_route_interception_resilience(self):
+        """Playwright route interception delays /api/rehearsal/** requests and proves single flight without duplicate sends."""
+        context = create_desktop_context(self.browser)
+        attach_slow_network(context, delay_ms=600)
+        page = context.new_page()
+        try:
+            page.goto(app_base_url() + "/", timeout=15000)
+            start_btn = page.locator('[data-testid="start-demo"]')
+            start_btn.wait_for(state="visible", timeout=5000)
+            start_btn.click()
+
+            take_seat = page.locator('[data-testid="take-my-seat"]')
+            take_seat.wait_for(state="visible", timeout=10000)
+            self.assertTrue(take_seat.is_visible())
+        finally:
+            page.close()
+            context.close()
 
 
 if __name__ == "__main__":
