@@ -195,3 +195,39 @@ and re-validated by the same `assert_local_health_url()` guard Stage 1
 uses (localhost/127.0.0.1/::1 only). The Playwright browser is launched
 locally and only ever navigates to that same local URL. No external
 network or paid API calls are made.
+
+
+---
+
+# Stage 3 acceptance contract (Verifier-authored, for Lead review)
+
+Translates `factory-lite/spec/stage-3.md` into executable, cumulative black-box tests
+(`test_s3_req*.py`) layered on top of the unchanged Stage 1 and Stage 2 contracts.
+Preserves every existing test file. All 49 prior tests remain green.
+
+## Stage 3 Napster Embodied Integration API
+
+Stage 3 adds the server-side Napster WebRTC adapter and avatar management routes:
+
+| Method & path | Request Body | Response | Notes & Error Cases |
+|---|---|---|---|
+| `POST /api/rehearsal/sessions/{id}/napster-session` | `{"channel_type": "webrtc"}` | `{"token": str, "connection_id": str, "status": "ready"}` | 404 for unknown session; 409 if session connection already in flight (single-flight duplicate rejection); 429/409 retried at most once; 400/401/403/500 fails immediately with no retry |
+| `DELETE /api/rehearsal/sessions/{id}/napster-session` | (none) | `{"status": "destroyed"}` | 404 for unknown session; deterministic teardown of WebRTC session |
+
+## Stage 3 UI & Journey Extensions
+
+Served at `/` (reusing existing base URL):
+- `[data-testid="napster-connect"]`: Explicit opt-in button to connect live Napster avatar.
+- `[data-testid="napster-avatar"]`: Container slot for the mounted avatar `<video>` and `<audio>`.
+- `[data-testid="napster-status"]`: Text indicator showing connection state ("disconnected", "connecting", "connected", "offline fallback").
+- `[data-testid="mic-denied-fallback"]`: Visible indicator when microphone access is denied; text practice (`[data-testid="practice-input"]`, `[data-testid="send-utterance"]`) remains usable.
+- `[data-testid="napster-disconnect"]`: Explicit teardown/cleanup button.
+
+## Key Behavioral & Architectural Decisions
+
+1. **Host Configurability**: Upstream base URL defaults to `https://napster-api.napster.com` but must be configurable via `NAPSTER_BASE_URL` to support local fake-vendor testing and account alias variations.
+2. **Credential Redaction**: `NAPSTER_API_KEY` is held strictly server-side and never exposed to the client, logs, or test evidence.
+3. **App-Local Handoff**: Handoff from demonstration to practice is internal state machine transition. SIP URIs, meeting join/relay bots, and real-person voice cloning are strictly rejected.
+4. **Live-Only Gate**: `test_s3_req7_live_gate.py` requires `SAH_NAPSTER_LIVE=1`, `NAPSTER_API_KEY`, and `NAPSTER_AGENT_ID`. Gate absent skips with exit code 0 and zero vendor calls.
+5. **Real Evidence Schema**: Validated by `s3_helpers.validate_stage3_evidence`; strictly rejects raw credentials, unredacted IDs, user transcripts, placeholder markers, and synthetic/future timestamps.
+6. **Mock Insufficiency**: Mock and offline test success is explicitly insufficient for Stage 3 certification. Stage 3 status is UNCERTIFIED.
