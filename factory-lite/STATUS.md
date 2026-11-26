@@ -1,11 +1,11 @@
 # Status
 Stage: 3
-Cycle: 4 (owner-authorized fresh verification cycle; two-repair budget)
-Task: LITE-S3-CYCLE4-BLOCKED
+Cycle: 5 (owner-authorized fresh live-contract verification cycle; two-repair budget)
+Task: LITE-S3-LIVE-CONTRACT-02
 Owner: Verifier 2
 Coordinator: sah-lead
-State: S3_CYCLE4_TERMINAL_BLOCKED
-Base SHA: bafa2021aeff5068201c24d1e7ae92eb01998f33
+State: S3_CYCLE5_LIVE_CONTRACT_ASSIGNED
+Base SHA: 1940cad05d6a135d24424d2e955af3cdc8a72d02
 PR: https://github.com/pramodh-bn/sahai-lite/pull/45 (merged implementation)
-Evidence: Final Verifier repair 2 returned PR #50 head 82257d70eafa37d8f0141e97f875b243838fe5c0 with request-observed cleanup, deadline-bound clicks and fallback, and readiness/release waits. Lead static review found a terminal false-certification path: `derive_and_validate_vendor_host()` explicitly accepts loopback hosts, and the shared evidence validator also accepts loopback. Lead reproduced `NAPSTER_BASE_URL=http://127.0.0.1:9999` returning host `127.0.0.1`, so a local fake vendor can satisfy the credentialed `mode="live"` path and falsely certify Stage 3 despite the contract's mock-insufficient rule. PR #50 was closed and must not merge. Both live-contract repair passes are exhausted. No live gate, credential read, paid call, or vendor call occurred. Offline Stage 3 implementation remains merged at bafa2021aeff5068201c24d1e7ae92eb01998f33 and independently green: 78 tests, one deliberate skip. Highest certified stage remains 2; Stage 3 remains uncertified.
-Next: Stage 3 and Stage 4 stop. A new owner-authorized verification cycle or different independent verification path must start from current dev-v3 and must separate offline loopback validation from certification so `mode="live"` accepts only an approved real Napster host. The merged app implementation may be reused, but rejected PR #50 and its commits must not merge. No live execution is permitted until a new valid contract is independently approved.
+Evidence: Owner explicitly authorized a fresh verification cycle after Cycle 4 blocked. The merged app already exposes `NAPSTER_BASE_URL` with official default `https://companion-api.napster.com`; no new Builder URL configuration is required. Cycle 5 is limited to a fresh Verifier-authored live contract that keeps loopback available for offline fake-vendor tests but categorically rejects loopback, localhost, private/test hosts, unsupported schemes, and any non-approved host when `SAH_NAPSTER_LIVE=1`. Rejected PR #50 stays closed and its commit history must not merge or be reused. No live gate, credential read, paid call, or vendor call has occurred. Offline Stage 3 implementation remains independently green at 78 tests with one deliberate skip. Highest certified stage remains 2; Stage 3 remains uncertified.
+Next: Verifier 2 authors a new tests/docs-only contract from exact current base 1940cad05d6a135d24424d2e955af3cdc8a72d02 on a new branch/worktree. The contract must retain the validated single browser-owned flow, shared 30-second deadline, request-observed exactly-once cleanup, real readiness/media/release evidence, fresh atomic redacted artifact, and truthful self-checks, while separating offline host validation from live certification. Live mode must accept only an explicit approved Napster host and evidence certification must independently reject loopback. No credentials or live execution are authorized during contract authoring.
