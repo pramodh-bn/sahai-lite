@@ -2,11 +2,13 @@ import os
 import subprocess
 from flask import Flask, Response, jsonify
 
+from napster import bp as napster_bp
 from rehearsal import bp as rehearsal_bp
 from ui import PAGE
 
 app = Flask(__name__)
 app.register_blueprint(rehearsal_bp)
+app.register_blueprint(napster_bp)
 
 def get_git_sha():
     """Get the current git commit SHA, with fallback to 'unknown'"""
