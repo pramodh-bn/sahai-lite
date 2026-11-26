@@ -211,6 +211,15 @@ $("napster-connect").addEventListener("click", async () => {
 
 $("napster-disconnect").addEventListener("click", async () => {
   try {
+    if (sid !== null) {
+      await api("DELETE", "/sessions/" + sid + "/napster-session");
+    }
+  } catch (e) {
+    // The server retains the vendor handle so disconnect can be retried.
+    setStatus("Cleanup failed: " + e.message + ". Retry disconnect.");
+    return;
+  }
+  try {
     if (avatarInstance && typeof avatarInstance.destroy === "function") {
       avatarInstance.destroy();
     }
@@ -218,13 +227,6 @@ $("napster-disconnect").addEventListener("click", async () => {
     // Fall through to explicit local cleanup.
   }
   avatarInstance = null;
-  try {
-    if (sid !== null) {
-      await api("DELETE", "/sessions/" + sid + "/napster-session");
-    }
-  } catch (e) {
-    // Local cleanup still runs below; the vendor result is reported by the server.
-  }
   const slot = $("napster-avatar");
   slot.querySelectorAll("video,audio").forEach((el) => {
     const s = el.srcObject;

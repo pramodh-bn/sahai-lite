@@ -1,0 +1,2 @@
+# Keep the vendored SDK byte-exact so its frozen SHA-256 never changes on checkout.
+bundle.js -text

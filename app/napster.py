@@ -99,11 +99,16 @@ def _upstream_create(base, key, agent, external_id):
     return _send("POST", f"{base}/public/agents/{agent}/connections", headers, body)
 
 
-def _upstream_delete(base, key, agent, connection_id):
-    """True when the vendor no longer holds the connection (deleted or already gone)."""
+def _upstream_delete(base, key, connection_id):
+    """True when the vendor no longer holds the connection (deleted or already gone).
+
+    Current official Napster documentation defines the teardown endpoint as
+    DELETE /public/connections/{connectionId}; 404 is treated as idempotent
+    success because the connection is already gone.
+    """
     status, _ = _send(
         "DELETE",
-        f"{base}/public/agents/{agent}/connections/{connection_id}",
+        f"{base}/public/connections/{connection_id}",
         _auth_headers(key),
     )
     return status in (200, 202, 204, 404)
@@ -167,13 +172,23 @@ def create_napster_session(session_id):
             return jsonify({"status": "offline", "error": "vendor_unavailable", "attempts": attempts}), 502
 
         if simulate == "post_allocation_failure":
-            rolled_back = _upstream_delete(base, key, agent, connection_id)
+            rolled_back = _upstream_delete(base, key, connection_id)
             with _state_lock:
-                _fail_with_cooldown(session_id, _entry(session_id))
+                entry = _entry(session_id)
+                _fail_with_cooldown(session_id, entry)
+                if not rolled_back:
+                    # Keep the handle so a later DELETE can retry the vendor
+                    # teardown instead of silently orphaning a live connection.
+                    entry["connection"] = {
+                        "connection_id": connection_id,
+                        "base_url": base,
+                        "agent_id": agent,
+                    }
             return jsonify({
                 "status": "offline",
                 "error": "post_allocation_failure",
                 "rolled_back": rolled_back,
+                "connection_retained": not rolled_back,
             }), 502
 
         with _state_lock:
@@ -195,15 +210,22 @@ def delete_napster_session(session_id):
     with _state_lock:
         entry = _state.get(session_id)
         connection = entry.get("connection") if entry else None
-        if entry is not None:
-            entry["connection"] = None
     if connection is None:
         return jsonify({"status": "no_active_connection", "session_destroyed": False}), 200
 
     key = _env("NAPSTER_API_KEY")
     destroyed = bool(key) and _upstream_delete(
-        connection["base_url"], key, connection["agent_id"], connection["connection_id"]
+        connection["base_url"], key, connection["connection_id"]
     )
     if not destroyed:
-        return jsonify({"status": "vendor_delete_failed", "session_destroyed": False}), 502
+        # Preserve the local handle so a later DELETE can retry deterministically.
+        return jsonify({
+            "status": "vendor_delete_failed",
+            "session_destroyed": False,
+            "connection_retained": True,
+        }), 502
+    with _state_lock:
+        entry = _state.get(session_id)
+        if entry is not None and entry.get("connection") is connection:
+            entry["connection"] = None
     return jsonify({"status": "destroyed", "session_destroyed": True}), 200
