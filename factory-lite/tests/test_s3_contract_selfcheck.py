@@ -108,8 +108,10 @@ class TestStage3ContractSelfCheck(unittest.TestCase):
         self.assertIn("NAPSTER_AGENT_ID", code_str)
         self.assertIn("SkipTest", code_str)
 
-        # 2. Under open gate must require SAH_STAGE3_EVIDENCE_PATH
+        # 2. Under open gate must require fresh SAH_STAGE3_EVIDENCE_PATH and clean temp files
         self.assertIn("SAH_STAGE3_EVIDENCE_PATH", code_str)
+        self.assertIn("evidence_path.exists()", code_str)
+        self.assertIn("temp_evidence.unlink()", code_str)
 
         # 3. Statically reject direct preallocation / double-session logic in live gate
         for node in ast.walk(tree):
@@ -132,12 +134,42 @@ class TestStage3ContractSelfCheck(unittest.TestCase):
                             "must rely strictly on single browser-owned session creation"
                         )
 
-        # 4. Must require explicit disconnect/cleanup and release proof
-        self.assertIn("napster-disconnect", code_str)
-        self.assertIn("session_destroyed", code_str)
-        self.assertIn("delete_napster_session", code_str)
+        # 4. Monotonic deadline helper & remaining-time use
+        self.assertIn("monotonic", code_str)
+        self.assertIn("get_remaining_timeout_ms", code_str)
+        self.assertIn("CLEANUP_RESERVE_S", code_str)
 
-        # 5. Must require evidence validation, certification, and atomic writing
+        # 5. Exact observed POST status 200 without fallback default substitution
+        self.assertNotIn('post_status"] or 200', code_str)
+        self.assertNotIn("post_status'] or 200", code_str)
+        normalized_code = code_str.replace('"', "'")
+        self.assertIn("conn_hash_holder['post_status']", normalized_code)
+        found_post_status_200 = False
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call):
+                func_name = getattr(node.func, "attr", None) or getattr(node.func, "id", None)
+                if func_name == "assertEqual":
+                    args_dump = [ast.dump(a) for a in node.args]
+                    if any("post_status" in s for s in args_dump) and any("200" in s for s in args_dump):
+                        found_post_status_200 = True
+        self.assertTrue(found_post_status_200, "Must assert post_status == 200")
+
+        # 6. Exactly-once cleanup guard & deterministic observation
+        self.assertIn("expect_response", code_str)
+        self.assertIn("cleanup_attempted", code_str)
+        self.assertIn("delete_napster_session", code_str)
+        self.assertIn("possible retained", code_str.lower())
+
+        # 7. Configured vendor host derivation & validation
+        self.assertIn("NAPSTER_BASE_URL", code_str)
+        self.assertIn("ALLOWED_VENDOR_HOSTS", code_str)
+
+        # 8. Non-sensitive operational telemetry in evidence
+        self.assertIn("active_duration_seconds", code_str)
+        self.assertIn("connection_create_requests", code_str)
+        self.assertIn("cleanup_requests", code_str)
+
+        # 9. Evidence validation, certification, and atomic writing
         self.assertIn("validate_stage3_evidence", code_str)
         self.assertIn("is_stage3_certified", code_str)
         self.assertIn("replace", code_str)  # Atomic rename via Path.replace
