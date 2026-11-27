@@ -1,0 +1,1349 @@
+test_run_doc_exists (test_req1_startup_command.TestDocumentedStartupCommand.test_run_doc_exists) ... ok
+test_run_doc_has_exactly_one_command (test_req1_startup_command.TestDocumentedStartupCommand.test_run_doc_has_exactly_one_command) ... ok
+test_health_endpoint_reports_actual_build_sha (test_req2_health_version.TestHealthReportsActualBuildSha.test_health_endpoint_reports_actual_build_sha) ...  * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:36:19] "GET /health HTTP/1.1" 200 -
+ok
+test_accepts_localhost_and_loopback_urls (test_req2_health_version.TestLocalHealthUrlGuard.test_accepts_localhost_and_loopback_urls) ... ok
+test_rejects_non_local_health_url (test_req2_health_version.TestLocalHealthUrlGuard.test_rejects_non_local_health_url) ... ok
+test_container_runs_as_non_root_uid (test_req3_container_nonroot.TestContainerRunsNonRoot.test_container_runs_as_non_root_uid) ... ok
+test_dockerfile_exists (test_req3_container_nonroot.TestContainerRunsNonRoot.test_dockerfile_exists) ... ok
+test_app_dir_exists (test_req4_dependency_lock.TestDependencyLockExists.test_app_dir_exists) ... ok
+test_dependency_lock_file_nonempty (test_req4_dependency_lock.TestDependencyLockExists.test_dependency_lock_file_nonempty) ... ok
+test_dependency_lock_file_present (test_req4_dependency_lock.TestDependencyLockExists.test_dependency_lock_file_present) ... ok
+test_no_env_file_with_real_values_is_tracked (test_req5_no_secrets.TestNoRepositorySecrets.test_no_env_file_with_real_values_is_tracked) ... ok
+test_no_tracked_file_matches_secret_patterns (test_req5_no_secrets.TestNoRepositorySecrets.test_no_tracked_file_matches_secret_patterns) ... ok
+test_harness_exits_nonzero_for_broken_service (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_exits_nonzero_for_broken_service) ... ok
+test_harness_exits_nonzero_for_unavailable_service (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_exits_nonzero_for_unavailable_service) ... ok
+test_harness_exits_nonzero_on_sha_mismatch (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_exits_nonzero_on_sha_mismatch) ... ok
+test_harness_exits_zero_for_conforming_healthy_service (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_exits_zero_for_conforming_healthy_service) ... ok
+test_harness_script_exists (test_req6_harness_contract.TestIndependentHarnessContract.test_harness_script_exists) ... ok
+test_clean_checkout_of_head_starts_and_becomes_healthy (test_req7_clean_checkout_startup.TestCleanCheckoutStartup.test_clean_checkout_of_head_starts_and_becomes_healthy) ...  * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:36:31] "GET /health HTTP/1.1" 200 -
+ok
+test_doc_states_no_live_or_paid_calls_were_made (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_doc_states_no_live_or_paid_calls_were_made) ... ok
+test_evidence_section_cites_http_source (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_evidence_section_cites_http_source) ... ok
+test_feasibility_doc_contains_no_executable_live_call_markers (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_feasibility_doc_contains_no_executable_live_call_markers) ... ok
+test_feasibility_doc_exists (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_feasibility_doc_exists) ... ok
+test_feasibility_doc_has_required_sections (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_feasibility_doc_has_required_sections) ... ok
+test_no_napster_credential_files_tracked (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_no_napster_credential_files_tracked) ... ok
+test_required_sections_have_substantive_content (test_req8_napster_feasibility.TestNapsterFeasibilityDocOnly.test_required_sections_have_substantive_content) ... ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:36:33] "GET /health HTTP/1.1" 200 -
+test_advance_on_unknown_session_is_not_found (test_s2_req1_transitions.TestDeterministicTransitions.test_advance_on_unknown_session_is_not_found) ... 127.0.0.1 - - [27/Nov/2026 11:36:35] "POST /api/rehearsal/sessions/does-not-exist/advance HTTP/1.1" 404 -
+ok
+test_invalid_transition_from_demo_directly_to_practice_is_rejected (test_s2_req1_transitions.TestDeterministicTransitions.test_invalid_transition_from_demo_directly_to_practice_is_rejected) ... 127.0.0.1 - - [27/Nov/2026 11:36:37] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:36:39] "POST /api/rehearsal/sessions/a18796fcf142422cbf7d25247e282919/advance HTTP/1.1" 409 -
+ok
+test_invalid_transition_to_unknown_state_is_rejected (test_s2_req1_transitions.TestDeterministicTransitions.test_invalid_transition_to_unknown_state_is_rejected) ... 127.0.0.1 - - [27/Nov/2026 11:36:40] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:36:40] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:36:41] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:36:44] "POST /api/rehearsal/sessions/e51b73b7968e43d1b9f08820e7f55e0a/advance HTTP/1.1" 409 -
+ok
+test_new_session_starts_in_demo_state_for_alex_dana_scenario (test_s2_req1_transitions.TestDeterministicTransitions.test_new_session_starts_in_demo_state_for_alex_dana_scenario) ... 127.0.0.1 - - [27/Nov/2026 11:36:46] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+ok
+test_repeating_the_same_valid_advance_twice_is_rejected_the_second_time (test_s2_req1_transitions.TestDeterministicTransitions.test_repeating_the_same_valid_advance_twice_is_rejected_the_second_time)
+Transitions are one-shot and deterministic: once in take_my_seat, ... 127.0.0.1 - - [27/Nov/2026 11:36:48] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:36:50] "POST /api/rehearsal/sessions/0dbee23d2c254aff94d321a2f8df67e4/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:36:52] "POST /api/rehearsal/sessions/0dbee23d2c254aff94d321a2f8df67e4/advance HTTP/1.1" 409 -
+ok
+test_valid_transition_sequence_is_deterministic (test_s2_req1_transitions.TestDeterministicTransitions.test_valid_transition_sequence_is_deterministic) ... 127.0.0.1 - - [27/Nov/2026 11:36:54] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:36:56] "POST /api/rehearsal/sessions/5d8afeb5ab9c46489dd218a32ee31f2d/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:36:58] "POST /api/rehearsal/sessions/5d8afeb5ab9c46489dd218a32ee31f2d/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:37:00] "GET /api/rehearsal/sessions/5d8afeb5ab9c46489dd218a32ee31f2d HTTP/1.1" 200 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:37:02] "GET /health HTTP/1.1" 200 -
+test_counterpart_retains_state_across_turns_in_the_same_session (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_counterpart_retains_state_across_turns_in_the_same_session)
+The counterpart must not be a stateless echo: asking the same ... 127.0.0.1 - - [27/Nov/2026 11:37:04] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:37:06] "POST /api/rehearsal/sessions/782d4c41511e4e4bbc2446117cd183e4/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:37:08] "POST /api/rehearsal/sessions/782d4c41511e4e4bbc2446117cd183e4/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:37:10] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:37:10] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:37:11] "POST /api/rehearsal/sessions/782d4c41511e4e4bbc2446117cd183e4/practice HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:37:13] "POST /api/rehearsal/sessions/782d4c41511e4e4bbc2446117cd183e4/practice HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:37:15] "GET /api/rehearsal/sessions/782d4c41511e4e4bbc2446117cd183e4 HTTP/1.1" 200 -
+ok
+test_hidden_need_not_revealed_by_neutral_opening_utterance (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_hidden_need_not_revealed_by_neutral_opening_utterance) ... 127.0.0.1 - - [27/Nov/2026 11:37:17] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:37:19] "POST /api/rehearsal/sessions/a910b5f72fb44ca0acc24b2d523c73ea/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:37:21] "POST /api/rehearsal/sessions/a910b5f72fb44ca0acc24b2d523c73ea/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:37:23] "POST /api/rehearsal/sessions/a910b5f72fb44ca0acc24b2d523c73ea/practice HTTP/1.1" 200 -
+ok
+test_hidden_need_revealed_by_sign_on_only_probe_with_no_budget_keyword (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_hidden_need_revealed_by_sign_on_only_probe_with_no_budget_keyword)
+A probe about sign-on flexibility alone -- no budget/cost/price/ ... 127.0.0.1 - - [27/Nov/2026 11:37:25] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:37:27] "POST /api/rehearsal/sessions/390606da72a64df8a54e8616a7616947/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:37:29] "POST /api/rehearsal/sessions/390606da72a64df8a54e8616a7616947/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:37:31] "POST /api/rehearsal/sessions/390606da72a64df8a54e8616a7616947/practice HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:37:33] "POST /api/rehearsal/sessions/390606da72a64df8a54e8616a7616947/practice HTTP/1.1" 200 -
+ok
+test_hidden_need_revealed_only_after_explicit_budget_probe (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_hidden_need_revealed_only_after_explicit_budget_probe) ... 127.0.0.1 - - [27/Nov/2026 11:37:35] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:37:37] "POST /api/rehearsal/sessions/188998c33a69430ba1e13acd279e2003/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:37:39] "POST /api/rehearsal/sessions/188998c33a69430ba1e13acd279e2003/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:37:40] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:37:40] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:37:42] "POST /api/rehearsal/sessions/188998c33a69430ba1e13acd279e2003/practice HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:37:44] "POST /api/rehearsal/sessions/188998c33a69430ba1e13acd279e2003/practice HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:37:46] "POST /api/rehearsal/sessions/188998c33a69430ba1e13acd279e2003/practice HTTP/1.1" 200 -
+ok
+test_practice_rejected_outside_practice_state (test_s2_req2_counterpart_hidden_need.TestCounterpartStateAndHiddenNeed.test_practice_rejected_outside_practice_state) ... 127.0.0.1 - - [27/Nov/2026 11:37:48] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:37:50] "POST /api/rehearsal/sessions/80a2acd2f6c74c768a32c228962563da/practice HTTP/1.1" 409 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:37:52] "GET /health HTTP/1.1" 200 -
+test_evidence_references_actual_submitted_utterances (test_s2_req3_evidence_scoring.TestEvidenceScoring.test_evidence_references_actual_submitted_utterances) ... 127.0.0.1 - - [27/Nov/2026 11:37:54] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:37:56] "POST /api/rehearsal/sessions/c1c65520e8864ae08982e95a55bfe240/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:37:58] "POST /api/rehearsal/sessions/c1c65520e8864ae08982e95a55bfe240/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:00] "POST /api/rehearsal/sessions/c1c65520e8864ae08982e95a55bfe240/practice HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:02] "POST /api/rehearsal/sessions/c1c65520e8864ae08982e95a55bfe240/practice HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:04] "POST /api/rehearsal/sessions/c1c65520e8864ae08982e95a55bfe240/feedback HTTP/1.1" 200 -
+ok
+test_feedback_rejected_outside_practice_state (test_s2_req3_evidence_scoring.TestEvidenceScoring.test_feedback_rejected_outside_practice_state) ... 127.0.0.1 - - [27/Nov/2026 11:38:06] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:38:09] "POST /api/rehearsal/sessions/a92032e8bbd443368e62ff8760fdb247/feedback HTTP/1.1" 409 -
+ok
+test_scoring_is_deterministic_on_repeated_read (test_s2_req3_evidence_scoring.TestEvidenceScoring.test_scoring_is_deterministic_on_repeated_read) ... 127.0.0.1 - - [27/Nov/2026 11:38:10] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:10] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:38:11] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:38:13] "POST /api/rehearsal/sessions/3950ac020fa340779d6ecf9ccbe521e9/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:15] "POST /api/rehearsal/sessions/3950ac020fa340779d6ecf9ccbe521e9/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:17] "POST /api/rehearsal/sessions/3950ac020fa340779d6ecf9ccbe521e9/practice HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:19] "POST /api/rehearsal/sessions/3950ac020fa340779d6ecf9ccbe521e9/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:21] "GET /api/rehearsal/sessions/3950ac020fa340779d6ecf9ccbe521e9 HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:23] "GET /api/rehearsal/sessions/3950ac020fa340779d6ecf9ccbe521e9 HTTP/1.1" 200 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:38:25] "GET /health HTTP/1.1" 200 -
+test_first_attempt_is_preserved_unchanged_after_retry (test_s2_req4_retry_pivot.TestRetryRestoresPivotAndPreservesFirstAttempt.test_first_attempt_is_preserved_unchanged_after_retry) ... 127.0.0.1 - - [27/Nov/2026 11:38:27] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:38:29] "POST /api/rehearsal/sessions/e0e6def19c7a433c9840fce2199a064a/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:31] "POST /api/rehearsal/sessions/e0e6def19c7a433c9840fce2199a064a/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:34] "POST /api/rehearsal/sessions/e0e6def19c7a433c9840fce2199a064a/practice HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:36] "POST /api/rehearsal/sessions/e0e6def19c7a433c9840fce2199a064a/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:38] "POST /api/rehearsal/sessions/e0e6def19c7a433c9840fce2199a064a/retry HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:40] "POST /api/rehearsal/sessions/e0e6def19c7a433c9840fce2199a064a/practice HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:40] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:40] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:38:42] "GET /api/rehearsal/sessions/e0e6def19c7a433c9840fce2199a064a/attempts HTTP/1.1" 200 -
+ok
+test_retry_rejected_outside_feedback_state (test_s2_req4_retry_pivot.TestRetryRestoresPivotAndPreservesFirstAttempt.test_retry_rejected_outside_feedback_state) ... 127.0.0.1 - - [27/Nov/2026 11:38:44] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:38:46] "POST /api/rehearsal/sessions/5f5925fba52f4d4da79ce06d1be66775/retry HTTP/1.1" 409 -
+ok
+test_retry_starts_a_new_attempt_at_the_practice_pivot (test_s2_req4_retry_pivot.TestRetryRestoresPivotAndPreservesFirstAttempt.test_retry_starts_a_new_attempt_at_the_practice_pivot) ... 127.0.0.1 - - [27/Nov/2026 11:38:48] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:38:50] "POST /api/rehearsal/sessions/bfbbfd3c5e6c4edba95a7fc517c23672/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:52] "POST /api/rehearsal/sessions/bfbbfd3c5e6c4edba95a7fc517c23672/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:54] "POST /api/rehearsal/sessions/bfbbfd3c5e6c4edba95a7fc517c23672/practice HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:56] "POST /api/rehearsal/sessions/bfbbfd3c5e6c4edba95a7fc517c23672/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:38:58] "POST /api/rehearsal/sessions/bfbbfd3c5e6c4edba95a7fc517c23672/retry HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:00] "GET /api/rehearsal/sessions/bfbbfd3c5e6c4edba95a7fc517c23672 HTTP/1.1" 200 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:39:03] "GET /health HTTP/1.1" 200 -
+test_action_on_nonexistent_session_rejected_even_with_other_sessions_open (test_s2_req5_isolation_replay.TestIsolationAndReplay.test_action_on_nonexistent_session_rejected_even_with_other_sessions_open) ... 127.0.0.1 - - [27/Nov/2026 11:39:05] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:39:07] "POST /api/rehearsal/sessions/totally-bogus-id/practice HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:39:09] "GET /api/rehearsal/sessions/totally-bogus-id HTTP/1.1" 404 -
+ok
+test_feedback_endpoint_is_replay_safe_once_in_feedback_state (test_s2_req5_isolation_replay.TestIsolationAndReplay.test_feedback_endpoint_is_replay_safe_once_in_feedback_state)
+Calling /feedback again while already in the feedback state must ... 127.0.0.1 - - [27/Nov/2026 11:39:10] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:10] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:39:11] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:39:13] "POST /api/rehearsal/sessions/4811d844c5264fe79c976ccb8f274f98/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:15] "POST /api/rehearsal/sessions/4811d844c5264fe79c976ccb8f274f98/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:17] "POST /api/rehearsal/sessions/4811d844c5264fe79c976ccb8f274f98/practice HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:19] "POST /api/rehearsal/sessions/4811d844c5264fe79c976ccb8f274f98/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:21] "POST /api/rehearsal/sessions/4811d844c5264fe79c976ccb8f274f98/feedback HTTP/1.1" 200 -
+ok
+test_replaying_a_read_is_side_effect_free (test_s2_req5_isolation_replay.TestIsolationAndReplay.test_replaying_a_read_is_side_effect_free) ... 127.0.0.1 - - [27/Nov/2026 11:39:23] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:39:25] "POST /api/rehearsal/sessions/e9e0b5f9cbaf45dc91ac651b07a45671/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:27] "GET /api/rehearsal/sessions/e9e0b5f9cbaf45dc91ac651b07a45671 HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:29] "GET /api/rehearsal/sessions/e9e0b5f9cbaf45dc91ac651b07a45671 HTTP/1.1" 200 -
+ok
+test_two_sessions_are_isolated_from_each_other (test_s2_req5_isolation_replay.TestIsolationAndReplay.test_two_sessions_are_isolated_from_each_other) ... 127.0.0.1 - - [27/Nov/2026 11:39:31] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:39:34] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:39:36] "POST /api/rehearsal/sessions/1ca059c4cd01477183dcb7be9fe77b68/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:38] "POST /api/rehearsal/sessions/1ca059c4cd01477183dcb7be9fe77b68/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:40] "POST /api/rehearsal/sessions/1ca059c4cd01477183dcb7be9fe77b68/practice HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:40] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:40] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:39:42] "GET /api/rehearsal/sessions/e0055f1b1183462eb9ddd11e363f37c5 HTTP/1.1" 200 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:39:44] "GET /health HTTP/1.1" 200 -
+test_session_creation_response_labels_offline_mode (test_s2_req6_offline_mode.TestOfflineModeLabeled.test_session_creation_response_labels_offline_mode) ... 127.0.0.1 - - [27/Nov/2026 11:39:46] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+ok
+test_session_snapshot_labels_offline_mode (test_s2_req6_offline_mode.TestOfflineModeLabeled.test_session_snapshot_labels_offline_mode) ... 127.0.0.1 - - [27/Nov/2026 11:39:48] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:39:50] "GET /api/rehearsal/sessions/0c8b1fea5f3345d6b4cbbe247260bf46 HTTP/1.1" 200 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:39:53] "GET /health HTTP/1.1" 200 -
+test_full_demo_to_retry_journey (test_s2_req7_ui_journey.TestRehearsalUiJourney.test_full_demo_to_retry_journey) ... 127.0.0.1 - - [27/Nov/2026 11:39:55] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:56] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:39:56] "POST /api/rehearsal/sessions/11f3cf46f57c49e0ae2d73ce7ae48994/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:56] "POST /api/rehearsal/sessions/11f3cf46f57c49e0ae2d73ce7ae48994/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:56] "POST /api/rehearsal/sessions/11f3cf46f57c49e0ae2d73ce7ae48994/practice HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:56] "GET /api/rehearsal/sessions/11f3cf46f57c49e0ae2d73ce7ae48994 HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:56] "POST /api/rehearsal/sessions/11f3cf46f57c49e0ae2d73ce7ae48994/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:39:56] "POST /api/rehearsal/sessions/11f3cf46f57c49e0ae2d73ce7ae48994/retry HTTP/1.1" 200 -
+ok
+test_helper_signatures_accept_all_callsite_keywords (test_s3_contract_selfcheck.TestStage3ContractSelfCheck.test_helper_signatures_accept_all_callsite_keywords) ... ok
+test_no_assert_false_or_self_fail_placeholders (test_s3_contract_selfcheck.TestStage3ContractSelfCheck.test_no_assert_false_or_self_fail_placeholders) ... ok
+test_stable_live_module_exists_and_checks_gate_prerequisites (test_s3_contract_selfcheck.TestStage3ContractSelfCheck.test_stable_live_module_exists_and_checks_gate_prerequisites) ... ok
+test_stage3_modules_import_cleanly (test_s3_contract_selfcheck.TestStage3ContractSelfCheck.test_stage3_modules_import_cleanly) ... ok
+test_demo_path_budget_bounded_to_three_minutes (test_s3_req10_sdk_provenance_and_demo.TestSdkProvenanceAndDemoConstraints.test_demo_path_budget_bounded_to_three_minutes) ... ok
+test_prohibit_deploy_and_submit_scripts (test_s3_req10_sdk_provenance_and_demo.TestSdkProvenanceAndDemoConstraints.test_prohibit_deploy_and_submit_scripts) ... ok
+test_sdk_provenance_is_frozen_to_official_bundle (test_s3_req10_sdk_provenance_and_demo.TestSdkProvenanceAndDemoConstraints.test_sdk_provenance_is_frozen_to_official_bundle) ... ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:39:59] "GET /health HTTP/1.1" 200 -
+test_adapter_cleanup_lifecycle_and_ledger_on_success (test_s3_req2_server_adapter.TestNapsterServerAdapter.test_adapter_cleanup_lifecycle_and_ledger_on_success) ... 127.0.0.1 - - [27/Nov/2026 11:40:01] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:40:03] "POST /api/rehearsal/sessions/608680de1f6d4ce3b4ed5fd630f9c160/napster-session HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:40:05] "DELETE /api/rehearsal/sessions/608680de1f6d4ce3b4ed5fd630f9c160/napster-session HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:40:07] "DELETE /api/rehearsal/sessions/608680de1f6d4ce3b4ed5fd630f9c160/napster-session HTTP/1.1" 200 -
+ok
+test_adapter_cleanup_on_error_path (test_s3_req2_server_adapter.TestNapsterServerAdapter.test_adapter_cleanup_on_error_path) ... 127.0.0.1 - - [27/Nov/2026 11:40:09] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:40:10] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:40:10] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:40:11] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:40:13] "POST /api/rehearsal/sessions/0c2e7fcac4d84d44937536b1181d6cf6/napster-session HTTP/1.1" 502 -
+127.0.0.1 - - [27/Nov/2026 11:40:15] "DELETE /api/rehearsal/sessions/0c2e7fcac4d84d44937536b1181d6cf6/napster-session HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:40:17] "DELETE /api/rehearsal/sessions/e49c744fdb8e485890f16a044a066495/napster-session HTTP/1.1" 200 -
+ok
+test_adapter_concurrent_single_flight_duplicate_rejection (test_s3_req2_server_adapter.TestNapsterServerAdapter.test_adapter_concurrent_single_flight_duplicate_rejection) ... 127.0.0.1 - - [27/Nov/2026 11:40:20] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:40:24] "POST /api/rehearsal/sessions/d3ee3028e3564979ac43877050ac965e/napster-session HTTP/1.1" 409 -
+127.0.0.1 - - [27/Nov/2026 11:40:24] "POST /api/rehearsal/sessions/d3ee3028e3564979ac43877050ac965e/napster-session HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:40:26] "DELETE /api/rehearsal/sessions/d3ee3028e3564979ac43877050ac965e/napster-session HTTP/1.1" 200 -
+ok
+test_adapter_cooldown_after_failure (test_s3_req2_server_adapter.TestNapsterServerAdapter.test_adapter_cooldown_after_failure) ... 127.0.0.1 - - [27/Nov/2026 11:40:28] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:40:30] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:40:32] "POST /api/rehearsal/sessions/4446976df854468b835935269faaceac/napster-session HTTP/1.1" 502 -
+127.0.0.1 - - [27/Nov/2026 11:40:34] "POST /api/rehearsal/sessions/4446976df854468b835935269faaceac/napster-session HTTP/1.1" 429 -
+127.0.0.1 - - [27/Nov/2026 11:40:36] "DELETE /api/rehearsal/sessions/4446976df854468b835935269faaceac/napster-session HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:40:38] "DELETE /api/rehearsal/sessions/de45b875fcb04235b99c817e61842ed4/napster-session HTTP/1.1" 200 -
+ok
+test_adapter_creates_agent_scoped_webrtc_session (test_s3_req2_server_adapter.TestNapsterServerAdapter.test_adapter_creates_agent_scoped_webrtc_session) ... 127.0.0.1 - - [27/Nov/2026 11:40:40] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:40:40] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:40:40] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:40:42] "POST /api/rehearsal/sessions/80b52a288a604c36bb2e591502d6b5b0/napster-session HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:40:44] "DELETE /api/rehearsal/sessions/80b52a288a604c36bb2e591502d6b5b0/napster-session HTTP/1.1" 200 -
+ok
+test_adapter_does_not_retry_on_400_401_403_or_500 (test_s3_req2_server_adapter.TestNapsterServerAdapter.test_adapter_does_not_retry_on_400_401_403_or_500) ... 127.0.0.1 - - [27/Nov/2026 11:40:46] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:40:48] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:40:50] "POST /api/rehearsal/sessions/cd114c0945db4eca99b6f662397124e9/napster-session HTTP/1.1" 502 -
+127.0.0.1 - - [27/Nov/2026 11:40:53] "DELETE /api/rehearsal/sessions/cd114c0945db4eca99b6f662397124e9/napster-session HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:40:55] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:40:57] "POST /api/rehearsal/sessions/5bb9f1989da145ba84c8aab14c5c6c67/napster-session HTTP/1.1" 502 -
+127.0.0.1 - - [27/Nov/2026 11:40:59] "DELETE /api/rehearsal/sessions/5bb9f1989da145ba84c8aab14c5c6c67/napster-session HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:01] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:41:03] "POST /api/rehearsal/sessions/ba5845e1f6124c3b88fd2a2e67df2723/napster-session HTTP/1.1" 502 -
+127.0.0.1 - - [27/Nov/2026 11:41:05] "DELETE /api/rehearsal/sessions/ba5845e1f6124c3b88fd2a2e67df2723/napster-session HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:07] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:41:09] "POST /api/rehearsal/sessions/27a4202cb36f4c72b72d3701b42ae738/napster-session HTTP/1.1" 502 -
+127.0.0.1 - - [27/Nov/2026 11:41:11] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:11] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:41:11] "DELETE /api/rehearsal/sessions/27a4202cb36f4c72b72d3701b42ae738/napster-session HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:13] "DELETE /api/rehearsal/sessions/d767f182e1f24cdc9843a63e8f9e673b/napster-session HTTP/1.1" 200 -
+ok
+test_adapter_honors_configurable_napster_base_url (test_s3_req2_server_adapter.TestNapsterServerAdapter.test_adapter_honors_configurable_napster_base_url) ... 127.0.0.1 - - [27/Nov/2026 11:41:15] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:41:17] "POST /api/rehearsal/sessions/8a621acceefe4ec1b74d549d113561ed/napster-session HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:19] "DELETE /api/rehearsal/sessions/8a621acceefe4ec1b74d549d113561ed/napster-session HTTP/1.1" 200 -
+ok
+test_adapter_never_exposes_api_key_to_browser_or_evidence (test_s3_req2_server_adapter.TestNapsterServerAdapter.test_adapter_never_exposes_api_key_to_browser_or_evidence) ... 127.0.0.1 - - [27/Nov/2026 11:41:21] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:41:23] "POST /api/rehearsal/sessions/65c3f3c8d5d045158e4708bacb6d54c1/napster-session HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:26] "GET /api/rehearsal/sessions/65c3f3c8d5d045158e4708bacb6d54c1 HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:28] "DELETE /api/rehearsal/sessions/65c3f3c8d5d045158e4708bacb6d54c1/napster-session HTTP/1.1" 200 -
+ok
+test_adapter_retries_bounded_only_on_409_and_429 (test_s3_req2_server_adapter.TestNapsterServerAdapter.test_adapter_retries_bounded_only_on_409_and_429) ... 127.0.0.1 - - [27/Nov/2026 11:41:30] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:41:32] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:41:34] "POST /api/rehearsal/sessions/720b262d31874d37a0d7a6699645d671/napster-session HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:36] "DELETE /api/rehearsal/sessions/720b262d31874d37a0d7a6699645d671/napster-session HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:38] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:41:41] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:41] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:41:41] "POST /api/rehearsal/sessions/03fb2112321545fe9fd9d7eb8273660b/napster-session HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:43] "DELETE /api/rehearsal/sessions/03fb2112321545fe9fd9d7eb8273660b/napster-session HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:45] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:41:48] "POST /api/rehearsal/sessions/1aabae6ad57a4c31b468549c516177f3/napster-session HTTP/1.1" 429 -
+127.0.0.1 - - [27/Nov/2026 11:41:50] "DELETE /api/rehearsal/sessions/1aabae6ad57a4c31b468549c516177f3/napster-session HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:52] "DELETE /api/rehearsal/sessions/319669828f6440ec83ccb66c2cc3165b/napster-session HTTP/1.1" 200 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:41:55] "GET /health HTTP/1.1" 200 -
+test_full_embodied_journey_with_opt_in_and_mic_fallback (test_s3_req4_ui_journey.TestStage3UiEmbodiedJourney.test_full_embodied_journey_with_opt_in_and_mic_fallback) ... 127.0.0.1 - - [27/Nov/2026 11:41:55] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:56] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:41:56] "GET /vendor/napster-companion-api/2.0.0/bundle.js HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:56] "POST /api/rehearsal/sessions/604c22dbe1f34c09b4732305f81bb53c/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:56] "POST /api/rehearsal/sessions/604c22dbe1f34c09b4732305f81bb53c/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:56] "POST /api/rehearsal/sessions/604c22dbe1f34c09b4732305f81bb53c/practice HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:56] "GET /api/rehearsal/sessions/604c22dbe1f34c09b4732305f81bb53c HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:56] "POST /api/rehearsal/sessions/604c22dbe1f34c09b4732305f81bb53c/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:57] "POST /api/rehearsal/sessions/604c22dbe1f34c09b4732305f81bb53c/retry HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:41:57] "DELETE /api/rehearsal/sessions/604c22dbe1f34c09b4732305f81bb53c/napster-session HTTP/1.1" 200 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:41:59] "GET /health HTTP/1.1" 200 -
+test_forbid_meeting_bot_join_and_control (test_s3_req6_app_local_handoff.TestAppLocalHandoffAndRestrictions.test_forbid_meeting_bot_join_and_control) ... 127.0.0.1 - - [27/Nov/2026 11:42:01] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:42:03] "POST /api/rehearsal/sessions/ac3c8bc0538540809f074ed868fb09a4/advance HTTP/1.1" 409 -
+127.0.0.1 - - [27/Nov/2026 11:42:05] "POST /api/rehearsal/sessions/ac3c8bc0538540809f074ed868fb09a4/advance HTTP/1.1" 409 -
+127.0.0.1 - - [27/Nov/2026 11:42:07] "POST /api/rehearsal/sessions/ac3c8bc0538540809f074ed868fb09a4/advance HTTP/1.1" 409 -
+ok
+test_forbid_real_person_voice_cloning (test_s3_req6_app_local_handoff.TestAppLocalHandoffAndRestrictions.test_forbid_real_person_voice_cloning) ... 127.0.0.1 - - [27/Nov/2026 11:42:09] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:42:11] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:42:11] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:42:12] "POST /api/rehearsal/sessions/1789c4d7f83c4c57a2c417f09d728214/practice HTTP/1.1" 409 -
+127.0.0.1 - - [27/Nov/2026 11:42:14] "POST /api/rehearsal/sessions/1789c4d7f83c4c57a2c417f09d728214/practice HTTP/1.1" 409 -
+127.0.0.1 - - [27/Nov/2026 11:42:16] "POST /api/rehearsal/sessions/1789c4d7f83c4c57a2c417f09d728214/practice HTTP/1.1" 409 -
+ok
+test_forbid_sip_telephony_transfer (test_s3_req6_app_local_handoff.TestAppLocalHandoffAndRestrictions.test_forbid_sip_telephony_transfer) ... 127.0.0.1 - - [27/Nov/2026 11:42:18] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:42:20] "POST /api/rehearsal/sessions/8d37c6f2ecb4400f9f65025bff3a68e8/advance HTTP/1.1" 409 -
+127.0.0.1 - - [27/Nov/2026 11:42:22] "POST /api/rehearsal/sessions/8d37c6f2ecb4400f9f65025bff3a68e8/advance HTTP/1.1" 409 -
+127.0.0.1 - - [27/Nov/2026 11:42:24] "POST /api/rehearsal/sessions/8d37c6f2ecb4400f9f65025bff3a68e8/advance HTTP/1.1" 409 -
+ok
+test_sah_handoff_is_app_local_through_deterministic_states (test_s3_req6_app_local_handoff.TestAppLocalHandoffAndRestrictions.test_sah_handoff_is_app_local_through_deterministic_states) ... 127.0.0.1 - - [27/Nov/2026 11:42:26] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:42:28] "GET /api/rehearsal/sessions/97a808a6a6144f24bd25309848027898 HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:42:30] "POST /api/rehearsal/sessions/97a808a6a6144f24bd25309848027898/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:42:32] "POST /api/rehearsal/sessions/97a808a6a6144f24bd25309848027898/advance HTTP/1.1" 200 -
+ok
+setUpClass (test_s3_req7_live_gate.TestNapsterLiveOnlyGate) ... skipped 'explicit non-certifying skip: SAH_NAPSTER_LIVE=1, NAPSTER_API_KEY, and NAPSTER_AGENT_ID required; zero vendor calls made'
+test_cleanup_preserves_and_does_not_mask_original_probe_error (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_cleanup_preserves_and_does_not_mask_original_probe_error)
+Regression test for R2 #4: ... ok
+test_credential_free_stage3_evidence_builder_and_writer_dry_run (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_credential_free_stage3_evidence_builder_and_writer_dry_run)
+Credential-free end-to-end dry-run of the actual evidence builder and atomic writer path. ... ok
+test_evidence_rejects_historical_and_unsupported_hosts_in_live_mode (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_evidence_rejects_historical_and_unsupported_hosts_in_live_mode) ... ok
+test_evidence_rejects_loopback_in_live_certification_mode (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_evidence_rejects_loopback_in_live_certification_mode) ... ok
+test_evidence_rejects_missing_or_null_utc_timestamps (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_evidence_rejects_missing_or_null_utc_timestamps) ... ok
+test_evidence_rejects_non_https_and_userinfo_and_non_default_ports (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_evidence_rejects_non_https_and_userinfo_and_non_default_ports) ... ok
+test_evidence_rejects_personal_transcript_content (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_evidence_rejects_personal_transcript_content) ... ok
+test_evidence_rejects_placeholders_and_fixture_ids (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_evidence_rejects_placeholders_and_fixture_ids) ... ok
+test_evidence_rejects_private_and_documentation_ips_in_live_mode (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_evidence_rejects_private_and_documentation_ips_in_live_mode) ... ok
+test_evidence_rejects_raw_tokens_or_credentials (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_evidence_rejects_raw_tokens_or_credentials) ... ok
+test_evidence_rejects_synthetic_epoch_or_future_timestamps (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_evidence_rejects_synthetic_epoch_or_future_timestamps) ... ok
+test_evidence_requires_redacted_flag_true (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_evidence_requires_redacted_flag_true) ... ok
+test_fake_media_flags_and_microphone_permission_setup_present (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_fake_media_flags_and_microphone_permission_setup_present)
+Regression test for R2 #1: ... ok
+test_fallback_cleanup_aborts_without_request_when_deadline_exhausted (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_fallback_cleanup_aborts_without_request_when_deadline_exhausted)
+Regression test for defect #2: ... ok
+test_mock_or_offline_success_is_insufficient_for_stage3_certification (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_mock_or_offline_success_is_insufficient_for_stage3_certification) ... ok
+test_no_real_person_capture_is_used (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_no_real_person_capture_is_used)
+Regression test for R2 #1 & #5: ... ok
+test_observer_captures_generic_session_post (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_observer_captures_generic_session_post)
+Pure observer must extract session_id from generic rehearsal session POST. ... ok
+test_observer_captures_napster_post_200_status_and_hash (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_observer_captures_napster_post_200_status_and_hash)
+Pure observer must capture status 200 and immediately compute SHA-256 hash. ... ok
+test_observer_malformed_or_missing_id_fails_certification (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_observer_malformed_or_missing_id_fails_certification)
+Malformed or missing connection ID in 200 response yields None hash and fails certification. ... ok
+test_observer_napster_classification_wins_despite_sharing_rehearsal_sessions_prefix (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_observer_napster_classification_wins_despite_sharing_rehearsal_sessions_prefix)
+Regression for Cycle 5 failure: specific /napster-session POST must not be swallowed by /api/rehearsal/sessions. ... ok
+test_observer_raw_token_and_connection_id_absent_from_holders (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_observer_raw_token_and_connection_id_absent_from_holders)
+Raw connection ID and token must never be retained in memory holders. ... ok
+test_official_approved_host_passes_live_certification (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_official_approved_host_passes_live_certification) ... ok
+test_post_disconnect_release_wait_returns_strict_boolean_conjunction_not_object (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_post_disconnect_release_wait_returns_strict_boolean_conjunction_not_object)
+Regression test for defect #1: ... ok
+test_post_observed_with_no_active_connection_fails_as_inconsistent (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_post_observed_with_no_active_connection_fails_as_inconsistent)
+Regression test for R2 #3: ... ok
+test_valid_stage3_evidence_passes (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_valid_stage3_evidence_passes) ... ok
+test_zero_post_no_active_connection_is_cleanup_safe_but_non_certifying (test_s3_req8_evidence_schema.TestEvidenceSchemaAndCertification.test_zero_post_no_active_connection_is_cleanup_safe_but_non_certifying)
+Regression test for R2 #3: ... ok
+test_canonical_profile_hash_is_deterministic_and_role_specific (test_s4a_contract_selfcheck.TestStage4AContractSelfCheck.test_canonical_profile_hash_is_deterministic_and_role_specific) ... ok
+test_every_product_module_exists_imports_and_contains_tests (test_s4a_contract_selfcheck.TestStage4AContractSelfCheck.test_every_product_module_exists_imports_and_contains_tests) ... ok
+test_suite_has_no_skips_or_placeholder_assertions (test_s4a_contract_selfcheck.TestStage4AContractSelfCheck.test_suite_has_no_skips_or_placeholder_assertions) ... ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:42:35] "GET /health HTTP/1.1" 200 -
+test_approved_synthetic_profile_compiles_with_canonical_hashes (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_approved_synthetic_profile_compiles_with_canonical_hashes) ... 127.0.0.1 - - [27/Nov/2026 11:42:37] "POST /api/personas/profiles HTTP/1.1" 201 -
+ok
+test_authority_tier_above_a2_is_rejected_with_p06 (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_authority_tier_above_a2_is_rejected_with_p06) ... 127.0.0.1 - - [27/Nov/2026 11:42:39] "POST /api/personas/profiles HTTP/1.1" 422 -
+ok
+test_biometric_source_is_rejected_with_p04 (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_biometric_source_is_rejected_with_p04) ... 127.0.0.1 - - [27/Nov/2026 11:42:41] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:42:41] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:42:41] "POST /api/personas/profiles HTTP/1.1" 422 -
+ok
+test_body_double_and_counterpart_profiles_have_distinct_hashes_and_refs (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_body_double_and_counterpart_profiles_have_distinct_hashes_and_refs) ... 127.0.0.1 - - [27/Nov/2026 11:42:43] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:42:45] "POST /api/personas/profiles HTTP/1.1" 201 -
+ok
+test_instruction_text_injected_into_profile_field_is_rejected_with_p17 (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_instruction_text_injected_into_profile_field_is_rejected_with_p17) ... 127.0.0.1 - - [27/Nov/2026 11:42:47] "POST /api/personas/profiles HTTP/1.1" 422 -
+ok
+test_missing_required_field_is_rejected_with_p19 (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_missing_required_field_is_rejected_with_p19) ... 127.0.0.1 - - [27/Nov/2026 11:42:49] "POST /api/personas/profiles HTTP/1.1" 422 -
+ok
+test_non_synthetic_identity_kind_is_rejected_with_p01 (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_non_synthetic_identity_kind_is_rejected_with_p01) ... 127.0.0.1 - - [27/Nov/2026 11:42:51] "POST /api/personas/profiles HTTP/1.1" 422 -
+ok
+test_payment_authority_is_rejected_with_p07 (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_payment_authority_is_rejected_with_p07) ... 127.0.0.1 - - [27/Nov/2026 11:42:53] "POST /api/personas/profiles HTTP/1.1" 422 -
+ok
+test_public_figure_display_name_is_rejected_with_p02 (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_public_figure_display_name_is_rejected_with_p02) ... 127.0.0.1 - - [27/Nov/2026 11:42:55] "POST /api/personas/profiles HTTP/1.1" 422 -
+ok
+test_public_figure_profile_is_rejected_with_p02 (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_public_figure_profile_is_rejected_with_p02) ... 127.0.0.1 - - [27/Nov/2026 11:42:57] "POST /api/personas/profiles HTTP/1.1" 422 -
+ok
+test_raw_unsealed_profile_is_rejected_with_p15 (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_raw_unsealed_profile_is_rejected_with_p15) ... 127.0.0.1 - - [27/Nov/2026 11:42:59] "POST /api/personas/profiles HTTP/1.1" 422 -
+ok
+test_real_person_reference_is_rejected_with_p03 (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_real_person_reference_is_rejected_with_p03) ... 127.0.0.1 - - [27/Nov/2026 11:43:01] "POST /api/personas/profiles HTTP/1.1" 422 -
+ok
+test_signing_authority_is_rejected_with_p07 (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_signing_authority_is_rejected_with_p07) ... 127.0.0.1 - - [27/Nov/2026 11:43:03] "POST /api/personas/profiles HTTP/1.1" 422 -
+ok
+test_tampered_profile_hash_is_rejected_with_p15 (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_tampered_profile_hash_is_rejected_with_p15) ... 127.0.0.1 - - [27/Nov/2026 11:43:06] "POST /api/personas/profiles HTTP/1.1" 422 -
+ok
+test_third_party_contact_authority_is_rejected_with_p07 (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_third_party_contact_authority_is_rejected_with_p07) ... 127.0.0.1 - - [27/Nov/2026 11:43:08] "POST /api/personas/profiles HTTP/1.1" 422 -
+ok
+test_unknown_nested_field_is_rejected_with_p18 (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_unknown_nested_field_is_rejected_with_p18) ... 127.0.0.1 - - [27/Nov/2026 11:43:10] "POST /api/personas/profiles HTTP/1.1" 422 -
+ok
+test_unknown_top_level_field_is_rejected_with_p18_and_zero_echo (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_unknown_top_level_field_is_rejected_with_p18_and_zero_echo) ... 127.0.0.1 - - [27/Nov/2026 11:43:11] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:43:11] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:43:12] "POST /api/personas/profiles HTTP/1.1" 422 -
+ok
+test_voice_clone_of_real_person_is_rejected_with_p05 (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_voice_clone_of_real_person_is_rejected_with_p05) ... 127.0.0.1 - - [27/Nov/2026 11:43:14] "POST /api/personas/profiles HTTP/1.1" 422 -
+ok
+test_wrong_schema_version_is_rejected_with_p19 (test_s4a_req1_persona_compiler.TestSyntheticPersonaCompiler.test_wrong_schema_version_is_rejected_with_p19) ... 127.0.0.1 - - [27/Nov/2026 11:43:16] "POST /api/personas/profiles HTTP/1.1" 422 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:43:18] "GET /health HTTP/1.1" 200 -
+test_body_double_view_carries_its_own_marker_and_not_the_counterparts (test_s4a_req2_two_role_projection.TestTwoRoleProjectionIsolation.test_body_double_view_carries_its_own_marker_and_not_the_counterparts) ... 127.0.0.1 - - [27/Nov/2026 11:43:20] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:43:22] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:43:24] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:43:26] "POST /api/rehearsal/sessions/fd4b799b5e614b25ae56d49c889c812d/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:43:28] "POST /api/rehearsal/sessions/fd4b799b5e614b25ae56d49c889c812d/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:43:30] "GET /api/rehearsal/sessions/fd4b799b5e614b25ae56d49c889c812d/projection?view=body_double HTTP/1.1" 200 -
+ok
+test_browser_view_has_only_public_state_and_no_internal_markers (test_s4a_req2_two_role_projection.TestTwoRoleProjectionIsolation.test_browser_view_has_only_public_state_and_no_internal_markers) ... 127.0.0.1 - - [27/Nov/2026 11:43:32] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:43:35] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:43:37] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:43:39] "POST /api/rehearsal/sessions/1935e8dbe10b469da11b2ee202eb5159/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:43:41] "POST /api/rehearsal/sessions/1935e8dbe10b469da11b2ee202eb5159/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:43:41] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:43:41] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:43:43] "GET /api/rehearsal/sessions/1935e8dbe10b469da11b2ee202eb5159/projection?view=browser HTTP/1.1" 200 -
+ok
+test_counterpart_view_carries_its_own_marker_and_not_the_body_doubles (test_s4a_req2_two_role_projection.TestTwoRoleProjectionIsolation.test_counterpart_view_carries_its_own_marker_and_not_the_body_doubles) ... 127.0.0.1 - - [27/Nov/2026 11:43:45] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:43:47] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:43:49] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:43:51] "POST /api/rehearsal/sessions/0ffcc9cee2f94158b30bf7f937657f2a/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:43:53] "POST /api/rehearsal/sessions/0ffcc9cee2f94158b30bf7f937657f2a/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:43:55] "GET /api/rehearsal/sessions/0ffcc9cee2f94158b30bf7f937657f2a/projection?view=counterpart HTTP/1.1" 200 -
+ok
+test_session_binds_both_distinct_personas_with_their_hashes (test_s4a_req2_two_role_projection.TestTwoRoleProjectionIsolation.test_session_binds_both_distinct_personas_with_their_hashes) ... 127.0.0.1 - - [27/Nov/2026 11:43:57] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:43:59] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:44:01] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+ok
+test_three_views_are_mutually_distinct (test_s4a_req2_two_role_projection.TestTwoRoleProjectionIsolation.test_three_views_are_mutually_distinct) ... 127.0.0.1 - - [27/Nov/2026 11:44:03] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:44:05] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:44:07] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:44:09] "POST /api/rehearsal/sessions/dd0ec503ef5e4884bb0d462d1b255bf2/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:44:11] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:44:11] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:44:11] "POST /api/rehearsal/sessions/dd0ec503ef5e4884bb0d462d1b255bf2/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:44:14] "GET /api/rehearsal/sessions/dd0ec503ef5e4884bb0d462d1b255bf2/projection?view=body_double HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:44:16] "GET /api/rehearsal/sessions/dd0ec503ef5e4884bb0d462d1b255bf2/projection?view=counterpart HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:44:18] "GET /api/rehearsal/sessions/dd0ec503ef5e4884bb0d462d1b255bf2/projection?view=browser HTTP/1.1" 200 -
+ok
+test_unknown_view_is_rejected_and_unknown_session_is_not_found (test_s4a_req2_two_role_projection.TestTwoRoleProjectionIsolation.test_unknown_view_is_rejected_and_unknown_session_is_not_found) ... 127.0.0.1 - - [27/Nov/2026 11:44:20] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:44:22] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:44:24] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:44:26] "POST /api/rehearsal/sessions/64670dfd6f3b404fb8831f4914e129d2/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:44:28] "POST /api/rehearsal/sessions/64670dfd6f3b404fb8831f4914e129d2/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:44:30] "GET /api/rehearsal/sessions/64670dfd6f3b404fb8831f4914e129d2/projection?view=vendor HTTP/1.1" 400 -
+127.0.0.1 - - [27/Nov/2026 11:44:32] "GET /api/rehearsal/sessions/does-not-exist/projection?view=browser HTTP/1.1" 404 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:44:34] "GET /health HTTP/1.1" 200 -
+test_two_concurrent_turns_yield_one_200_one_turn_in_flight_and_one_commit (test_s4a_req3_turns.TestGenuineSingleFlightConcurrency.test_two_concurrent_turns_yield_one_200_one_turn_in_flight_and_one_commit) ... 127.0.0.1 - - [27/Nov/2026 11:44:36] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:44:39] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:44:41] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:44:41] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:44:41] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:44:43] "POST /api/rehearsal/sessions/5617d46d5dba4044ab382b02f9043252/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:44:45] "POST /api/rehearsal/sessions/5617d46d5dba4044ab382b02f9043252/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:44:47] "POST /api/rehearsal/sessions/5617d46d5dba4044ab382b02f9043252/turns HTTP/1.1" 409 -
+127.0.0.1 - - [27/Nov/2026 11:44:48] "POST /api/rehearsal/sessions/5617d46d5dba4044ab382b02f9043252/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:44:50] "GET /api/rehearsal/sessions/5617d46d5dba4044ab382b02f9043252/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:44:52] "GET /api/rehearsal/sessions/5617d46d5dba4044ab382b02f9043252 HTTP/1.1" 200 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:44:55] "GET /health HTTP/1.1" 200 -
+test_client_cannot_inject_a_counterpart_turn (test_s4a_req3_turns.TestServerAuthoritativeTurns.test_client_cannot_inject_a_counterpart_turn) ... 127.0.0.1 - - [27/Nov/2026 11:44:57] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:44:59] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:45:01] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:45:03] "POST /api/rehearsal/sessions/06d0d8cdb73f4a84bfd0a68ae33c41c1/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:45:05] "POST /api/rehearsal/sessions/06d0d8cdb73f4a84bfd0a68ae33c41c1/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:45:07] "POST /api/rehearsal/sessions/06d0d8cdb73f4a84bfd0a68ae33c41c1/turns HTTP/1.1" 422 -
+127.0.0.1 - - [27/Nov/2026 11:45:09] "GET /api/rehearsal/sessions/06d0d8cdb73f4a84bfd0a68ae33c41c1/evidence HTTP/1.1" 200 -
+ok
+test_initial_turn_has_exact_sequence_and_typed_response (test_s4a_req3_turns.TestServerAuthoritativeTurns.test_initial_turn_has_exact_sequence_and_typed_response) ... 127.0.0.1 - - [27/Nov/2026 11:45:11] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:45:11] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:45:11] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:45:13] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:45:15] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:45:17] "POST /api/rehearsal/sessions/bf5413584389493685bc4b6a29213514/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:45:19] "POST /api/rehearsal/sessions/bf5413584389493685bc4b6a29213514/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:45:22] "POST /api/rehearsal/sessions/bf5413584389493685bc4b6a29213514/turns HTTP/1.1" 200 -
+ok
+test_next_turn_sequence_is_contiguous (test_s4a_req3_turns.TestServerAuthoritativeTurns.test_next_turn_sequence_is_contiguous) ... 127.0.0.1 - - [27/Nov/2026 11:45:24] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:45:26] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:45:28] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:45:30] "POST /api/rehearsal/sessions/bce28e49c9e14e6a99bdc33413076024/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:45:32] "POST /api/rehearsal/sessions/bce28e49c9e14e6a99bdc33413076024/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:45:34] "POST /api/rehearsal/sessions/bce28e49c9e14e6a99bdc33413076024/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:45:36] "POST /api/rehearsal/sessions/bce28e49c9e14e6a99bdc33413076024/turns HTTP/1.1" 200 -
+ok
+test_out_of_order_sequence_is_rejected_without_commit (test_s4a_req3_turns.TestServerAuthoritativeTurns.test_out_of_order_sequence_is_rejected_without_commit) ... 127.0.0.1 - - [27/Nov/2026 11:45:38] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:45:40] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:45:41] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:45:41] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:45:42] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:45:44] "POST /api/rehearsal/sessions/ad1a98f90fcb4a9f8b8b7cd9c8caf09b/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:45:46] "POST /api/rehearsal/sessions/ad1a98f90fcb4a9f8b8b7cd9c8caf09b/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:45:48] "POST /api/rehearsal/sessions/ad1a98f90fcb4a9f8b8b7cd9c8caf09b/turns HTTP/1.1" 409 -
+127.0.0.1 - - [27/Nov/2026 11:45:50] "GET /api/rehearsal/sessions/ad1a98f90fcb4a9f8b8b7cd9c8caf09b/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:45:52] "POST /api/rehearsal/sessions/ad1a98f90fcb4a9f8b8b7cd9c8caf09b/turns HTTP/1.1" 200 -
+ok
+test_same_request_id_and_body_replays_the_committed_response (test_s4a_req3_turns.TestServerAuthoritativeTurns.test_same_request_id_and_body_replays_the_committed_response) ... 127.0.0.1 - - [27/Nov/2026 11:45:54] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:45:57] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:45:59] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:46:01] "POST /api/rehearsal/sessions/d38485340b9b417c847cd3cb360ab867/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:46:03] "POST /api/rehearsal/sessions/d38485340b9b417c847cd3cb360ab867/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:46:05] "POST /api/rehearsal/sessions/d38485340b9b417c847cd3cb360ab867/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:46:07] "GET /api/rehearsal/sessions/d38485340b9b417c847cd3cb360ab867/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:46:09] "POST /api/rehearsal/sessions/d38485340b9b417c847cd3cb360ab867/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:46:11] "GET /api/rehearsal/sessions/d38485340b9b417c847cd3cb360ab867/evidence HTTP/1.1" 200 -
+ok
+test_same_request_id_with_differing_body_is_a_conflict (test_s4a_req3_turns.TestServerAuthoritativeTurns.test_same_request_id_with_differing_body_is_a_conflict) ... 127.0.0.1 - - [27/Nov/2026 11:46:11] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:46:11] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:46:13] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:46:15] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:46:17] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:46:19] "POST /api/rehearsal/sessions/43128149496746ff8b724613baaa69b6/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:46:21] "POST /api/rehearsal/sessions/43128149496746ff8b724613baaa69b6/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:46:23] "POST /api/rehearsal/sessions/43128149496746ff8b724613baaa69b6/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:46:25] "POST /api/rehearsal/sessions/43128149496746ff8b724613baaa69b6/turns HTTP/1.1" 409 -
+ok
+test_server_authoritative_reply_is_deterministic_for_equivalent_sessions (test_s4a_req3_turns.TestServerAuthoritativeTurns.test_server_authoritative_reply_is_deterministic_for_equivalent_sessions) ... 127.0.0.1 - - [27/Nov/2026 11:46:27] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:46:29] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:46:32] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:46:34] "POST /api/rehearsal/sessions/1a19649bc9854cafb9367fc2b3b05438/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:46:36] "POST /api/rehearsal/sessions/1a19649bc9854cafb9367fc2b3b05438/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:46:38] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:46:40] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:46:41] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:46:41] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:46:42] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:46:44] "POST /api/rehearsal/sessions/2d33820966394f1497b948392b7e269e/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:46:46] "POST /api/rehearsal/sessions/2d33820966394f1497b948392b7e269e/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:46:48] "POST /api/rehearsal/sessions/1a19649bc9854cafb9367fc2b3b05438/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:46:50] "POST /api/rehearsal/sessions/2d33820966394f1497b948392b7e269e/turns HTTP/1.1" 200 -
+ok
+test_snapshot_reports_committed_state_and_next_sequence (test_s4a_req3_turns.TestServerAuthoritativeTurns.test_snapshot_reports_committed_state_and_next_sequence) ... 127.0.0.1 - - [27/Nov/2026 11:46:52] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:46:54] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:46:56] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:46:58] "POST /api/rehearsal/sessions/87940fad1a574edab6c40cf695df8c9a/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:47:00] "POST /api/rehearsal/sessions/87940fad1a574edab6c40cf695df8c9a/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:47:02] "POST /api/rehearsal/sessions/87940fad1a574edab6c40cf695df8c9a/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:47:04] "GET /api/rehearsal/sessions/87940fad1a574edab6c40cf695df8c9a HTTP/1.1" 200 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:47:07] "GET /health HTTP/1.1" 200 -
+test_biometric_and_voice_clone_request_is_refused (test_s4a_req4_authority_adversarial.TestBoundedAuthorityAndAdversarialDecisions.test_biometric_and_voice_clone_request_is_refused) ... 127.0.0.1 - - [27/Nov/2026 11:47:09] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:47:11] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:47:12] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:47:12] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:47:13] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:47:15] "POST /api/rehearsal/sessions/7ff82c1a9bf14483afba9e5f20784a55/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:47:17] "POST /api/rehearsal/sessions/7ff82c1a9bf14483afba9e5f20784a55/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:47:19] "POST /api/rehearsal/sessions/7ff82c1a9bf14483afba9e5f20784a55/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:47:21] "GET /api/rehearsal/sessions/7ff82c1a9bf14483afba9e5f20784a55/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:47:23] "GET /api/rehearsal/sessions/7ff82c1a9bf14483afba9e5f20784a55 HTTP/1.1" 200 -
+ok
+test_disclosure_question_is_answered_with_approved_disclosure (test_s4a_req4_authority_adversarial.TestBoundedAuthorityAndAdversarialDecisions.test_disclosure_question_is_answered_with_approved_disclosure) ... 127.0.0.1 - - [27/Nov/2026 11:47:25] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:47:27] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:47:29] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:47:31] "POST /api/rehearsal/sessions/47f4bf962dea41de9e34d9edc5bd093c/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:47:33] "POST /api/rehearsal/sessions/47f4bf962dea41de9e34d9edc5bd093c/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:47:36] "POST /api/rehearsal/sessions/47f4bf962dea41de9e34d9edc5bd093c/turns HTTP/1.1" 200 -
+ok
+test_early_hidden_need_probe_does_not_reveal_hidden_need (test_s4a_req4_authority_adversarial.TestBoundedAuthorityAndAdversarialDecisions.test_early_hidden_need_probe_does_not_reveal_hidden_need) ... 127.0.0.1 - - [27/Nov/2026 11:47:38] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:47:40] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:47:42] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:47:42] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:47:42] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:47:44] "POST /api/rehearsal/sessions/df000c9536ae4325a5945fc4af13cd92/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:47:46] "POST /api/rehearsal/sessions/df000c9536ae4325a5945fc4af13cd92/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:47:48] "POST /api/rehearsal/sessions/df000c9536ae4325a5945fc4af13cd92/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:47:50] "GET /api/rehearsal/sessions/df000c9536ae4325a5945fc4af13cd92/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:47:52] "GET /api/rehearsal/sessions/df000c9536ae4325a5945fc4af13cd92 HTTP/1.1" 200 -
+ok
+test_external_commitment_request_is_refused (test_s4a_req4_authority_adversarial.TestBoundedAuthorityAndAdversarialDecisions.test_external_commitment_request_is_refused) ... 127.0.0.1 - - [27/Nov/2026 11:47:54] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:47:56] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:47:58] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:48:00] "POST /api/rehearsal/sessions/77ece9bf4bfa4a41ac665da9a4b3cbae/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:02] "POST /api/rehearsal/sessions/77ece9bf4bfa4a41ac665da9a4b3cbae/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:04] "POST /api/rehearsal/sessions/77ece9bf4bfa4a41ac665da9a4b3cbae/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:06] "GET /api/rehearsal/sessions/77ece9bf4bfa4a41ac665da9a4b3cbae/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:08] "GET /api/rehearsal/sessions/77ece9bf4bfa4a41ac665da9a4b3cbae HTTP/1.1" 200 -
+ok
+test_generic_real_person_impersonation_is_refused (test_s4a_req4_authority_adversarial.TestBoundedAuthorityAndAdversarialDecisions.test_generic_real_person_impersonation_is_refused) ... 127.0.0.1 - - [27/Nov/2026 11:48:10] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:48:12] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:12] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:48:13] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:48:15] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:48:17] "POST /api/rehearsal/sessions/9ffd7524ae1a453b9c70118b51aefcb5/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:19] "POST /api/rehearsal/sessions/9ffd7524ae1a453b9c70118b51aefcb5/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:21] "POST /api/rehearsal/sessions/9ffd7524ae1a453b9c70118b51aefcb5/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:23] "GET /api/rehearsal/sessions/9ffd7524ae1a453b9c70118b51aefcb5/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:25] "GET /api/rehearsal/sessions/9ffd7524ae1a453b9c70118b51aefcb5 HTTP/1.1" 200 -
+ok
+test_hidden_state_extraction_is_refused (test_s4a_req4_authority_adversarial.TestBoundedAuthorityAndAdversarialDecisions.test_hidden_state_extraction_is_refused) ... 127.0.0.1 - - [27/Nov/2026 11:48:27] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:48:29] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:48:31] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:48:33] "POST /api/rehearsal/sessions/7132e8dfc5b04b10ad2e577cb155bde9/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:35] "POST /api/rehearsal/sessions/7132e8dfc5b04b10ad2e577cb155bde9/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:37] "POST /api/rehearsal/sessions/7132e8dfc5b04b10ad2e577cb155bde9/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:39] "GET /api/rehearsal/sessions/7132e8dfc5b04b10ad2e577cb155bde9/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:41] "GET /api/rehearsal/sessions/7132e8dfc5b04b10ad2e577cb155bde9 HTTP/1.1" 200 -
+ok
+test_payment_request_is_refused (test_s4a_req4_authority_adversarial.TestBoundedAuthorityAndAdversarialDecisions.test_payment_request_is_refused) ... 127.0.0.1 - - [27/Nov/2026 11:48:42] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:42] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:48:43] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:48:45] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:48:47] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:48:50] "POST /api/rehearsal/sessions/bdb59507742d4500a33fb1dec0d81348/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:52] "POST /api/rehearsal/sessions/bdb59507742d4500a33fb1dec0d81348/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:54] "POST /api/rehearsal/sessions/bdb59507742d4500a33fb1dec0d81348/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:56] "GET /api/rehearsal/sessions/bdb59507742d4500a33fb1dec0d81348/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:48:58] "GET /api/rehearsal/sessions/bdb59507742d4500a33fb1dec0d81348 HTTP/1.1" 200 -
+ok
+test_prompt_override_is_ignored_and_refused (test_s4a_req4_authority_adversarial.TestBoundedAuthorityAndAdversarialDecisions.test_prompt_override_is_ignored_and_refused) ... 127.0.0.1 - - [27/Nov/2026 11:49:00] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:49:02] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:49:04] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:49:06] "POST /api/rehearsal/sessions/7fc6a2cd4625440886e0406cbd3ef0c2/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:49:08] "POST /api/rehearsal/sessions/7fc6a2cd4625440886e0406cbd3ef0c2/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:49:10] "POST /api/rehearsal/sessions/7fc6a2cd4625440886e0406cbd3ef0c2/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:49:12] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:49:12] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:49:12] "GET /api/rehearsal/sessions/7fc6a2cd4625440886e0406cbd3ef0c2/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:49:14] "GET /api/rehearsal/sessions/7fc6a2cd4625440886e0406cbd3ef0c2 HTTP/1.1" 200 -
+ok
+test_public_figure_impersonation_is_refused (test_s4a_req4_authority_adversarial.TestBoundedAuthorityAndAdversarialDecisions.test_public_figure_impersonation_is_refused) ... 127.0.0.1 - - [27/Nov/2026 11:49:16] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:49:18] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:49:20] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:49:22] "POST /api/rehearsal/sessions/d909c47498334dca9e67fc4dabb3fa83/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:49:24] "POST /api/rehearsal/sessions/d909c47498334dca9e67fc4dabb3fa83/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:49:26] "POST /api/rehearsal/sessions/d909c47498334dca9e67fc4dabb3fa83/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:49:28] "GET /api/rehearsal/sessions/d909c47498334dca9e67fc4dabb3fa83/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:49:31] "GET /api/rehearsal/sessions/d909c47498334dca9e67fc4dabb3fa83 HTTP/1.1" 200 -
+ok
+test_real_meeting_join_request_is_refused (test_s4a_req4_authority_adversarial.TestBoundedAuthorityAndAdversarialDecisions.test_real_meeting_join_request_is_refused) ... 127.0.0.1 - - [27/Nov/2026 11:49:33] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:49:35] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:49:37] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:49:39] "POST /api/rehearsal/sessions/dd59e360392f4bbf9de56c1d43ceba0d/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:49:41] "POST /api/rehearsal/sessions/dd59e360392f4bbf9de56c1d43ceba0d/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:49:42] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:49:42] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:49:43] "POST /api/rehearsal/sessions/dd59e360392f4bbf9de56c1d43ceba0d/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:49:45] "GET /api/rehearsal/sessions/dd59e360392f4bbf9de56c1d43ceba0d/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:49:47] "GET /api/rehearsal/sessions/dd59e360392f4bbf9de56c1d43ceba0d HTTP/1.1" 200 -
+ok
+test_signing_request_is_refused (test_s4a_req4_authority_adversarial.TestBoundedAuthorityAndAdversarialDecisions.test_signing_request_is_refused) ... 127.0.0.1 - - [27/Nov/2026 11:49:49] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:49:51] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:49:53] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:49:55] "POST /api/rehearsal/sessions/973fb8e4443046b7922741646f33d4b6/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:49:57] "POST /api/rehearsal/sessions/973fb8e4443046b7922741646f33d4b6/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:49:59] "POST /api/rehearsal/sessions/973fb8e4443046b7922741646f33d4b6/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:01] "GET /api/rehearsal/sessions/973fb8e4443046b7922741646f33d4b6/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:04] "GET /api/rehearsal/sessions/973fb8e4443046b7922741646f33d4b6 HTTP/1.1" 200 -
+ok
+test_system_instruction_extraction_is_refused (test_s4a_req4_authority_adversarial.TestBoundedAuthorityAndAdversarialDecisions.test_system_instruction_extraction_is_refused) ... 127.0.0.1 - - [27/Nov/2026 11:50:06] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:50:08] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:50:10] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:50:12] "POST /api/rehearsal/sessions/0413e7b443ce4ea79e99b1c3ec6f717c/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:12] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:12] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:50:14] "POST /api/rehearsal/sessions/0413e7b443ce4ea79e99b1c3ec6f717c/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:16] "POST /api/rehearsal/sessions/0413e7b443ce4ea79e99b1c3ec6f717c/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:18] "GET /api/rehearsal/sessions/0413e7b443ce4ea79e99b1c3ec6f717c/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:20] "GET /api/rehearsal/sessions/0413e7b443ce4ea79e99b1c3ec6f717c HTTP/1.1" 200 -
+ok
+test_third_party_contact_request_is_refused (test_s4a_req4_authority_adversarial.TestBoundedAuthorityAndAdversarialDecisions.test_third_party_contact_request_is_refused) ... 127.0.0.1 - - [27/Nov/2026 11:50:22] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:50:24] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:50:26] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:50:28] "POST /api/rehearsal/sessions/57fc905ef2ce4b6e8c115d8194d764af/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:30] "POST /api/rehearsal/sessions/57fc905ef2ce4b6e8c115d8194d764af/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:32] "POST /api/rehearsal/sessions/57fc905ef2ce4b6e8c115d8194d764af/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:34] "GET /api/rehearsal/sessions/57fc905ef2ce4b6e8c115d8194d764af/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:36] "GET /api/rehearsal/sessions/57fc905ef2ce4b6e8c115d8194d764af HTTP/1.1" 200 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:50:39] "GET /health HTTP/1.1" 200 -
+test_attempt_one_is_immutable_after_attempt_two_is_mutated (test_s4a_req5_retry_pivot.TestRetryFromServerFetchedPivot.test_attempt_one_is_immutable_after_attempt_two_is_mutated) ... 127.0.0.1 - - [27/Nov/2026 11:50:41] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:50:42] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:42] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:50:43] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:50:45] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:50:47] "POST /api/rehearsal/sessions/879fa931d619489abfdcdec551b26484/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:49] "POST /api/rehearsal/sessions/879fa931d619489abfdcdec551b26484/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:51] "GET /api/rehearsal/sessions/879fa931d619489abfdcdec551b26484/pivot HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:53] "POST /api/rehearsal/sessions/879fa931d619489abfdcdec551b26484/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:55] "POST /api/rehearsal/sessions/879fa931d619489abfdcdec551b26484/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:57] "POST /api/rehearsal/sessions/879fa931d619489abfdcdec551b26484/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:50:59] "GET /api/rehearsal/sessions/879fa931d619489abfdcdec551b26484/attempts HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:01] "POST /api/rehearsal/sessions/879fa931d619489abfdcdec551b26484/retry HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:03] "POST /api/rehearsal/sessions/879fa931d619489abfdcdec551b26484/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:05] "GET /api/rehearsal/sessions/879fa931d619489abfdcdec551b26484/attempts HTTP/1.1" 200 -
+ok
+test_discovery_must_happen_again_in_the_new_attempt (test_s4a_req5_retry_pivot.TestRetryFromServerFetchedPivot.test_discovery_must_happen_again_in_the_new_attempt) ... 127.0.0.1 - - [27/Nov/2026 11:51:08] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:51:10] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:51:12] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:51:12] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:12] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:51:14] "POST /api/rehearsal/sessions/28e67024af00488ab01c954fe361969d/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:16] "POST /api/rehearsal/sessions/28e67024af00488ab01c954fe361969d/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:18] "GET /api/rehearsal/sessions/28e67024af00488ab01c954fe361969d/pivot HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:20] "POST /api/rehearsal/sessions/28e67024af00488ab01c954fe361969d/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:22] "POST /api/rehearsal/sessions/28e67024af00488ab01c954fe361969d/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:24] "POST /api/rehearsal/sessions/28e67024af00488ab01c954fe361969d/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:26] "POST /api/rehearsal/sessions/28e67024af00488ab01c954fe361969d/retry HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:28] "POST /api/rehearsal/sessions/28e67024af00488ab01c954fe361969d/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:30] "POST /api/rehearsal/sessions/28e67024af00488ab01c954fe361969d/turns HTTP/1.1" 200 -
+ok
+test_persona_hashes_and_policy_are_stable_across_retry (test_s4a_req5_retry_pivot.TestRetryFromServerFetchedPivot.test_persona_hashes_and_policy_are_stable_across_retry) ... 127.0.0.1 - - [27/Nov/2026 11:51:32] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:51:34] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:51:36] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:51:38] "POST /api/rehearsal/sessions/ccc18eff57054095817c22003e6c2f3a/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:40] "POST /api/rehearsal/sessions/ccc18eff57054095817c22003e6c2f3a/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:42] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:42] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:51:43] "GET /api/rehearsal/sessions/ccc18eff57054095817c22003e6c2f3a/pivot HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:45] "POST /api/rehearsal/sessions/ccc18eff57054095817c22003e6c2f3a/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:47] "POST /api/rehearsal/sessions/ccc18eff57054095817c22003e6c2f3a/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:49] "POST /api/rehearsal/sessions/ccc18eff57054095817c22003e6c2f3a/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:51] "GET /api/rehearsal/sessions/ccc18eff57054095817c22003e6c2f3a HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:53] "POST /api/rehearsal/sessions/ccc18eff57054095817c22003e6c2f3a/retry HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:55] "GET /api/rehearsal/sessions/ccc18eff57054095817c22003e6c2f3a HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:57] "POST /api/rehearsal/sessions/ccc18eff57054095817c22003e6c2f3a/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:51:59] "GET /api/rehearsal/sessions/ccc18eff57054095817c22003e6c2f3a/evidence HTTP/1.1" 200 -
+ok
+test_pivot_read_is_deterministic_and_does_not_mutate_the_session (test_s4a_req5_retry_pivot.TestRetryFromServerFetchedPivot.test_pivot_read_is_deterministic_and_does_not_mutate_the_session) ... 127.0.0.1 - - [27/Nov/2026 11:52:01] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:52:03] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:52:05] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:52:07] "POST /api/rehearsal/sessions/6157f4217d71408189ac95096a1ee19a/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:09] "POST /api/rehearsal/sessions/6157f4217d71408189ac95096a1ee19a/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:11] "GET /api/rehearsal/sessions/6157f4217d71408189ac95096a1ee19a/pivot HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:12] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:12] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:52:13] "GET /api/rehearsal/sessions/6157f4217d71408189ac95096a1ee19a/pivot HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:15] "GET /api/rehearsal/sessions/6157f4217d71408189ac95096a1ee19a HTTP/1.1" 200 -
+ok
+test_retry_increments_attempt_and_restores_the_exact_pivot (test_s4a_req5_retry_pivot.TestRetryFromServerFetchedPivot.test_retry_increments_attempt_and_restores_the_exact_pivot) ... 127.0.0.1 - - [27/Nov/2026 11:52:18] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:52:20] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:52:22] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:52:24] "POST /api/rehearsal/sessions/dfdd3442ee9c4f6cbecd50f222b093a0/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:26] "POST /api/rehearsal/sessions/dfdd3442ee9c4f6cbecd50f222b093a0/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:28] "GET /api/rehearsal/sessions/dfdd3442ee9c4f6cbecd50f222b093a0/pivot HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:30] "POST /api/rehearsal/sessions/dfdd3442ee9c4f6cbecd50f222b093a0/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:32] "POST /api/rehearsal/sessions/dfdd3442ee9c4f6cbecd50f222b093a0/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:34] "POST /api/rehearsal/sessions/dfdd3442ee9c4f6cbecd50f222b093a0/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:36] "GET /api/rehearsal/sessions/dfdd3442ee9c4f6cbecd50f222b093a0/pivot HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:38] "POST /api/rehearsal/sessions/dfdd3442ee9c4f6cbecd50f222b093a0/retry HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:40] "GET /api/rehearsal/sessions/dfdd3442ee9c4f6cbecd50f222b093a0 HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:42] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:42] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:52:42] "GET /api/rehearsal/sessions/dfdd3442ee9c4f6cbecd50f222b093a0/pivot HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:44] "POST /api/rehearsal/sessions/dfdd3442ee9c4f6cbecd50f222b093a0/turns HTTP/1.1" 200 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:52:47] "GET /health HTTP/1.1" 200 -
+test_evidence_never_contains_hidden_markers_secrets_or_media (test_s4a_req6_evidence_feedback.TestAppendOnlyEvidence.test_evidence_never_contains_hidden_markers_secrets_or_media) ... 127.0.0.1 - - [27/Nov/2026 11:52:49] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:52:51] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:52:53] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:52:55] "POST /api/rehearsal/sessions/a38eb0fcefb24bfabb71c9c5a539c3b7/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:57] "POST /api/rehearsal/sessions/a38eb0fcefb24bfabb71c9c5a539c3b7/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:52:59] "POST /api/rehearsal/sessions/a38eb0fcefb24bfabb71c9c5a539c3b7/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:01] "POST /api/rehearsal/sessions/a38eb0fcefb24bfabb71c9c5a539c3b7/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:03] "GET /api/rehearsal/sessions/a38eb0fcefb24bfabb71c9c5a539c3b7/evidence HTTP/1.1" 200 -
+ok
+test_feedback_quotes_are_isolated_between_two_attempts (test_s4a_req6_evidence_feedback.TestAppendOnlyEvidence.test_feedback_quotes_are_isolated_between_two_attempts) ... 127.0.0.1 - - [27/Nov/2026 11:53:05] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:53:07] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:53:09] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:53:11] "POST /api/rehearsal/sessions/fa3b096b684f419d858abb26dc897d6f/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:12] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:12] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:53:13] "POST /api/rehearsal/sessions/fa3b096b684f419d858abb26dc897d6f/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:15] "POST /api/rehearsal/sessions/fa3b096b684f419d858abb26dc897d6f/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:18] "POST /api/rehearsal/sessions/fa3b096b684f419d858abb26dc897d6f/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:20] "POST /api/rehearsal/sessions/fa3b096b684f419d858abb26dc897d6f/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:22] "GET /api/rehearsal/sessions/fa3b096b684f419d858abb26dc897d6f/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:24] "POST /api/rehearsal/sessions/fa3b096b684f419d858abb26dc897d6f/retry HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:26] "POST /api/rehearsal/sessions/fa3b096b684f419d858abb26dc897d6f/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:28] "POST /api/rehearsal/sessions/fa3b096b684f419d858abb26dc897d6f/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:30] "POST /api/rehearsal/sessions/fa3b096b684f419d858abb26dc897d6f/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:32] "GET /api/rehearsal/sessions/fa3b096b684f419d858abb26dc897d6f/attempts HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:34] "GET /api/rehearsal/sessions/fa3b096b684f419d858abb26dc897d6f/evidence HTTP/1.1" 200 -
+ok
+test_feedback_quotes_are_nonempty_structured_and_verbatim (test_s4a_req6_evidence_feedback.TestAppendOnlyEvidence.test_feedback_quotes_are_nonempty_structured_and_verbatim) ... 127.0.0.1 - - [27/Nov/2026 11:53:36] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:53:38] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:53:40] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:53:42] "POST /api/rehearsal/sessions/8c629bfd34c74563bdd1c35568ea006f/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:42] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:42] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:53:44] "POST /api/rehearsal/sessions/8c629bfd34c74563bdd1c35568ea006f/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:46] "POST /api/rehearsal/sessions/8c629bfd34c74563bdd1c35568ea006f/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:48] "POST /api/rehearsal/sessions/8c629bfd34c74563bdd1c35568ea006f/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:50] "POST /api/rehearsal/sessions/8c629bfd34c74563bdd1c35568ea006f/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:53:52] "GET /api/rehearsal/sessions/8c629bfd34c74563bdd1c35568ea006f/evidence HTTP/1.1" 200 -
+ok
+test_log_is_versioned_and_keeps_a_stable_strictly_increasing_prefix (test_s4a_req6_evidence_feedback.TestAppendOnlyEvidence.test_log_is_versioned_and_keeps_a_stable_strictly_increasing_prefix) ... 127.0.0.1 - - [27/Nov/2026 11:53:54] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:53:56] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:53:59] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:54:01] "POST /api/rehearsal/sessions/e0e4b5b7f972462aa63d7b98ce6e38d8/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:54:03] "POST /api/rehearsal/sessions/e0e4b5b7f972462aa63d7b98ce6e38d8/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:54:05] "POST /api/rehearsal/sessions/e0e4b5b7f972462aa63d7b98ce6e38d8/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:54:07] "GET /api/rehearsal/sessions/e0e4b5b7f972462aa63d7b98ce6e38d8/evidence HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:54:09] "POST /api/rehearsal/sessions/e0e4b5b7f972462aa63d7b98ce6e38d8/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:54:11] "GET /api/rehearsal/sessions/e0e4b5b7f972462aa63d7b98ce6e38d8/evidence HTTP/1.1" 200 -
+ok
+test_turn_records_carry_role_attempt_hashes_and_policy_decision (test_s4a_req6_evidence_feedback.TestAppendOnlyEvidence.test_turn_records_carry_role_attempt_hashes_and_policy_decision) ... 127.0.0.1 - - [27/Nov/2026 11:54:13] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:54:13] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:54:13] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:54:15] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:54:17] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:54:19] "POST /api/rehearsal/sessions/3f3bb0a7ce014b768b42996c944b848e/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:54:21] "POST /api/rehearsal/sessions/3f3bb0a7ce014b768b42996c944b848e/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:54:23] "POST /api/rehearsal/sessions/3f3bb0a7ce014b768b42996c944b848e/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:54:25] "GET /api/rehearsal/sessions/3f3bb0a7ce014b768b42996c944b848e HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:54:27] "GET /api/rehearsal/sessions/3f3bb0a7ce014b768b42996c944b848e/evidence HTTP/1.1" 200 -
+ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:54:30] "GET /health HTTP/1.1" 200 -
+test_authority_safety_and_disclosure_are_terminal_gates (test_s4a_req7_fidelity.TestDeterministicFidelityReport.test_authority_safety_and_disclosure_are_terminal_gates) ... 127.0.0.1 - - [27/Nov/2026 11:54:32] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:54:34] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:54:36] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:54:38] "POST /api/rehearsal/sessions/9439c9d3217f4184aefcd350c28a062e/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:54:40] "POST /api/rehearsal/sessions/9439c9d3217f4184aefcd350c28a062e/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:54:42] "POST /api/rehearsal/sessions/9439c9d3217f4184aefcd350c28a062e/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:54:43] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:54:43] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:54:44] "POST /api/rehearsal/sessions/9439c9d3217f4184aefcd350c28a062e/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:54:46] "POST /api/rehearsal/sessions/9439c9d3217f4184aefcd350c28a062e/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:54:48] "POST /api/rehearsal/sessions/9439c9d3217f4184aefcd350c28a062e/fidelity HTTP/1.1" 200 -
+ok
+test_hidden_need_timing_reveals_on_first_qualifying_probe_only (test_s4a_req7_fidelity.TestDeterministicFidelityReport.test_hidden_need_timing_reveals_on_first_qualifying_probe_only) ... 127.0.0.1 - - [27/Nov/2026 11:54:50] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:54:52] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:54:54] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:54:56] "POST /api/rehearsal/sessions/c2810513ad1c412585bf4052be57f737/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:54:59] "POST /api/rehearsal/sessions/c2810513ad1c412585bf4052be57f737/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:01] "POST /api/rehearsal/sessions/c2810513ad1c412585bf4052be57f737/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:03] "POST /api/rehearsal/sessions/c2810513ad1c412585bf4052be57f737/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:05] "POST /api/rehearsal/sessions/c2810513ad1c412585bf4052be57f737/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:07] "POST /api/rehearsal/sessions/c2810513ad1c412585bf4052be57f737/fidelity HTTP/1.1" 200 -
+ok
+test_persona_and_policy_stay_stable_across_retry (test_s4a_req7_fidelity.TestDeterministicFidelityReport.test_persona_and_policy_stay_stable_across_retry) ... 127.0.0.1 - - [27/Nov/2026 11:55:09] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:55:11] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:55:13] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:13] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:55:13] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:55:15] "POST /api/rehearsal/sessions/8003337f8cec43879251a2f17c6ac61e/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:17] "POST /api/rehearsal/sessions/8003337f8cec43879251a2f17c6ac61e/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:19] "POST /api/rehearsal/sessions/8003337f8cec43879251a2f17c6ac61e/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:21] "POST /api/rehearsal/sessions/8003337f8cec43879251a2f17c6ac61e/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:23] "POST /api/rehearsal/sessions/8003337f8cec43879251a2f17c6ac61e/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:25] "POST /api/rehearsal/sessions/8003337f8cec43879251a2f17c6ac61e/retry HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:27] "POST /api/rehearsal/sessions/8003337f8cec43879251a2f17c6ac61e/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:29] "POST /api/rehearsal/sessions/8003337f8cec43879251a2f17c6ac61e/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:31] "POST /api/rehearsal/sessions/8003337f8cec43879251a2f17c6ac61e/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:33] "POST /api/rehearsal/sessions/8003337f8cec43879251a2f17c6ac61e/fidelity HTTP/1.1" 200 -
+ok
+test_report_has_versioned_rubric_and_required_hashes (test_s4a_req7_fidelity.TestDeterministicFidelityReport.test_report_has_versioned_rubric_and_required_hashes) ... 127.0.0.1 - - [27/Nov/2026 11:55:36] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:55:38] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:55:40] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:55:42] "POST /api/rehearsal/sessions/75eb9ee6d60d45a6979b209d547fdff4/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:43] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:43] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:55:44] "POST /api/rehearsal/sessions/75eb9ee6d60d45a6979b209d547fdff4/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:46] "POST /api/rehearsal/sessions/75eb9ee6d60d45a6979b209d547fdff4/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:48] "POST /api/rehearsal/sessions/75eb9ee6d60d45a6979b209d547fdff4/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:50] "POST /api/rehearsal/sessions/75eb9ee6d60d45a6979b209d547fdff4/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:55:52] "POST /api/rehearsal/sessions/75eb9ee6d60d45a6979b209d547fdff4/fidelity HTTP/1.1" 200 -
+ok
+test_report_is_deterministic_on_repeated_read (test_s4a_req7_fidelity.TestDeterministicFidelityReport.test_report_is_deterministic_on_repeated_read) ... 127.0.0.1 - - [27/Nov/2026 11:55:54] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:55:56] "POST /api/personas/profiles HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:55:58] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:56:00] "POST /api/rehearsal/sessions/274d67cf73d5408a9a8c5838682c70f5/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:56:02] "POST /api/rehearsal/sessions/274d67cf73d5408a9a8c5838682c70f5/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:56:04] "POST /api/rehearsal/sessions/274d67cf73d5408a9a8c5838682c70f5/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:56:06] "POST /api/rehearsal/sessions/274d67cf73d5408a9a8c5838682c70f5/turns HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:56:08] "POST /api/rehearsal/sessions/274d67cf73d5408a9a8c5838682c70f5/feedback HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:56:10] "POST /api/rehearsal/sessions/274d67cf73d5408a9a8c5838682c70f5/fidelity HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:56:13] "POST /api/rehearsal/sessions/274d67cf73d5408a9a8c5838682c70f5/fidelity HTTP/1.1" 200 -
+ok
+test_every_product_module_exists_imports_and_contains_tests (test_s4b_contract_selfcheck.TestStage4BContractSelfCheck.test_every_product_module_exists_imports_and_contains_tests) ... ok
+test_suite_has_no_skips_or_placeholder_assertions (test_s4b_contract_selfcheck.TestStage4BContractSelfCheck.test_suite_has_no_skips_or_placeholder_assertions) ... ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:56:15] "GET /health HTTP/1.1" 200 -
+test_avatar_withdrawal_tears_down_vendor_and_keeps_text_practice (test_s4b_req1_consent.TestGranularConsent.test_avatar_withdrawal_tears_down_vendor_and_keeps_text_practice) ... 127.0.0.1 - - [27/Nov/2026 11:56:17] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:56:19] "POST /api/rehearsal/sessions/a4676cc384cc4dae88dbd2a51122c137/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:56:21] "POST /api/rehearsal/sessions/a4676cc384cc4dae88dbd2a51122c137/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:56:23] "POST /api/rehearsal/sessions/a4676cc384cc4dae88dbd2a51122c137/consent HTTP/1.1" 404 -
+FAIL
+test_granting_one_scope_does_not_bundle_others (test_s4b_req1_consent.TestGranularConsent.test_granting_one_scope_does_not_bundle_others) ... 127.0.0.1 - - [27/Nov/2026 11:56:25] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:56:27] "POST /api/rehearsal/sessions/1664433cbdbe4d13adc85140fbd2f4a3/consent HTTP/1.1" 404 -
+FAIL
+test_microphone_requires_mic_consent (test_s4b_req1_consent.TestGranularConsent.test_microphone_requires_mic_consent) ... 127.0.0.1 - - [27/Nov/2026 11:56:29] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:56:31] "POST /api/rehearsal/sessions/96243f4f4e27423999028158ac24e158/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:56:33] "POST /api/rehearsal/sessions/96243f4f4e27423999028158ac24e158/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:56:36] "POST /api/rehearsal/sessions/96243f4f4e27423999028158ac24e158/mic/start HTTP/1.1" 404 -
+FAIL
+test_non_boolean_grant_is_rejected (test_s4b_req1_consent.TestGranularConsent.test_non_boolean_grant_is_rejected) ... 127.0.0.1 - - [27/Nov/2026 11:56:38] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:56:40] "POST /api/rehearsal/sessions/5379162fd47846cd805de7dc14cbae3c/consent HTTP/1.1" 404 -
+FAIL
+test_rehearsal_withdrawal_ends_session (test_s4b_req1_consent.TestGranularConsent.test_rehearsal_withdrawal_ends_session) ... 127.0.0.1 - - [27/Nov/2026 11:56:42] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:56:44] "POST /api/rehearsal/sessions/640f2e23920e431ab63e62d4b33e97ae/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:56:46] "POST /api/rehearsal/sessions/640f2e23920e431ab63e62d4b33e97ae/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:56:48] "POST /api/rehearsal/sessions/640f2e23920e431ab63e62d4b33e97ae/consent HTTP/1.1" 404 -
+FAIL
+test_research_export_requires_consent_and_is_deidentified (test_s4b_req1_consent.TestGranularConsent.test_research_export_requires_consent_and_is_deidentified) ... 127.0.0.1 - - [27/Nov/2026 11:56:50] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:56:52] "POST /api/rehearsal/sessions/32560521846643fe9e794bef7ec7f2c0/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:56:54] "POST /api/rehearsal/sessions/32560521846643fe9e794bef7ec7f2c0/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:56:56] "POST /api/rehearsal/sessions/32560521846643fe9e794bef7ec7f2c0/research/export HTTP/1.1" 404 -
+FAIL
+test_six_scopes_are_separately_visible_and_denied_by_default (test_s4b_req1_consent.TestGranularConsent.test_six_scopes_are_separately_visible_and_denied_by_default) ... 127.0.0.1 - - [27/Nov/2026 11:56:58] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:57:00] "GET /api/rehearsal/sessions/7c97c74e378d4470a9261a19ee040be3/consent HTTP/1.1" 404 -
+FAIL
+test_subject_consent_is_not_applicable_in_v1 (test_s4b_req1_consent.TestGranularConsent.test_subject_consent_is_not_applicable_in_v1) ... 127.0.0.1 - - [27/Nov/2026 11:57:02] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:57:04] "POST /api/rehearsal/sessions/93252d617a3145a6a932fa4e303736a1/consent HTTP/1.1" 404 -
+FAIL
+test_transcript_save_requires_consent_and_is_retrievable (test_s4b_req1_consent.TestGranularConsent.test_transcript_save_requires_consent_and_is_retrievable) ... 127.0.0.1 - - [27/Nov/2026 11:57:06] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:57:08] "POST /api/rehearsal/sessions/80179db3668c4aec84987986d9cbe3c0/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:57:11] "POST /api/rehearsal/sessions/80179db3668c4aec84987986d9cbe3c0/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:57:13] "POST /api/rehearsal/sessions/80179db3668c4aec84987986d9cbe3c0/transcript/save HTTP/1.1" 404 -
+FAIL
+test_transcript_withdrawal_deletes_saved_copy (test_s4b_req1_consent.TestGranularConsent.test_transcript_withdrawal_deletes_saved_copy) ... 127.0.0.1 - - [27/Nov/2026 11:57:13] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:57:13] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:57:15] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:57:17] "POST /api/rehearsal/sessions/2f88c99769954a11af3ac1a437362a9d/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:57:19] "POST /api/rehearsal/sessions/2f88c99769954a11af3ac1a437362a9d/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:57:21] "POST /api/rehearsal/sessions/2f88c99769954a11af3ac1a437362a9d/consent HTTP/1.1" 404 -
+FAIL
+test_unknown_scope_is_rejected (test_s4b_req1_consent.TestGranularConsent.test_unknown_scope_is_rejected) ... 127.0.0.1 - - [27/Nov/2026 11:57:23] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:57:25] "POST /api/rehearsal/sessions/d47f48b60120445bb06c2eb47f8179d7/consent HTTP/1.1" 404 -
+FAIL
+test_unknown_session_is_not_found (test_s4b_req1_consent.TestGranularConsent.test_unknown_session_is_not_found) ... 127.0.0.1 - - [27/Nov/2026 11:57:27] "GET /api/rehearsal/sessions/does-not-exist/consent HTTP/1.1" 404 -
+FAIL
+test_vendor_create_requires_avatar_consent_after_rehearsal (test_s4b_req1_consent.TestGranularConsent.test_vendor_create_requires_avatar_consent_after_rehearsal) ... 127.0.0.1 - - [27/Nov/2026 11:57:29] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:57:31] "POST /api/rehearsal/sessions/fa1ed89db4e14effa901fc7d41131a25/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:57:33] "POST /api/rehearsal/sessions/fa1ed89db4e14effa901fc7d41131a25/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:57:35] "POST /api/rehearsal/sessions/fa1ed89db4e14effa901fc7d41131a25/consent HTTP/1.1" 404 -
+FAIL
+test_vendor_create_requires_rehearsal_consent (test_s4b_req1_consent.TestGranularConsent.test_vendor_create_requires_rehearsal_consent) ... 127.0.0.1 - - [27/Nov/2026 11:57:37] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:57:39] "POST /api/rehearsal/sessions/b0a6ad63c04b4bb0817be05a948ba49d/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:57:41] "POST /api/rehearsal/sessions/b0a6ad63c04b4bb0817be05a948ba49d/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:57:43] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:57:43] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:57:43] "POST /api/rehearsal/sessions/b0a6ad63c04b4bb0817be05a948ba49d/napster-session HTTP/1.1" 200 -
+FAIL
+test_restart_with_stored_handle_deletes_it_exactly_once (test_s4b_req2_vendor_lifecycle.TestRestartRecovery.test_restart_with_stored_handle_deletes_it_exactly_once) ...  * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:57:46] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:57:48] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:57:50] "POST /api/rehearsal/sessions/d51d7eba35b64d4d92f2c1a0c5bc3f3d/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:57:52] "POST /api/rehearsal/sessions/d51d7eba35b64d4d92f2c1a0c5bc3f3d/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:57:54] "POST /api/rehearsal/sessions/d51d7eba35b64d4d92f2c1a0c5bc3f3d/consent HTTP/1.1" 404 -
+FAIL
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:57:57] "GET /health HTTP/1.1" 200 -
+test_consented_create_reaches_the_configured_vendor (test_s4b_req2_vendor_lifecycle.TestVendorLifecycle.test_consented_create_reaches_the_configured_vendor) ... 127.0.0.1 - - [27/Nov/2026 11:57:59] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:58:01] "POST /api/rehearsal/sessions/29fd7ba8a02747b987811f4595647b48/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:58:03] "POST /api/rehearsal/sessions/29fd7ba8a02747b987811f4595647b48/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:58:05] "POST /api/rehearsal/sessions/29fd7ba8a02747b987811f4595647b48/consent HTTP/1.1" 404 -
+FAIL
+test_failed_cleanup_on_delete_is_reported_then_retried (test_s4b_req2_vendor_lifecycle.TestVendorLifecycle.test_failed_cleanup_on_delete_is_reported_then_retried) ... 127.0.0.1 - - [27/Nov/2026 11:58:07] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:58:09] "POST /api/rehearsal/sessions/0855fc6d151149cbafd217dab777bb94/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:58:11] "POST /api/rehearsal/sessions/0855fc6d151149cbafd217dab777bb94/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:58:13] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:58:13] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:58:13] "POST /api/rehearsal/sessions/0855fc6d151149cbafd217dab777bb94/consent HTTP/1.1" 404 -
+FAIL
+test_post_allocation_failure_retains_handle_and_cleanup_completes (test_s4b_req2_vendor_lifecycle.TestVendorLifecycle.test_post_allocation_failure_retains_handle_and_cleanup_completes) ... 127.0.0.1 - - [27/Nov/2026 11:58:15] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:58:18] "POST /api/rehearsal/sessions/ae4acbadc3ff40d09bf7c868b346c5a5/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:58:20] "POST /api/rehearsal/sessions/ae4acbadc3ff40d09bf7c868b346c5a5/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:58:22] "POST /api/rehearsal/sessions/ae4acbadc3ff40d09bf7c868b346c5a5/consent HTTP/1.1" 404 -
+FAIL
+test_session_delete_destroys_the_vendor_record_exactly_once (test_s4b_req2_vendor_lifecycle.TestVendorLifecycle.test_session_delete_destroys_the_vendor_record_exactly_once) ... 127.0.0.1 - - [27/Nov/2026 11:58:24] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:58:26] "POST /api/rehearsal/sessions/b3c78e10a91745d5bfc3a0268401ddc2/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:58:28] "POST /api/rehearsal/sessions/b3c78e10a91745d5bfc3a0268401ddc2/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:58:30] "POST /api/rehearsal/sessions/b3c78e10a91745d5bfc3a0268401ddc2/consent HTTP/1.1" 404 -
+FAIL
+test_delete_removes_session_and_returns_redacted_receipt (test_s4b_req3_deletion.TestDeletionCompleteness.test_delete_removes_session_and_returns_redacted_receipt) ... FAIL
+test_delete_without_vendor_reports_no_retained_connection (test_s4b_req3_deletion.TestDeletionCompleteness.test_delete_without_vendor_reports_no_retained_connection) ... FAIL
+test_logs_after_delete_contain_no_pii_token_or_vendor_id (test_s4b_req3_deletion.TestDeletionCompleteness.test_logs_after_delete_contain_no_pii_token_or_vendor_id) ... FAIL
+test_second_delete_is_idempotent_not_500 (test_s4b_req3_deletion.TestDeletionCompleteness.test_second_delete_is_idempotent_not_500) ... FAIL
+
+======================================================================
+FAIL: test_avatar_withdrawal_tears_down_vendor_and_keeps_text_practice (test_s4b_req1_consent.TestGranularConsent.test_avatar_withdrawal_tears_down_vendor_and_keeps_text_practice)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 194, in test_avatar_withdrawal_tears_down_vendor_and_keeps_text_practice
+    grant_many(sid, ("rehearsal", "avatar"))
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 333, in grant_many
+    grant(session_id, scope)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_granting_one_scope_does_not_bundle_others (test_s4b_req1_consent.TestGranularConsent.test_granting_one_scope_does_not_bundle_others)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 81, in test_granting_one_scope_does_not_bundle_others
+    self.assertEqual(status, 200, f"avatar grant failed: status={status} body={body}")
+AssertionError: 404 != 200 : avatar grant failed: status=404 body={}
+
+======================================================================
+FAIL: test_microphone_requires_mic_consent (test_s4b_req1_consent.TestGranularConsent.test_microphone_requires_mic_consent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 144, in test_microphone_requires_mic_consent
+    assert_consent_required(self, mic_start(sid), "mic", "mic start without consent")
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 387, in assert_consent_required
+    testcase.assertEqual(status, 403, f"{context}: expected 403, got status={status} body={body}")
+AssertionError: 404 != 403 : mic start without consent: expected 403, got status=404 body={}
+
+======================================================================
+FAIL: test_non_boolean_grant_is_rejected (test_s4b_req1_consent.TestGranularConsent.test_non_boolean_grant_is_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 121, in test_non_boolean_grant_is_rejected
+    self.assertEqual(status, 400,
+AssertionError: 404 != 400 : granted='yes' was not rejected: status=404 body={}
+
+======================================================================
+FAIL: test_rehearsal_withdrawal_ends_session (test_s4b_req1_consent.TestGranularConsent.test_rehearsal_withdrawal_ends_session)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 232, in test_rehearsal_withdrawal_ends_session
+    grant(sid, "rehearsal")
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_research_export_requires_consent_and_is_deidentified (test_s4b_req1_consent.TestGranularConsent.test_research_export_requires_consent_and_is_deidentified)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 174, in test_research_export_requires_consent_and_is_deidentified
+    assert_consent_required(self, research_export(sid), "research",
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 387, in assert_consent_required
+    testcase.assertEqual(status, 403, f"{context}: expected 403, got status={status} body={body}")
+AssertionError: 404 != 403 : research export without consent: expected 403, got status=404 body={}
+
+======================================================================
+FAIL: test_six_scopes_are_separately_visible_and_denied_by_default (test_s4b_req1_consent.TestGranularConsent.test_six_scopes_are_separately_visible_and_denied_by_default)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 61, in test_six_scopes_are_separately_visible_and_denied_by_default
+    self.assertEqual(status, 200, f"consent read failed: status={status} body={body}")
+AssertionError: 404 != 200 : consent read failed: status=404 body={}
+
+======================================================================
+FAIL: test_subject_consent_is_not_applicable_in_v1 (test_s4b_req1_consent.TestGranularConsent.test_subject_consent_is_not_applicable_in_v1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 109, in test_subject_consent_is_not_applicable_in_v1
+    self.assertEqual(status, 409, f"body={body}")
+AssertionError: 404 != 409 : body={}
+
+======================================================================
+FAIL: test_transcript_save_requires_consent_and_is_retrievable (test_s4b_req1_consent.TestGranularConsent.test_transcript_save_requires_consent_and_is_retrievable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 153, in test_transcript_save_requires_consent_and_is_retrievable
+    assert_consent_required(self, transcript_save(sid), "transcript_save",
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 387, in assert_consent_required
+    testcase.assertEqual(status, 403, f"{context}: expected 403, got status={status} body={body}")
+AssertionError: 404 != 403 : transcript save without consent: expected 403, got status=404 body={}
+
+======================================================================
+FAIL: test_transcript_withdrawal_deletes_saved_copy (test_s4b_req1_consent.TestGranularConsent.test_transcript_withdrawal_deletes_saved_copy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 216, in test_transcript_withdrawal_deletes_saved_copy
+    grant(sid, "transcript_save")
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'transcript_save' failed: status=404 body={}
+
+======================================================================
+FAIL: test_unknown_scope_is_rejected (test_s4b_req1_consent.TestGranularConsent.test_unknown_scope_is_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 98, in test_unknown_scope_is_rejected
+    self.assertEqual(status, 400, f"body={body}")
+AssertionError: 404 != 400 : body={}
+
+======================================================================
+FAIL: test_unknown_session_is_not_found (test_s4b_req1_consent.TestGranularConsent.test_unknown_session_is_not_found)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 249, in test_unknown_session_is_not_found
+    self.assertEqual(body.get("error"), "not_found")
+AssertionError: None != 'not_found'
+
+======================================================================
+FAIL: test_vendor_create_requires_avatar_consent_after_rehearsal (test_s4b_req1_consent.TestGranularConsent.test_vendor_create_requires_avatar_consent_after_rehearsal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 136, in test_vendor_create_requires_avatar_consent_after_rehearsal
+    grant(sid, "rehearsal")
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_vendor_create_requires_rehearsal_consent (test_s4b_req1_consent.TestGranularConsent.test_vendor_create_requires_rehearsal_consent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 129, in test_vendor_create_requires_rehearsal_consent
+    assert_consent_required(self, napster_create(sid), "rehearsal",
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 387, in assert_consent_required
+    testcase.assertEqual(status, 403, f"{context}: expected 403, got status={status} body={body}")
+AssertionError: 200 != 403 : vendor create without rehearsal consent: expected 403, got status=200 body={'connection_id': 'conn_s4b_1', 'status': 'ready', 'token': 'napster_conn_token_s4b_1'}
+
+======================================================================
+FAIL: test_restart_with_stored_handle_deletes_it_exactly_once (test_s4b_req2_vendor_lifecycle.TestRestartRecovery.test_restart_with_stored_handle_deletes_it_exactly_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 173, in test_restart_with_stored_handle_deletes_it_exactly_once
+    grant_many(sid, ("rehearsal", "avatar"))
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 333, in grant_many
+    grant(session_id, scope)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_consented_create_reaches_the_configured_vendor (test_s4b_req2_vendor_lifecycle.TestVendorLifecycle.test_consented_create_reaches_the_configured_vendor)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 60, in test_consented_create_reaches_the_configured_vendor
+    self._consent()
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 52, in _consent
+    grant_many(self.sid, scopes)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 333, in grant_many
+    grant(session_id, scope)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_failed_cleanup_on_delete_is_reported_then_retried (test_s4b_req2_vendor_lifecycle.TestVendorLifecycle.test_failed_cleanup_on_delete_is_reported_then_retried)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 120, in test_failed_cleanup_on_delete_is_reported_then_retried
+    self._consent()
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 52, in _consent
+    grant_many(self.sid, scopes)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 333, in grant_many
+    grant(session_id, scope)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_post_allocation_failure_retains_handle_and_cleanup_completes (test_s4b_req2_vendor_lifecycle.TestVendorLifecycle.test_post_allocation_failure_retains_handle_and_cleanup_completes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 100, in test_post_allocation_failure_retains_handle_and_cleanup_completes
+    self._consent()
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 52, in _consent
+    grant_many(self.sid, scopes)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 333, in grant_many
+    grant(session_id, scope)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_session_delete_destroys_the_vendor_record_exactly_once (test_s4b_req2_vendor_lifecycle.TestVendorLifecycle.test_session_delete_destroys_the_vendor_record_exactly_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 75, in test_session_delete_destroys_the_vendor_record_exactly_once
+    self._consent()
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 52, in _consent
+    grant_many(self.sid, scopes)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 333, in grant_many
+    grant(session_id, scope)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_delete_removes_session_and_returns_redacted_receipt (test_s4b_req3_deletion.TestDeletionCompleteness.test_delete_removes_session_and_returns_redacted_receipt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req3_deletion.py", line 55, in test_delete_removes_session_and_returns_redacted_receipt
+    grant(sid, "transcript_save")
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'transcript_save' failed: status=404 body={}
+
+======================================================================
+FAIL: test_delete_without_vendor_reports_no_retained_connection (test_s4b_req3_deletion.TestDeletionCompleteness.test_delete_without_vendor_reports_no_retained_connection)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req3_deletion.py", line 100, in test_delete_without_vendor_reports_no_retained_connection
+    self.assertEqual(status, 200, f"delete failed: status={status} body={receipt}")
+AssertionError: 405 != 200 : delete failed: status=405 body={}
+
+======================================================================
+FAIL: test_logs_after_delete_contain_no_pii_token_or_vendor_id (test_s4b_req3_deletion.TestDeletionCompleteness.test_logs_after_delete_contain_no_pii_token_or_vendor_id)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req3_deletion.py", line 107, in test_logs_after_delete_contain_no_pii_token_or_vendor_id
+    grant_many(sid, ("rehearsal", "avatar"))
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 333, in grant_many
+    grant(session_id, scope)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_second_delete_is_idempotent_not_500 (test_s4b_req3_deletion.TestDeletionCompleteness.test_second_delete_is_idempotent_not_500)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req3_deletion.py", line 85, in test_second_delete_is_idempotent_not_500
+    self.assertEqual(status, 200, f"first delete failed: status={status} body={receipt}")
+AssertionError: 405 != 200 : first delete failed: status=405 body={}
+
+----------------------------------------------------------------------
+Ran 186 tests in 1368.071s
+
+FAILED (failures=23, skipped=1)
+
+EXITCODE=1
+DURATION_SECONDS=1368.5
+HEAD=baa33b39bb043d37363e4ff5d0c2ea2acd0bb4f8
+FINISHED=2026-11-27T11:59:05.3382079-05:00
