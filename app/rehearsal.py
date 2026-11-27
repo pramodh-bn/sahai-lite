@@ -3,43 +3,37 @@
 Offline mode only. The counterpart is a deterministic stand-in: no network,
 no model, no paid calls. Sessions live in process memory.
 
+Stage 4A extends each session with up to two compiled synthetic personas and
+server-authoritative turns (see ``core.py``); the Stage 1-3 endpoints keep
+their original shape and behaviour for bodyless sessions.
+
 Hidden need (composite): a budget constraint and sign-on flexibility. It is
 revealed only when a user utterance probes either side, and stays revealed
 for the rest of that attempt. Retry starts a fresh attempt at the practice
 pivot; earlier attempts are kept unchanged.
 """
 import copy
-import threading
-import uuid
 
 from flask import Blueprint, jsonify, request
 
-MODE = "offline"
-SCENARIO = "alex_dana"
+import persona
+import state
+
+MODE = state.MODE
+SCENARIO = state.SCENARIO
 VALID_TRANSITIONS = {("demo", "take_my_seat"), ("take_my_seat", "practice")}
 BUDGET_TRIGGERS = ("budget", "cost", "price", "afford")
 SIGN_ON_TRIGGERS = ("sign-on", "sign on", "signing bonus", "flexible on sign-on", "contract", "terms")
 
 bp = Blueprint("rehearsal", __name__, url_prefix="/api/rehearsal")
-_lock = threading.Lock()
-_sessions = {}
+
+# Backwards-compatible accessor used by the Stage 3 Napster adapter.
+_get_session = state.get_session
 
 
 def _is_probe(utterance):
     text = utterance.lower()
     return any(k in text for k in BUDGET_TRIGGERS) or any(k in text for k in SIGN_ON_TRIGGERS)
-
-
-def _new_attempt(number):
-    return {
-        "attempt": number,
-        "state": "demo",
-        "hidden_need_revealed": False,
-        "user_turns": [],
-        "transcript": [],
-        "evidence": [],
-        "evidence_score": None,
-    }
 
 
 def _counterpart_reply(attempt, probe, was_revealed):
@@ -53,55 +47,66 @@ def _counterpart_reply(attempt, probe, was_revealed):
     return "Thanks. What would you need to see to move this forward?"
 
 
-def _snapshot(session):
-    attempt = session["current"]
-    snap = {
-        "session_id": session["session_id"],
-        "state": session["state"],
-        "attempt": attempt["attempt"],
-        "mode": MODE,
-        "scenario": SCENARIO,
-        "hidden_need_revealed": attempt["hidden_need_revealed"],
-        "transcript": copy.deepcopy(attempt["transcript"]),
-    }
-    if attempt["evidence_score"] is not None:
-        snap["evidence_score"] = attempt["evidence_score"]
-    return snap
-
-
-def _get_session(session_id):
-    with _lock:
-        return _sessions.get(session_id)
-
-
 def _not_found():
     return jsonify({"error": "not_found"}), 404
 
 
+def _requested_personas(body):
+    """Return (personas, error_response). ``personas`` maps role -> entry."""
+    requested = body.get("personas") if isinstance(body, dict) else None
+    if requested is None:
+        return {}, None
+    if not isinstance(requested, dict):
+        return None, (jsonify({"error": "persona_unavailable"}), 400)
+    bound = {}
+    for role in ("body_double", "counterpart"):
+        ref = requested.get(role)
+        entry = persona.get_persona(ref) if isinstance(ref, str) else None
+        if entry is None:
+            return None, (jsonify({"error": "persona_unavailable"}), 400)
+        if entry["profile"].get("role") != role:
+            return None, (jsonify({"error": "persona_role_mismatch"}), 400)
+        bound[role] = entry
+    return bound, None
+
+
 @bp.route("/sessions", methods=["POST"])
 def create_session():
-    session_id = uuid.uuid4().hex
-    first = _new_attempt(1)
-    session = {"session_id": session_id, "state": "demo", "attempts": [first], "current": first}
-    with _lock:
-        _sessions[session_id] = session
-    return jsonify({
-        "session_id": session_id,
+    body = request.get_json(silent=True)
+    if body is None:
+        body = {}
+    if not isinstance(body, dict):
+        body = {}
+    personas, error = _requested_personas(body)
+    if error is not None:
+        return error
+    session = state.create_session(personas)
+    response = {
+        "session_id": session["session_id"],
         "state": "demo",
         "scenario": SCENARIO,
         "mode": MODE,
         "attempt": 1,
-    }), 201
+    }
+    if personas:
+        response.update({
+            "profile_hashes": state.profile_hashes(session),
+            "instruction_hashes": state.instruction_hashes(session),
+            "authority_tier": persona.AUTHORITY_TIER,
+            "policy_version": state.POLICY_VERSION,
+            "next_seq": 1,
+        })
+    return jsonify(response), 201
 
 
 @bp.route("/sessions/<session_id>/advance", methods=["POST"])
 def advance(session_id):
-    session = _get_session(session_id)
+    session = state.get_session(session_id)
     if session is None:
         return _not_found()
     body = request.get_json(silent=True) or {}
     target = body.get("to")
-    with _lock:
+    with session["lock"]:
         if not isinstance(target, str) or (session["state"], target) not in VALID_TRANSITIONS:
             return jsonify({"error": "invalid_transition", "from": session["state"], "to": target}), 409
         session["state"] = target
@@ -111,12 +116,12 @@ def advance(session_id):
 
 @bp.route("/sessions/<session_id>/practice", methods=["POST"])
 def practice(session_id):
-    session = _get_session(session_id)
+    session = state.get_session(session_id)
     if session is None:
         return _not_found()
     body = request.get_json(silent=True) or {}
     utterance = body.get("utterance")
-    with _lock:
+    with session["lock"]:
         if session["state"] != "practice":
             return jsonify({"error": "invalid_state", "state": session["state"]}), 409
         if not isinstance(utterance, str) or not utterance.strip():
@@ -125,12 +130,16 @@ def practice(session_id):
         attempt = session["current"]
         was_revealed = attempt["hidden_need_revealed"]
         probe = _is_probe(utterance)
-        if probe:
+        if probe and not was_revealed:
             attempt["hidden_need_revealed"] = True
+            attempt["revealed_at_seq"] = len(attempt["user_turns"]) + 1
         attempt["user_turns"].append({"utterance": utterance, "probe": probe})
         reply = _counterpart_reply(attempt, probe, was_revealed)
         attempt["transcript"].append({"speaker": "user", "utterance": utterance})
         attempt["transcript"].append({"speaker": "counterpart", "utterance": reply})
+        attempt["next_seq"] = len([
+            turn for turn in attempt["transcript"] if turn["speaker"] == "user"
+        ]) + 1
         return jsonify({
             "counterpart_reply": reply,
             "hidden_need_revealed": attempt["hidden_need_revealed"],
@@ -139,28 +148,39 @@ def practice(session_id):
 
 @bp.route("/sessions/<session_id>/feedback", methods=["POST"])
 def feedback(session_id):
-    session = _get_session(session_id)
+    session = state.get_session(session_id)
     if session is None:
         return _not_found()
-    with _lock:
-        if session["state"] != "practice":
+    with session["lock"]:
+        if session["state"] not in ("practice", "feedback"):
             return jsonify({"error": "invalid_state", "state": session["state"]}), 409
         attempt = session["current"]
-        turns = attempt["user_turns"]
-        probes = sum(1 for t in turns if t["probe"])
-        attempt["evidence"] = [
-            {
-                "utterance": t["utterance"],
-                "note": ("probed the hidden need (budget and/or sign-on)" if t["probe"]
-                         else "exploratory turn, no probe of the hidden need"),
-            }
-            for t in turns
-        ]
-        attempt["evidence_score"] = min(100, 15 * len(turns) + 30 * probes)
+        if attempt["evidence_score"] is None:
+            turns = attempt["user_turns"]
+            probes = sum(1 for turn in turns if turn["probe"])
+            attempt["evidence"] = [
+                {
+                    "utterance": turn["utterance"],
+                    "note": ("probed the hidden need (budget and/or sign-on)" if turn["probe"]
+                             else "exploratory turn, no probe of the hidden need"),
+                }
+                for turn in turns
+            ]
+            attempt["evidence_score"] = min(100, 15 * len(turns) + 30 * probes)
+        if not attempt["feedback_recorded"]:
+            for turn in attempt["user_turns"]:
+                state.append_evidence(session, {
+                    "record_type": "feedback_quote",
+                    "attempt": attempt["attempt"],
+                    "attempt_id": attempt["attempt_id"],
+                    "quote": turn["utterance"],
+                })
+            attempt["feedback_recorded"] = True
         session["state"] = "feedback"
         attempt["state"] = "feedback"
         return jsonify({
             "state": "feedback",
+            "attempt": attempt["attempt"],
             "evidence_score": attempt["evidence_score"],
             "evidence": copy.deepcopy(attempt["evidence"]),
         }), 200
@@ -168,13 +188,13 @@ def feedback(session_id):
 
 @bp.route("/sessions/<session_id>/retry", methods=["POST"])
 def retry(session_id):
-    session = _get_session(session_id)
+    session = state.get_session(session_id)
     if session is None:
         return _not_found()
-    with _lock:
+    with session["lock"]:
         if session["state"] != "feedback":
             return jsonify({"error": "invalid_state", "state": session["state"]}), 409
-        new_attempt = _new_attempt(session["current"]["attempt"] + 1)
+        new_attempt = state.new_attempt(session["current"]["attempt"] + 1)
         new_attempt["state"] = "practice"
         session["attempts"].append(new_attempt)
         session["current"] = new_attempt
@@ -183,33 +203,23 @@ def retry(session_id):
             "state": "practice",
             "attempt": new_attempt["attempt"],
             "pivot_restored": True,
+            "pivot": copy.deepcopy(session["pivot"]),
         }), 200
 
 
 @bp.route("/sessions/<session_id>", methods=["GET"])
 def get_session(session_id):
-    session = _get_session(session_id)
+    session = state.get_session(session_id)
     if session is None:
         return _not_found()
-    with _lock:
-        return jsonify(_snapshot(session)), 200
+    with session["lock"]:
+        return jsonify(state.snapshot(session)), 200
 
 
 @bp.route("/sessions/<session_id>/attempts", methods=["GET"])
 def list_attempts(session_id):
-    session = _get_session(session_id)
+    session = state.get_session(session_id)
     if session is None:
         return _not_found()
-    with _lock:
-        out = []
-        for attempt in session["attempts"]:
-            entry = {
-                "attempt": attempt["attempt"],
-                "state": attempt["state"],
-                "hidden_need_revealed": attempt["hidden_need_revealed"],
-                "transcript": copy.deepcopy(attempt["transcript"]),
-            }
-            if attempt["evidence_score"] is not None:
-                entry["evidence_score"] = attempt["evidence_score"]
-            out.append(entry)
-        return jsonify({"attempts": out}), 200
+    with session["lock"]:
+        return jsonify(state.attempts_view(session)), 200
