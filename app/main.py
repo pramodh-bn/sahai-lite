@@ -5,12 +5,14 @@ from flask import Flask, Response, jsonify
 from napster import bp as napster_bp
 from rehearsal import bp as rehearsal_bp
 from core import bp as core_bp
+from consent import bp as consent_bp
 from ui import PAGE
 
 app = Flask(__name__)
 app.register_blueprint(rehearsal_bp)
 app.register_blueprint(core_bp)
 app.register_blueprint(napster_bp)
+app.register_blueprint(consent_bp)
 
 # Vendored, unmodified Napster Web SDK 2.0.0 (SHA-256 pinned in app/ui.py and
 # app/vendor/napster-companion-api/2.0.0/PROVENANCE.md). Served same-origin only
