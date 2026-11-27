@@ -1,11 +1,11 @@
 # Status
-Stage: 4A
-Cycle: 3 (owner-authorized staged recovery; one bounded increment at a time)
-Task: LITE-S4A-BUILD-01
-Owner: sah-builder
+Stage: 4B
+Cycle: 1 (owner-authorized 2026-11-27)
+Task: LITE-S4B-VERIFY-TESTS-01
+Owner: sah-stage4a-verifier (independent)
 Coordinator: lead-3
-State: S4A_CERTIFIED
+State: S4B_AUTHORIZED
 Base SHA: baa33b39bb043d37363e4ff5d0c2ea2acd0bb4f8
 Prior closed PRs: #73 and #78 (never merge or reuse)
-Evidence: On 2026-11-27 Stage 4A core intelligence was certified. The deliberate-red acceptance contract (PR #81, head 3602589c) was authored by sah-stage4a-verifier, reviewed by lead-3, and merged to dev-v3. Builder implemented against the frozen contract (PR #83, head 79a41510) and was independently verified by sah-stage4a-verifier in a fresh worktree: focused 65 tests exit 0 (820 s), cumulative 161 tests exit 0 skipped=1 (1190 s), immutable guard exit 0, all Stage 1-3 tests green. Schema alias doc (PR #82) aligns sah.persona.v1 wire name with sah.body_double_profile/v1 design label. Stage 4A is now the highest certified stage.
-Next: Decide whether to open Stage 4B (consent/lifecycle with application-connected fake vendor). 4B, 4C, Playwright, vendor cleanup, packaging, credentials, and live calls remain inactive until owner authorizes the next increment.
+Evidence: On 2026-11-27 the owner authorized Stage 4B after Stage 4A core intelligence was certified at baa33b3. Stage 4A certified state: deliberate-red contract PR #81 (sah-stage4a-verifier), schema alias PR #82 (persona-architect), implementation PR #83 (sah-builder, 6 app files), independently verified by sah-stage4a-verifier — 161 tests exit 0, all Stage 1-3 green, immutable guard exit 0. Stage 4A is the last certified stage. Owner authorized continuation to 4B and 4C on 2026-11-27.
+Next: sah-stage4a-verifier to author the LITE-S4B-VERIFY-TESTS-01 deliberate-red contract for Stage 4B consent/lifecycle. Scope: granular consent (rehearsal, avatar, mic, transcript save, research, subject consent), plus exactly-once session cleanup and retained-handle recovery observable through an application-connected fake HTTP vendor service wired through configuration (not test-owned). The app must create and delete against the fake vendor; the test observes the outcome at the application boundary. Contract must be tests/docs-only, run deliberate-red on base baa33b3, preserve all 161 existing tests (exit 0), and return one exact-head PR for Lead review before Builder 4B receives any assignment. 4C, Playwright, real vendor calls, credentials, and live calls remain inactive.

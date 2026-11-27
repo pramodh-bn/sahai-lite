@@ -81,13 +81,17 @@ Consequences that MUST hold:
 
 ### 3.1 Envelope
 
-A profile is a canonical JSON document with schema identifier `sah.body_double_profile/v1`. It is stored in the repository as reviewed data, not fetched from a user or a vendor at runtime. The runtime loads a **signed, approved** profile and verifies its canonical hash before a session starts. An unapproved or hash-mismatched profile MUST NOT be used.
+A profile is a canonical JSON document with schema identifier `sah.body_double_profile/v1` (implementation wire alias `sah.persona.v1` — see §3.1.1). It is stored in the repository as reviewed data, not fetched from a user or a vendor at runtime. The runtime loads a **signed, approved** profile and verifies its canonical hash before a session starts. An unapproved or hash-mismatched profile MUST NOT be used.
 
 Profile lifecycle:
 
 `draft → reviewed → approved → active → suspended → retired`
 
 For a synthetic-only profile there is no subject-consent state. If real-person likeness or voice is ever proposed in a later stage, the lifecycle adds `consent_pending → consented → revoked` and requires the additional controls in §6.4. That path is **out of scope for this stage and MUST remain disabled by default**.
+
+### 3.1.1 Wire schema alias (`sah.persona.v1`)
+
+The implementation wire schema is `sah.persona.v1`; `sah.body_double_profile/v1` is the design label for the same object and is retained in this document only for continuity, so the two names MUST be treated as aliases of one design intent and MUST NOT diverge in substance. On the wire a profile is canonical JSON carrying `schema: "sah.persona.v1"` and the fields `role` (`body_double` | `counterpart`), `persona_id`, `version`, `status`, `created_at_utc`, `goals`, `negotiation_policy`, `policy_version`, `personality`, `knowledge`, `authority`, `likeness`, `voice`, `disclosure`, `retention`, `consent`, and `provenance`; the correspondence to the field names used below is `profile_id` → `persona_id`, `identity.role_label` → `role`, `identity.disclosure_id` → `disclosure.id`, while `authority.tier` and `delegated_authority` keep their names and `goals`, `negotiation_policy`, and `policy_version` are the wire names for the negotiation objective, the tactic constraints in §5, and the policy version recorded beside `profile_hash` and `instruction_hash`. Renaming changes nothing normative: authority stays capped at **A2**, `delegated_authority` stays `none`, `can_sign`, `can_pay`, `can_contact_third_parties`, and `can_join_real_meetings` stay `false`, and every disclosure, consent, retention, and gate rule in this document applies identically under either name.
 
 ### 3.2 Field reference
 
