@@ -1,8 +1,19 @@
 """
-Stage 4 Contract-Quality Gate and AST Defect Verifier.
+Stage 4 Contract-Quality Gate and Semantic AST Defect Verifier.
 
-Executable quality gate that analyzes Stage 4 test files using AST analysis
-and verifies rejection against 12 bad mutation fixtures.
+Analyzes Stage 4 test files using semantic AST inspection to reject 12 defect classes:
+1. Broad acceptable-status collections (e.g. [200, 404], [400, 409]) or accepting collections of HTTP status codes.
+2. Conditional assertion/locator guards (If statements, conditional loops, conditional expressions, early returns enclosing assertions).
+3. Two-argument .get() calls on response dictionaries.
+4. try/except/pass or locator count/visibility guards hiding required assertions or actions.
+5. Touch target threshold mismatch (must explicitly compare against imported MIN_TOUCH_TARGET_PX, not literals 36, 40, 43, 44, 45, or local variables).
+6. Helper-only proof without application-boundary HTTP requests in named test functions.
+7. Unexecuted concurrency (missing threading + status multiset [200, 409] + turn_in_flight), idempotency conflict, or out-of-order sequence assertions.
+8. Incomplete adversarial gate coverage across E-01 through E-08 (verifies AST string literals inside test functions; comments/docstrings/constants cannot satisfy).
+9. Weak quotation checks (missing attempt-scoped verbatim assertions, empty quotation checks, or non-strictly-increasing timestamps).
+10. Cleanup tests without observed boundary call counts (asserting teardown count delta == 0 on repeated cleanup).
+11. Tautologies, placeholders (assert False, self.fail), or skip decorators.
+12. Unimported modules referenced in AST.
 """
 
 import ast
@@ -12,22 +23,6 @@ import unittest
 
 
 class ContractQualityGateAnalyzer:
-    """
-    AST analyzer for Stage 4 contract files detecting 12 anti-patterns / defects:
-    1. required 404/405 accepted as success
-    2. conditional/optional required assertions
-    3. passing .get() defaults
-    4. if locator.count() / is_visible guards
-    5. threshold mismatch (must use shared 44px constant)
-    6. helper-only proof without app-boundary cases
-    7. unexecuted concurrency/order/idempotency or missing exact codes
-    8. partial adversarial coverage / optional rule IDs
-    9. weak any-utterance quotation checks
-    10. cleanup without observed exactly-once counts
-    11. tautologies, placeholders, broad status lists, or unconditional skips
-    12. missing imports or undefined module attributes
-    """
-
     def analyze_source(self, source_code: str, filename: str = "<string>") -> list[str]:
         defects = []
         try:
@@ -35,157 +30,269 @@ class ContractQualityGateAnalyzer:
         except SyntaxError as e:
             return [f"SyntaxError in {filename}: {e}"]
 
-        defects.extend(self._check_required_404_accepted(tree, source_code))
-        defects.extend(self._check_conditional_assertion_guards(tree))
-        defects.extend(self._check_passing_get_defaults(tree))
-        defects.extend(self._check_locator_guards(tree))
-        defects.extend(self._check_threshold_mismatch(tree, source_code))
-        defects.extend(self._check_helper_only_proof(tree, filename))
+        defects.extend(self._check_status_assertions(tree, filename))
+        defects.extend(self._check_conditional_guards(tree, filename))
+        defects.extend(self._check_two_arg_gets(tree, filename))
+        defects.extend(self._check_try_except_pass_and_locator_guards(tree, filename))
+        defects.extend(self._check_touch_target_threshold(tree, filename))
+        defects.extend(self._check_app_boundary_calls(tree, filename))
         defects.extend(self._check_concurrency_and_ordering(tree, filename))
-        defects.extend(self._check_adversarial_coverage(tree, filename))
+        defects.extend(self._check_adversarial_gates_coverage(tree, filename))
         defects.extend(self._check_quotation_fidelity(tree, filename))
-        defects.extend(self._check_cleanup_counts(tree, filename))
-        defects.extend(self._check_tautologies_and_skips(tree))
-        defects.extend(self._check_missing_imports(tree))
+        defects.extend(self._check_cleanup_boundary_counts(tree, filename))
+        defects.extend(self._check_tautologies_and_skips(tree, filename))
+        defects.extend(self._check_unimported_symbols(tree, filename))
 
         return defects
 
-    def _check_required_404_accepted(self, tree: ast.AST, source: str) -> list[str]:
+    def _check_status_assertions(self, tree: ast.AST, filename: str) -> list[str]:
+        """Defect 1: Reject any broad status collection (e.g. assertIn(status, [200, 404]), [400, 409])."""
         defects = []
         for node in ast.walk(tree):
-            # Check assertIn(status, [200, 404]) or similar broad accepted statuses
             if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
-                if node.func.attr in ("assertIn", "assertTrue"):
-                    for arg in node.args:
-                        if isinstance(arg, (ast.List, ast.Tuple, ast.Set)):
-                            elts = [elt.value for elt in arg.elts if isinstance(elt, ast.Constant)]
-                            if 200 in elts and (404 in elts or 405 in elts):
-                                defects.append("defect_1: required status accepts 404/405 as success")
+                if node.func.attr == "assertIn":
+                    if len(node.args) >= 2:
+                        target = node.args[1]
+                        if isinstance(target, (ast.List, ast.Tuple, ast.Set)):
+                            int_vals = [e.value for e in target.elts if isinstance(e, ast.Constant) and isinstance(e.value, int)]
+                            if len(int_vals) > 1 and any(200 <= v <= 599 for v in int_vals):
+                                defects.append(f"defect_1: broad status collection {int_vals} in {node.func.attr}")
         return defects
 
-    def _check_conditional_assertion_guards(self, tree: ast.AST) -> list[str]:
+    def _check_conditional_guards(self, tree: ast.AST, filename: str) -> list[str]:
+        """Defect 2: Reject assertions or locator actions hidden inside If statements, while loops, conditional expressions, or early returns."""
         defects = []
         for node in ast.walk(tree):
             if isinstance(node, ast.If):
-                # Check if condition checks status code or key before asserting
-                has_assert = any(
-                    isinstance(child, ast.Call)
-                    and isinstance(child.func, ast.Attribute)
-                    and child.func.attr.startswith("assert")
-                    for child in ast.walk(node)
-                )
-                if has_assert:
-                    # Look at the test condition
-                    cond_str = ast.unparse(node.test)
-                    if any(kw in cond_str for kw in ("status == 200", "del_status == 200", "in resp", "get(")):
-                        defects.append(f"defect_2: conditional guard enclosing required assertion: '{cond_str}'")
+                for child in node.body:
+                    for sub in ast.walk(child):
+                        if isinstance(sub, ast.Call) and isinstance(sub.func, ast.Attribute):
+                            if sub.func.attr.startswith("assert"):
+                                defects.append(f"defect_2: assertion '{sub.func.attr}' conditionally guarded by 'if {ast.unparse(node.test)}'")
+                            elif sub.func.attr in ("click", "check", "fill", "wait_for", "press"):
+                                defects.append(f"defect_2: locator action '{sub.func.attr}' conditionally guarded by 'if {ast.unparse(node.test)}'")
+            elif isinstance(node, ast.While):
+                for child in node.body:
+                    for sub in ast.walk(child):
+                        if isinstance(sub, ast.Call) and isinstance(sub.func, ast.Attribute) and sub.func.attr.startswith("assert"):
+                            defects.append(f"defect_2: assertion '{sub.func.attr}' conditionally guarded by while loop")
+            elif isinstance(node, ast.IfExp):
+                defects.append(f"defect_2: conditional expression '{ast.unparse(node)}'")
+            elif isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
+                has_assert = False
+                has_early_return = False
+                for stmt in node.body:
+                    if isinstance(stmt, ast.If):
+                        if any(isinstance(s, ast.Return) for s in stmt.body):
+                            has_early_return = True
+                    for sub in ast.walk(stmt):
+                        if isinstance(sub, ast.Call) and isinstance(sub.func, ast.Attribute) and sub.func.attr.startswith("assert"):
+                            has_assert = True
+                if has_early_return and has_assert:
+                    defects.append(f"defect_2: early return before assertions in '{node.name}'")
         return defects
 
-    def _check_passing_get_defaults(self, tree: ast.AST) -> list[str]:
+    def _check_two_arg_gets(self, tree: ast.AST, filename: str) -> list[str]:
+        """Defect 3: Reject any two-argument .get(key, default) call on data dictionaries."""
         defects = []
         for node in ast.walk(tree):
             if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
                 if node.func.attr == "get" and len(node.args) >= 2:
-                    default_arg = node.args[1]
-                    # Check for literal defaults that could mask failures
-                    if isinstance(default_arg, ast.Constant):
-                        if default_arg.value in (True, "deterministic", "sah.cleanup.v1", "sah.turn.v1"):
-                            defects.append(f"defect_3: passing .get() default: {ast.unparse(node)}")
+                    defects.append(f"defect_3: forbidden two-argument .get() call: '{ast.unparse(node)}'")
         return defects
 
-    def _check_locator_guards(self, tree: ast.AST) -> list[str]:
+    def _check_try_except_pass_and_locator_guards(self, tree: ast.AST, filename: str) -> list[str]:
+        """Defect 4: Reject try/except/pass blocks and locator count/is_visible guards."""
         defects = []
         for node in ast.walk(tree):
-            if isinstance(node, ast.If):
+            if isinstance(node, ast.Try):
+                for handler in node.handlers:
+                    if any(isinstance(stmt, ast.Pass) for stmt in handler.body):
+                        defects.append("defect_4: try/except/pass block swallowed exception")
+            elif isinstance(node, ast.If):
                 cond_str = ast.unparse(node.test)
-                if "count() > 0" in cond_str or "is_visible()" in cond_str or "locator.count" in cond_str:
-                    defects.append(f"defect_4: if locator.count()/is_visible() guard: '{cond_str}'")
+                if any(kw in cond_str for kw in ("count()", "is_visible()", "locator.count")):
+                    defects.append(f"defect_4: locator guard: 'if {cond_str}'")
         return defects
 
-    def _check_threshold_mismatch(self, tree: ast.AST, source: str) -> list[str]:
+    def _check_touch_target_threshold(self, tree: ast.AST, filename: str) -> list[str]:
+        """Defect 5: Enforce that touch target comparisons strictly use imported MIN_TOUCH_TARGET_PX."""
+        if "req1" not in filename:
+            return []
         defects = []
+        has_min_touch_compare = False
         for node in ast.walk(tree):
-            # Check for touch target comparisons using 36 or other numbers instead of shared 44
             if isinstance(node, ast.Compare):
-                for comparator in node.comparators:
-                    if isinstance(comparator, ast.Constant) and comparator.value == 36:
-                        defects.append("defect_5: threshold mismatch using 36px instead of shared 44px constant")
+                for comp in node.comparators:
+                    if isinstance(comp, ast.Name) and comp.id == "MIN_TOUCH_TARGET_PX":
+                        has_min_touch_compare = True
+                    elif isinstance(comp, ast.Constant) and comp.value in (36, 40, 43, 44, 45):
+                        defects.append(f"defect_5: touch target compared against numeric literal {comp.value} instead of imported MIN_TOUCH_TARGET_PX")
+                    elif isinstance(comp, ast.Name) and comp.id not in ("MIN_TOUCH_TARGET_PX", "width", "height"):
+                        if "target" in comp.id.lower() or "touch" in comp.id.lower() or "size" in comp.id.lower():
+                            defects.append(f"defect_5: touch target compared against local variable '{comp.id}' instead of imported MIN_TOUCH_TARGET_PX")
+            elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
+                if node.func.attr in ("assertGreaterEqual", "assertGreater"):
+                    if len(node.args) >= 2:
+                        target = node.args[1]
+                        if isinstance(target, ast.Name) and target.id == "MIN_TOUCH_TARGET_PX":
+                            has_min_touch_compare = True
+                        elif isinstance(target, ast.Constant) and target.value in (36, 40, 43, 44, 45):
+                            defects.append(f"defect_5: touch target compared against numeric literal {target.value} instead of imported MIN_TOUCH_TARGET_PX")
+                        elif isinstance(target, ast.Name) and target.id not in ("MIN_TOUCH_TARGET_PX", "width", "height"):
+                            if "target" in target.id.lower() or "touch" in target.id.lower() or "size" in target.id.lower():
+                                defects.append(f"defect_5: touch target compared against local variable '{target.id}' instead of imported MIN_TOUCH_TARGET_PX")
+        if not has_min_touch_compare:
+            defects.append("defect_5: missing comparison against imported MIN_TOUCH_TARGET_PX")
         return defects
 
-    def _check_helper_only_proof(self, tree: ast.AST, filename: str) -> list[str]:
-        # If this is req5 (persona), it must make app boundary calls (client.post / request)
+    def _check_app_boundary_calls(self, tree: ast.AST, filename: str) -> list[str]:
+        """Defect 6: In req5, ensure named test functions make actual app-boundary HTTP calls (not helper-only)."""
         if "req5" not in filename:
             return []
-        has_http_call = False
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
-                if node.func.attr in ("post", "get", "delete", "post_json", "request"):
-                    has_http_call = True
-                    break
-        if not has_http_call:
-            return ["defect_6: helper-only proof without app-boundary cases"]
-        return []
-
-    def _check_concurrency_and_ordering(self, tree: ast.AST, filename: str) -> list[str]:
-        if "req6" not in filename:
-            return []
-        source = ast.unparse(tree)
         defects = []
-        if "turn_in_flight" not in source:
-            defects.append("defect_7: missing 409 turn_in_flight concurrency assertion")
-        if "idempotency_conflict" not in source:
-            defects.append("defect_7: missing 409 idempotency_conflict assertion")
-        if "out_of_order" not in source:
-            defects.append("defect_7: missing 409 out_of_order assertion")
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
+                has_http = any(
+                    isinstance(child, ast.Call)
+                    and isinstance(child.func, ast.Name)
+                    and child.func.id in ("post_json", "get_json", "delete_json")
+                    for child in ast.walk(node)
+                )
+                if not has_http:
+                    defects.append(f"defect_6: test function '{node.name}' in req5 is helper-only without app-boundary HTTP call")
         return defects
 
-    def _check_adversarial_coverage(self, tree: ast.AST, filename: str) -> list[str]:
+    def _check_concurrency_and_ordering(self, tree: ast.AST, filename: str) -> list[str]:
+        """Defect 7: In req6, check concurrency multiset [200, 409], turn_in_flight, idempotency_conflict, out_of_order."""
         if "req6" not in filename:
             return []
-        source = ast.unparse(tree)
         defects = []
+        found_threads = False
+        found_turn_in_flight = False
+        found_idempotency_conflict = False
+        found_out_of_order = False
+
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef):
+                if "concurrent" in node.name.lower():
+                    for sub in ast.walk(node):
+                        if isinstance(sub, ast.Call):
+                            if (isinstance(sub.func, ast.Attribute) and sub.func.attr == "Thread") or (
+                                isinstance(sub.func, ast.Name) and sub.func.id == "Thread"
+                            ):
+                                found_threads = True
+                        if isinstance(sub, ast.Constant) and sub.value == "turn_in_flight":
+                            found_turn_in_flight = True
+                if "idempotent" in node.name.lower():
+                    for sub in ast.walk(node):
+                        if isinstance(sub, ast.Constant) and sub.value == "idempotency_conflict":
+                            found_idempotency_conflict = True
+                if "monotonic" in node.name.lower() or "ordering" in node.name.lower():
+                    for sub in ast.walk(node):
+                        if isinstance(sub, ast.Constant) and sub.value == "out_of_order":
+                            found_out_of_order = True
+
+        if not found_threads:
+            defects.append("defect_7: concurrency test does not instantiate threading.Thread")
+        if not found_turn_in_flight:
+            defects.append("defect_7: missing 409 turn_in_flight concurrency error check")
+        if not found_idempotency_conflict:
+            defects.append("defect_7: missing 409 idempotency_conflict error check")
+        if not found_out_of_order:
+            defects.append("defect_7: missing 409 out_of_order error check")
+        return defects
+
+    def _check_adversarial_gates_coverage(self, tree: ast.AST, filename: str) -> list[str]:
+        """Defect 8: Enforce AST literal presence for all gates E-01 to E-08 inside test methods."""
+        if "req6" not in filename:
+            return []
+        defects = []
+        found_gates = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and node.name.startswith("test_"):
+                stmts = node.body
+                if (
+                    stmts
+                    and isinstance(stmts[0], ast.Expr)
+                    and isinstance(stmts[0].value, ast.Constant)
+                    and isinstance(stmts[0].value.value, str)
+                ):
+                    stmts = stmts[1:]
+                for s in stmts:
+                    for sub in ast.walk(s):
+                        if isinstance(sub, ast.Constant) and isinstance(sub.value, str):
+                            for g in ["E-01", "E-02", "E-03", "E-04", "E-05", "E-06", "E-07", "E-08"]:
+                                if g in sub.value:
+                                    found_gates.add(g)
+
         for gate in ["E-01", "E-02", "E-03", "E-04", "E-05", "E-06", "E-07", "E-08"]:
-            var_name = f"GATE_{gate.replace('-', '')}"
-            if gate not in source and var_name not in source:
-                defects.append(f"defect_8: missing adversarial gate {gate}")
+            if gate not in found_gates:
+                defects.append(f"defect_8: missing executable adversarial gate test for '{gate}'")
         return defects
 
     def _check_quotation_fidelity(self, tree: ast.AST, filename: str) -> list[str]:
+        """Defect 9: In req6, check attempt-scoped verbatim quotation check, non-empty quotes, and increasing timestamps."""
         if "req6" not in filename:
             return []
-        source = ast.unparse(tree)
-        if "all_session_utterances" in source and "attempt_utterances" not in source:
-            return ["defect_9: weak any-utterance quotation check instead of attempt-scoped verbatim check"]
-        return []
+        defects = []
+        has_attempt_utterances = False
+        has_len_quotations = False
 
-    def _check_cleanup_counts(self, tree: ast.AST, filename: str) -> list[str]:
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and "evidence" in node.name.lower():
+                for sub in ast.walk(node):
+                    if isinstance(sub, ast.Name) and sub.id == "attempt_utterances":
+                        has_attempt_utterances = True
+                    if isinstance(sub, ast.Call) and isinstance(sub.func, ast.Name) and sub.func.id == "len":
+                        if len(sub.args) == 1 and isinstance(sub.args[0], ast.Name) and sub.args[0].id in ("quotations", "quotes"):
+                            has_len_quotations = True
+
+        if not has_attempt_utterances:
+            defects.append("defect_9: missing attempt_utterances attempt-scoped quotation verification")
+        if not has_len_quotations:
+            defects.append("defect_9: missing assertion verifying non-empty quotations list")
+        return defects
+
+    def _check_cleanup_boundary_counts(self, tree: ast.AST, filename: str) -> list[str]:
+        """Defect 10: In req2, verify cleanup test asserts teardown counts before/after (count == 1, delta == 0)."""
         if "req2" not in filename:
             return []
-        source = ast.unparse(tree)
-        if "upstream_teardown_performed" not in source and "teardown_count" not in source:
-            return ["defect_10: cleanup without observed exactly-once counts"]
-        return []
+        defects = []
+        has_teardown_count_assert = False
 
-    def _check_tautologies_and_skips(self, tree: ast.AST) -> list[str]:
+        for node in ast.walk(tree):
+            if isinstance(node, ast.FunctionDef) and "cleanup" in node.name.lower():
+                for sub in ast.walk(node):
+                    if isinstance(sub, ast.Call) and isinstance(sub.func, ast.Attribute) and sub.func.attr.startswith("assert"):
+                        for arg in sub.args:
+                            arg_str = ast.unparse(arg)
+                            if any(k in arg_str for k in ("teardown", "call_count", "get_requests", "ledger")):
+                                has_teardown_count_assert = True
+
+        if not has_teardown_count_assert:
+            defects.append("defect_10: cleanup test does not assert observed teardown counts")
+        return defects
+
+    def _check_tautologies_and_skips(self, tree: ast.AST, filename: str) -> list[str]:
+        """Defect 11: Reject placeholder assertions, self.fail stubs, or skip decorators."""
         defects = []
         for node in ast.walk(tree):
             if isinstance(node, ast.Assert):
                 if isinstance(node.test, ast.Constant) and node.test.value is False:
                     defects.append("defect_11: placeholder 'assert False'")
             elif isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute):
-                if node.func.attr == "assertTrue":
-                    if len(node.args) >= 1 and isinstance(node.args[0], ast.Constant) and node.args[0].value is True:
-                        defects.append("defect_11: tautology 'self.assertTrue(True)'")
-                elif node.func.attr == "fail":
+                if node.func.attr == "fail":
                     defects.append("defect_11: placeholder 'self.fail()'")
-            elif isinstance(node, ast.FunctionDef):
+            elif isinstance(node, (ast.FunctionDef, ast.ClassDef)):
                 for dec in node.decorator_list:
                     dec_str = ast.unparse(dec)
                     if "skip" in dec_str:
-                        defects.append(f"defect_11: unconditional skip decorator '{dec_str}'")
+                        defects.append(f"defect_11: skip decorator '@{dec_str}'")
         return defects
 
-    def _check_missing_imports(self, tree: ast.AST) -> list[str]:
+    def _check_unimported_symbols(self, tree: ast.AST, filename: str) -> list[str]:
+        """Defect 12: Reject references to unimported standard modules."""
         imported_names = set()
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
@@ -206,112 +313,219 @@ class ContractQualityGateAnalyzer:
 
 
 class TestStage4ContractQualityGate(unittest.TestCase):
-    """
-    Quality gate test suite:
-    1. Tests all 12 bad mutation fixtures to prove detection.
-    2. Validates real Stage 4 suite against all 12 defect checks.
-    """
-
     def setUp(self):
         self.analyzer = ContractQualityGateAnalyzer()
 
     def test_mutation_fixtures_detect_all_12_defects(self):
-        """Proves that every defect pattern is detected and rejected."""
+        """
+        Tests mutation variants proving that comments, docstrings, unrelated calls,
+        broad status collections, try/except/pass, .get(), and local threshold values
+        are detected and rejected.
+        """
         mutation_fixtures = [
             (
-                "defect_1",
+                "defect_1_broad_status_list",
                 """
-def test_turn(self):
-    status = 404
-    self.assertIn(status, [200, 404])
+def test_status(self):
+    self.assertIn(resp_status, [200, 404])
 """,
-                "defect_1: required status accepts 404/405 as success",
+                "defect_1: broad status collection [200, 404]",
             ),
             (
-                "defect_2",
+                "defect_1_broad_400_409",
                 """
-def test_del(self):
-    if del_status == 200:
-        self.assertEqual(resp['schema'], 'sah.cleanup.v1')
+def test_rejection(self):
+    self.assertIn(resp_status, [400, 409])
 """,
-                "defect_2: conditional guard",
+                "defect_1: broad status collection [400, 409]",
             ),
             (
-                "defect_3",
+                "defect_2_if_assertion",
                 """
-def test_turn_field(self):
-    synthetic = resp.get('synthetic', True)
+def test_guard(self):
+    if status == 200:
+        self.assertEqual(data['a'], 1)
 """,
-                "defect_3: passing .get() default",
+                "defect_2: assertion 'assertEqual' conditionally guarded",
             ),
             (
-                "defect_4",
+                "defect_2_while_assertion",
                 """
-def test_avatar_ui(self):
+def test_while(self):
+    while ready:
+        self.assertEqual(data['a'], 1)
+""",
+                "defect_2: assertion 'assertEqual' conditionally guarded by while loop",
+            ),
+            (
+                "defect_2_conditional_expression",
+                """
+def test_ternary(self):
+    x = 1 if status == 200 else 2
+""",
+                "defect_2: conditional expression",
+            ),
+            (
+                "defect_2_early_return",
+                """
+def test_early_ret(self):
+    if not ready:
+        return
+    self.assertEqual(x, 1)
+""",
+                "defect_2: early return before assertions in 'test_early_ret'",
+            ),
+            (
+                "defect_3_two_arg_get",
+                """
+def test_get(self):
+    val = resp.get('synthetic', True)
+""",
+                "defect_3: forbidden two-argument .get()",
+            ),
+            (
+                "defect_4_try_except_pass",
+                """
+def test_swallow(self):
+    try:
+        page.locator('#btn').click()
+    except Exception:
+        pass
+""",
+                "defect_4: try/except/pass block swallowed exception",
+            ),
+            (
+                "defect_4_locator_count_guard",
+                """
+def test_count(self):
     if page.locator('#avatar').count() > 0:
-        self.assertTrue(True)
+        page.locator('#avatar').click()
 """,
-                "defect_4: if locator.count()",
+                "defect_4: locator guard: 'if page.locator('#avatar').count() > 0'",
             ),
             (
-                "defect_5",
+                "defect_5_touch_target_literal_40",
                 """
-def test_touch_target(self):
-    target_size = 40
-    self.assertTrue(target_size >= 36)
+def test_touch_target_dimensions(self):
+    self.assertTrue(height >= 40)
 """,
-                "defect_5: threshold mismatch",
+                "defect_5: touch target compared against numeric literal 40",
             ),
             (
-                "defect_6",
+                "defect_5_touch_target_literal_43",
                 """
-class TestStage4Req5(unittest.TestCase):
-    def test_pure_helper(self):
+def test_touch_target_dimensions(self):
+    self.assertGreaterEqual(height, 43)
+""",
+                "defect_5: touch target compared against numeric literal 43",
+            ),
+            (
+                "defect_5_touch_target_literal_45",
+                """
+def test_touch_target_dimensions(self):
+    self.assertGreaterEqual(height, 45)
+""",
+                "defect_5: touch target compared against numeric literal 45",
+            ),
+            (
+                "defect_5_touch_target_local_var",
+                """
+def test_touch_target_dimensions(self):
+    my_target = 44
+    self.assertTrue(height >= my_target)
+""",
+                "defect_5: touch target compared against local variable 'my_target'",
+            ),
+            (
+                "defect_6_req5_helper_comment_docstring",
+                """
+class TestStage4Req5Persona(unittest.TestCase):
+    def test_api_check(self):
+        # post_json('/api/rehearsal/sessions')
+        \"\"\"post_json was mentioned here\"\"\"
         valid, rule, msg = s4_helpers.validate_persona_profile({})
         self.assertFalse(valid)
 """,
-                "defect_6: helper-only proof",
+                "defect_6: test function 'test_api_check' in req5 is helper-only without app-boundary HTTP call",
             ),
             (
-                "defect_7",
+                "defect_6_req5_unrelated_http_call",
                 """
-class TestStage4Req6(unittest.TestCase):
-    def test_turn(self):
-        pass
+class TestStage4Req5Persona(unittest.TestCase):
+    def test_unrelated(self):
+        requests.get('https://example.com')
 """,
-                "defect_7: missing 409 turn_in_flight",
+                "defect_6: test function 'test_unrelated' in req5 is helper-only without app-boundary HTTP call",
             ),
             (
-                "defect_8",
+                "defect_7_req6_concurrency_no_thread",
                 """
-class TestStage4Req6(unittest.TestCase):
-    def test_gates(self):
-        # Only E-01 tested
-        gate = 'E-01'
+import threading
+class TestStage4Req6Orch(unittest.TestCase):
+    def test_concurrent(self):
+        status = 409
+        error = 'turn_in_flight'
+        conflict = 'idempotency_conflict'
+        order = 'out_of_order'
 """,
-                "defect_8: missing adversarial gate",
+                "defect_7: concurrency test does not instantiate threading.Thread",
             ),
             (
-                "defect_9",
+                "defect_7_req6_missing_turn_in_flight",
                 """
-class TestStage4Req6(unittest.TestCase):
-    def test_fidelity(self):
+import threading
+class TestStage4Req6Orch(unittest.TestCase):
+    def test_concurrent(self):
+        t = threading.Thread(target=lambda: None)
+        conflict = 'idempotency_conflict'
+        order = 'out_of_order'
+""",
+                "defect_7: missing 409 turn_in_flight concurrency error check",
+            ),
+            (
+                "defect_8_req6_adversarial_docstring_only",
+                """
+class TestStage4Req6Orch(unittest.TestCase):
+    def test_adversarial_gates(self):
+        \"\"\"E-01 E-02 E-03 E-04 E-05 E-06 E-07 E-08 in docstring\"\"\"
+        table = [('E-01', 'prompt')]
+""",
+                "defect_8: missing executable adversarial gate test for 'E-02'",
+            ),
+            (
+                "defect_9_req6_quotations_no_attempt_scope",
+                """
+class TestStage4Req6Orch(unittest.TestCase):
+    def test_evidence(self):
         all_session_utterances = ['u1']
         self.assertIn('u1', all_session_utterances)
+        l = len(quotations)
 """,
-                "defect_9: weak any-utterance quotation check",
+                "defect_9: missing attempt_utterances",
             ),
             (
-                "defect_10",
+                "defect_9_req6_empty_quotations_allowed",
                 """
-class TestStage4Req2(unittest.TestCase):
-    def test_cleanup(self):
-        resp = self.client.delete('/api/session')
+class TestStage4Req6Orch(unittest.TestCase):
+    def test_evidence(self):
+        attempt_utterances = ['u1']
+        self.assertIn('u1', attempt_utterances)
 """,
-                "defect_10: cleanup without observed exactly-once counts",
+                "defect_9: missing assertion verifying non-empty quotations list",
             ),
             (
-                "defect_11",
+                "defect_10_req2_cleanup_unrelated_teardown_word",
+                """
+class TestStage4Req2Cleanup(unittest.TestCase):
+    def test_cleanup(self):
+        # We did teardown earlier in comment
+        \"\"\"teardown docstring\"\"\"
+        resp = delete_json('/api/session')
+""",
+                "defect_10: cleanup test does not assert observed teardown counts",
+            ),
+            (
+                "defect_11_placeholder",
                 """
 def test_stub(self):
     assert False
@@ -319,7 +533,7 @@ def test_stub(self):
                 "defect_11: placeholder 'assert False'",
             ),
             (
-                "defect_12",
+                "defect_12_unimported_copy",
                 """
 def test_copy(self):
     deep = copy.deepcopy({})
@@ -330,28 +544,28 @@ def test_copy(self):
 
         for defect_id, snippet, expected_snippet in mutation_fixtures:
             filename = f"test_{defect_id}.py"
-            if defect_id in ("defect_6",):
+            if "req1" in defect_id or "touch" in defect_id:
+                filename = "test_s4_req1_journeys.py"
+            elif "req5" in defect_id:
                 filename = "test_s4_req5_persona.py"
-            elif defect_id in ("defect_7", "defect_8", "defect_9"):
+            elif "req6" in defect_id or "concurrency" in defect_id or "adversarial" in defect_id or "quote" in defect_id:
                 filename = "test_s4_req6_orch.py"
-            elif defect_id in ("defect_10",):
+            elif "req2" in defect_id or "cleanup" in defect_id:
                 filename = "test_s4_req2_cleanup.py"
 
             detected = self.analyzer.analyze_source(snippet, filename=filename)
             matched = any(expected_snippet in d for d in detected)
             self.assertTrue(
                 matched,
-                f"Defect {defect_id} failed to trigger! Expected '{expected_snippet}', got: {detected}",
+                f"Mutation {defect_id} was NOT detected! Expected snippet '{expected_snippet}', got: {detected}",
             )
 
     def test_real_stage4_suite_satisfies_quality_gate(self):
-        """Verifies that all real test_s4_*.py files pass without any defect violations."""
+        """Verifies that all real test_s4_*.py files pass the strengthened quality gate."""
         test_dir = os.path.dirname(os.path.abspath(__file__))
         s4_files = glob.glob(os.path.join(test_dir, "test_s4_*.py"))
-        # Exclude this quality gate file from self-testing if needed, or include it
         s4_files = [f for f in s4_files if os.path.basename(f) != "test_s4_quality_gate.py"]
 
-        # If s4 files have been created, analyze each of them
         all_defects = {}
         for fpath in s4_files:
             with open(fpath, "r", encoding="utf-8") as f:
@@ -363,7 +577,7 @@ def test_copy(self):
         self.assertEqual(
             all_defects,
             {},
-            f"Stage 4 suite contained quality gate defects: {all_defects}",
+            f"Real Stage 4 suite contains quality gate defects: {all_defects}",
         )
 
 

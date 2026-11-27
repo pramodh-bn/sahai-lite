@@ -41,7 +41,7 @@ def _s4_request(method: str, url: str, payload=None, timeout: float = 5.0) -> tu
     """Issues HTTP request to localhost server and safely decodes JSON or returns raw body dictionary."""
     assert_local_health_url(url)
     data = None
-    headers = {}
+    headers = {"Connection": "close"}
     if payload is not None:
         data = json.dumps(payload).encode("utf-8")
         headers["Content-Type"] = "application/json"
