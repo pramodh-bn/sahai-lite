@@ -1,0 +1,366 @@
+test_every_product_module_exists_imports_and_contains_tests (test_s4b_contract_selfcheck.TestStage4BContractSelfCheck.test_every_product_module_exists_imports_and_contains_tests) ... ok
+test_suite_has_no_skips_or_placeholder_assertions (test_s4b_contract_selfcheck.TestStage4BContractSelfCheck.test_suite_has_no_skips_or_placeholder_assertions) ... ok
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:33:17] "GET /health HTTP/1.1" 200 -
+test_avatar_withdrawal_tears_down_vendor_and_keeps_text_practice (test_s4b_req1_consent.TestGranularConsent.test_avatar_withdrawal_tears_down_vendor_and_keeps_text_practice) ... 127.0.0.1 - - [27/Nov/2026 11:33:19] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:33:21] "POST /api/rehearsal/sessions/9cf11f3f007742d184c890fdeedda869/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:33:23] "POST /api/rehearsal/sessions/9cf11f3f007742d184c890fdeedda869/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:33:25] "POST /api/rehearsal/sessions/9cf11f3f007742d184c890fdeedda869/consent HTTP/1.1" 404 -
+FAIL
+test_granting_one_scope_does_not_bundle_others (test_s4b_req1_consent.TestGranularConsent.test_granting_one_scope_does_not_bundle_others) ... 127.0.0.1 - - [27/Nov/2026 11:33:27] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:33:29] "POST /api/rehearsal/sessions/d00cfa59968f4516967759065bb5b034/consent HTTP/1.1" 404 -
+FAIL
+test_microphone_requires_mic_consent (test_s4b_req1_consent.TestGranularConsent.test_microphone_requires_mic_consent) ... 127.0.0.1 - - [27/Nov/2026 11:33:31] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:33:33] "POST /api/rehearsal/sessions/9df4509c1ffa441d85aff9624141dac5/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:33:35] "POST /api/rehearsal/sessions/9df4509c1ffa441d85aff9624141dac5/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:33:37] "POST /api/rehearsal/sessions/9df4509c1ffa441d85aff9624141dac5/mic/start HTTP/1.1" 404 -
+FAIL
+test_non_boolean_grant_is_rejected (test_s4b_req1_consent.TestGranularConsent.test_non_boolean_grant_is_rejected) ... 127.0.0.1 - - [27/Nov/2026 11:33:39] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:33:39] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:33:39] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:33:42] "POST /api/rehearsal/sessions/a14a2eda30db49688604e89e24d570a1/consent HTTP/1.1" 404 -
+FAIL
+test_rehearsal_withdrawal_ends_session (test_s4b_req1_consent.TestGranularConsent.test_rehearsal_withdrawal_ends_session) ... 127.0.0.1 - - [27/Nov/2026 11:33:44] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:33:46] "POST /api/rehearsal/sessions/7ff799f286854df19b8cc173fdad7208/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:33:48] "POST /api/rehearsal/sessions/7ff799f286854df19b8cc173fdad7208/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:33:50] "POST /api/rehearsal/sessions/7ff799f286854df19b8cc173fdad7208/consent HTTP/1.1" 404 -
+FAIL
+test_research_export_requires_consent_and_is_deidentified (test_s4b_req1_consent.TestGranularConsent.test_research_export_requires_consent_and_is_deidentified) ... 127.0.0.1 - - [27/Nov/2026 11:33:52] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:33:54] "POST /api/rehearsal/sessions/6d2e6aeb43154eb6839060e7d66a49ec/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:33:56] "POST /api/rehearsal/sessions/6d2e6aeb43154eb6839060e7d66a49ec/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:33:58] "POST /api/rehearsal/sessions/6d2e6aeb43154eb6839060e7d66a49ec/research/export HTTP/1.1" 404 -
+FAIL
+test_six_scopes_are_separately_visible_and_denied_by_default (test_s4b_req1_consent.TestGranularConsent.test_six_scopes_are_separately_visible_and_denied_by_default) ... 127.0.0.1 - - [27/Nov/2026 11:34:00] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:34:02] "GET /api/rehearsal/sessions/98e53c17d969467f80129cd405b3161e/consent HTTP/1.1" 404 -
+FAIL
+test_subject_consent_is_not_applicable_in_v1 (test_s4b_req1_consent.TestGranularConsent.test_subject_consent_is_not_applicable_in_v1) ... 127.0.0.1 - - [27/Nov/2026 11:34:04] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:34:06] "POST /api/rehearsal/sessions/0e26bee335354f4b9c03dbef2891db35/consent HTTP/1.1" 404 -
+FAIL
+test_transcript_save_requires_consent_and_is_retrievable (test_s4b_req1_consent.TestGranularConsent.test_transcript_save_requires_consent_and_is_retrievable) ... 127.0.0.1 - - [27/Nov/2026 11:34:08] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:34:09] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:34:09] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:34:10] "POST /api/rehearsal/sessions/2809708638cf43deb78c927ab47f03a6/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:34:12] "POST /api/rehearsal/sessions/2809708638cf43deb78c927ab47f03a6/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:34:15] "POST /api/rehearsal/sessions/2809708638cf43deb78c927ab47f03a6/transcript/save HTTP/1.1" 404 -
+FAIL
+test_transcript_withdrawal_deletes_saved_copy (test_s4b_req1_consent.TestGranularConsent.test_transcript_withdrawal_deletes_saved_copy) ... 127.0.0.1 - - [27/Nov/2026 11:34:17] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:34:19] "POST /api/rehearsal/sessions/1dd875ca42774a168a9f6732f016d3b5/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:34:21] "POST /api/rehearsal/sessions/1dd875ca42774a168a9f6732f016d3b5/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:34:23] "POST /api/rehearsal/sessions/1dd875ca42774a168a9f6732f016d3b5/consent HTTP/1.1" 404 -
+FAIL
+test_unknown_scope_is_rejected (test_s4b_req1_consent.TestGranularConsent.test_unknown_scope_is_rejected) ... 127.0.0.1 - - [27/Nov/2026 11:34:25] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:34:27] "POST /api/rehearsal/sessions/9ef85a4111b34713bed088b5ce934a17/consent HTTP/1.1" 404 -
+FAIL
+test_unknown_session_is_not_found (test_s4b_req1_consent.TestGranularConsent.test_unknown_session_is_not_found) ... 127.0.0.1 - - [27/Nov/2026 11:34:29] "GET /api/rehearsal/sessions/does-not-exist/consent HTTP/1.1" 404 -
+FAIL
+test_vendor_create_requires_avatar_consent_after_rehearsal (test_s4b_req1_consent.TestGranularConsent.test_vendor_create_requires_avatar_consent_after_rehearsal) ... 127.0.0.1 - - [27/Nov/2026 11:34:31] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:34:33] "POST /api/rehearsal/sessions/f0a535f298dd4a649e139ad49c854dc6/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:34:35] "POST /api/rehearsal/sessions/f0a535f298dd4a649e139ad49c854dc6/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:34:37] "POST /api/rehearsal/sessions/f0a535f298dd4a649e139ad49c854dc6/consent HTTP/1.1" 404 -
+FAIL
+test_vendor_create_requires_rehearsal_consent (test_s4b_req1_consent.TestGranularConsent.test_vendor_create_requires_rehearsal_consent) ... 127.0.0.1 - - [27/Nov/2026 11:34:39] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:34:40] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:34:40] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:34:41] "POST /api/rehearsal/sessions/554ecd7969054b66be8df7f23f633e38/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:34:43] "POST /api/rehearsal/sessions/554ecd7969054b66be8df7f23f633e38/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:34:45] "POST /api/rehearsal/sessions/554ecd7969054b66be8df7f23f633e38/napster-session HTTP/1.1" 200 -
+FAIL
+test_restart_with_stored_handle_deletes_it_exactly_once (test_s4b_req2_vendor_lifecycle.TestRestartRecovery.test_restart_with_stored_handle_deletes_it_exactly_once) ...  * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:34:48] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:34:50] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:34:52] "POST /api/rehearsal/sessions/653115c7eef749cba97b3863cae515d3/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:34:54] "POST /api/rehearsal/sessions/653115c7eef749cba97b3863cae515d3/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:34:57] "POST /api/rehearsal/sessions/653115c7eef749cba97b3863cae515d3/consent HTTP/1.1" 404 -
+FAIL
+ * Serving Flask app 'main'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://10.0.0.103:8000
+Press CTRL+C to quit
+127.0.0.1 - - [27/Nov/2026 11:34:59] "GET /health HTTP/1.1" 200 -
+test_consented_create_reaches_the_configured_vendor (test_s4b_req2_vendor_lifecycle.TestVendorLifecycle.test_consented_create_reaches_the_configured_vendor) ... 127.0.0.1 - - [27/Nov/2026 11:35:01] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:35:03] "POST /api/rehearsal/sessions/c78238f91fe44a65a85056ba5f0f3587/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:35:05] "POST /api/rehearsal/sessions/c78238f91fe44a65a85056ba5f0f3587/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:35:07] "POST /api/rehearsal/sessions/c78238f91fe44a65a85056ba5f0f3587/consent HTTP/1.1" 404 -
+FAIL
+test_failed_cleanup_on_delete_is_reported_then_retried (test_s4b_req2_vendor_lifecycle.TestVendorLifecycle.test_failed_cleanup_on_delete_is_reported_then_retried) ... 127.0.0.1 - - [27/Nov/2026 11:35:09] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:35:10] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:35:10] "GET /v1/models HTTP/1.1" 404 -
+127.0.0.1 - - [27/Nov/2026 11:35:11] "POST /api/rehearsal/sessions/d0a43c8e917646d3ba4785516b79f2b9/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:35:13] "POST /api/rehearsal/sessions/d0a43c8e917646d3ba4785516b79f2b9/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:35:16] "POST /api/rehearsal/sessions/d0a43c8e917646d3ba4785516b79f2b9/consent HTTP/1.1" 404 -
+FAIL
+test_post_allocation_failure_retains_handle_and_cleanup_completes (test_s4b_req2_vendor_lifecycle.TestVendorLifecycle.test_post_allocation_failure_retains_handle_and_cleanup_completes) ... 127.0.0.1 - - [27/Nov/2026 11:35:18] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:35:20] "POST /api/rehearsal/sessions/9d59ad005dfc4d81bbf8b8d0c828df7c/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:35:22] "POST /api/rehearsal/sessions/9d59ad005dfc4d81bbf8b8d0c828df7c/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:35:24] "POST /api/rehearsal/sessions/9d59ad005dfc4d81bbf8b8d0c828df7c/consent HTTP/1.1" 404 -
+FAIL
+test_session_delete_destroys_the_vendor_record_exactly_once (test_s4b_req2_vendor_lifecycle.TestVendorLifecycle.test_session_delete_destroys_the_vendor_record_exactly_once) ... 127.0.0.1 - - [27/Nov/2026 11:35:26] "POST /api/rehearsal/sessions HTTP/1.1" 201 -
+127.0.0.1 - - [27/Nov/2026 11:35:28] "POST /api/rehearsal/sessions/52b719ce9d2e44afa506bcf65be838ab/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:35:30] "POST /api/rehearsal/sessions/52b719ce9d2e44afa506bcf65be838ab/advance HTTP/1.1" 200 -
+127.0.0.1 - - [27/Nov/2026 11:35:32] "POST /api/rehearsal/sessions/52b719ce9d2e44afa506bcf65be838ab/consent HTTP/1.1" 404 -
+FAIL
+test_delete_removes_session_and_returns_redacted_receipt (test_s4b_req3_deletion.TestDeletionCompleteness.test_delete_removes_session_and_returns_redacted_receipt) ... FAIL
+test_delete_without_vendor_reports_no_retained_connection (test_s4b_req3_deletion.TestDeletionCompleteness.test_delete_without_vendor_reports_no_retained_connection) ... FAIL
+test_logs_after_delete_contain_no_pii_token_or_vendor_id (test_s4b_req3_deletion.TestDeletionCompleteness.test_logs_after_delete_contain_no_pii_token_or_vendor_id) ... FAIL
+test_second_delete_is_idempotent_not_500 (test_s4b_req3_deletion.TestDeletionCompleteness.test_second_delete_is_idempotent_not_500) ... FAIL
+
+======================================================================
+FAIL: test_avatar_withdrawal_tears_down_vendor_and_keeps_text_practice (test_s4b_req1_consent.TestGranularConsent.test_avatar_withdrawal_tears_down_vendor_and_keeps_text_practice)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 194, in test_avatar_withdrawal_tears_down_vendor_and_keeps_text_practice
+    grant_many(sid, ("rehearsal", "avatar"))
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 333, in grant_many
+    grant(session_id, scope)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_granting_one_scope_does_not_bundle_others (test_s4b_req1_consent.TestGranularConsent.test_granting_one_scope_does_not_bundle_others)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 81, in test_granting_one_scope_does_not_bundle_others
+    self.assertEqual(status, 200, f"avatar grant failed: status={status} body={body}")
+AssertionError: 404 != 200 : avatar grant failed: status=404 body={}
+
+======================================================================
+FAIL: test_microphone_requires_mic_consent (test_s4b_req1_consent.TestGranularConsent.test_microphone_requires_mic_consent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 144, in test_microphone_requires_mic_consent
+    assert_consent_required(self, mic_start(sid), "mic", "mic start without consent")
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 387, in assert_consent_required
+    testcase.assertEqual(status, 403, f"{context}: expected 403, got status={status} body={body}")
+AssertionError: 404 != 403 : mic start without consent: expected 403, got status=404 body={}
+
+======================================================================
+FAIL: test_non_boolean_grant_is_rejected (test_s4b_req1_consent.TestGranularConsent.test_non_boolean_grant_is_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 121, in test_non_boolean_grant_is_rejected
+    self.assertEqual(status, 400,
+AssertionError: 404 != 400 : granted='yes' was not rejected: status=404 body={}
+
+======================================================================
+FAIL: test_rehearsal_withdrawal_ends_session (test_s4b_req1_consent.TestGranularConsent.test_rehearsal_withdrawal_ends_session)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 232, in test_rehearsal_withdrawal_ends_session
+    grant(sid, "rehearsal")
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_research_export_requires_consent_and_is_deidentified (test_s4b_req1_consent.TestGranularConsent.test_research_export_requires_consent_and_is_deidentified)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 174, in test_research_export_requires_consent_and_is_deidentified
+    assert_consent_required(self, research_export(sid), "research",
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 387, in assert_consent_required
+    testcase.assertEqual(status, 403, f"{context}: expected 403, got status={status} body={body}")
+AssertionError: 404 != 403 : research export without consent: expected 403, got status=404 body={}
+
+======================================================================
+FAIL: test_six_scopes_are_separately_visible_and_denied_by_default (test_s4b_req1_consent.TestGranularConsent.test_six_scopes_are_separately_visible_and_denied_by_default)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 61, in test_six_scopes_are_separately_visible_and_denied_by_default
+    self.assertEqual(status, 200, f"consent read failed: status={status} body={body}")
+AssertionError: 404 != 200 : consent read failed: status=404 body={}
+
+======================================================================
+FAIL: test_subject_consent_is_not_applicable_in_v1 (test_s4b_req1_consent.TestGranularConsent.test_subject_consent_is_not_applicable_in_v1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 109, in test_subject_consent_is_not_applicable_in_v1
+    self.assertEqual(status, 409, f"body={body}")
+AssertionError: 404 != 409 : body={}
+
+======================================================================
+FAIL: test_transcript_save_requires_consent_and_is_retrievable (test_s4b_req1_consent.TestGranularConsent.test_transcript_save_requires_consent_and_is_retrievable)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 153, in test_transcript_save_requires_consent_and_is_retrievable
+    assert_consent_required(self, transcript_save(sid), "transcript_save",
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 387, in assert_consent_required
+    testcase.assertEqual(status, 403, f"{context}: expected 403, got status={status} body={body}")
+AssertionError: 404 != 403 : transcript save without consent: expected 403, got status=404 body={}
+
+======================================================================
+FAIL: test_transcript_withdrawal_deletes_saved_copy (test_s4b_req1_consent.TestGranularConsent.test_transcript_withdrawal_deletes_saved_copy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 216, in test_transcript_withdrawal_deletes_saved_copy
+    grant(sid, "transcript_save")
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'transcript_save' failed: status=404 body={}
+
+======================================================================
+FAIL: test_unknown_scope_is_rejected (test_s4b_req1_consent.TestGranularConsent.test_unknown_scope_is_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 98, in test_unknown_scope_is_rejected
+    self.assertEqual(status, 400, f"body={body}")
+AssertionError: 404 != 400 : body={}
+
+======================================================================
+FAIL: test_unknown_session_is_not_found (test_s4b_req1_consent.TestGranularConsent.test_unknown_session_is_not_found)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 249, in test_unknown_session_is_not_found
+    self.assertEqual(body.get("error"), "not_found")
+AssertionError: None != 'not_found'
+
+======================================================================
+FAIL: test_vendor_create_requires_avatar_consent_after_rehearsal (test_s4b_req1_consent.TestGranularConsent.test_vendor_create_requires_avatar_consent_after_rehearsal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 136, in test_vendor_create_requires_avatar_consent_after_rehearsal
+    grant(sid, "rehearsal")
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_vendor_create_requires_rehearsal_consent (test_s4b_req1_consent.TestGranularConsent.test_vendor_create_requires_rehearsal_consent)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req1_consent.py", line 129, in test_vendor_create_requires_rehearsal_consent
+    assert_consent_required(self, napster_create(sid), "rehearsal",
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 387, in assert_consent_required
+    testcase.assertEqual(status, 403, f"{context}: expected 403, got status={status} body={body}")
+AssertionError: 200 != 403 : vendor create without rehearsal consent: expected 403, got status=200 body={'connection_id': 'conn_s4b_1', 'status': 'ready', 'token': 'napster_conn_token_s4b_1'}
+
+======================================================================
+FAIL: test_restart_with_stored_handle_deletes_it_exactly_once (test_s4b_req2_vendor_lifecycle.TestRestartRecovery.test_restart_with_stored_handle_deletes_it_exactly_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 173, in test_restart_with_stored_handle_deletes_it_exactly_once
+    grant_many(sid, ("rehearsal", "avatar"))
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 333, in grant_many
+    grant(session_id, scope)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_consented_create_reaches_the_configured_vendor (test_s4b_req2_vendor_lifecycle.TestVendorLifecycle.test_consented_create_reaches_the_configured_vendor)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 60, in test_consented_create_reaches_the_configured_vendor
+    self._consent()
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 52, in _consent
+    grant_many(self.sid, scopes)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 333, in grant_many
+    grant(session_id, scope)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_failed_cleanup_on_delete_is_reported_then_retried (test_s4b_req2_vendor_lifecycle.TestVendorLifecycle.test_failed_cleanup_on_delete_is_reported_then_retried)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 120, in test_failed_cleanup_on_delete_is_reported_then_retried
+    self._consent()
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 52, in _consent
+    grant_many(self.sid, scopes)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 333, in grant_many
+    grant(session_id, scope)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_post_allocation_failure_retains_handle_and_cleanup_completes (test_s4b_req2_vendor_lifecycle.TestVendorLifecycle.test_post_allocation_failure_retains_handle_and_cleanup_completes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 100, in test_post_allocation_failure_retains_handle_and_cleanup_completes
+    self._consent()
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 52, in _consent
+    grant_many(self.sid, scopes)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 333, in grant_many
+    grant(session_id, scope)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_session_delete_destroys_the_vendor_record_exactly_once (test_s4b_req2_vendor_lifecycle.TestVendorLifecycle.test_session_delete_destroys_the_vendor_record_exactly_once)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 75, in test_session_delete_destroys_the_vendor_record_exactly_once
+    self._consent()
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req2_vendor_lifecycle.py", line 52, in _consent
+    grant_many(self.sid, scopes)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 333, in grant_many
+    grant(session_id, scope)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_delete_removes_session_and_returns_redacted_receipt (test_s4b_req3_deletion.TestDeletionCompleteness.test_delete_removes_session_and_returns_redacted_receipt)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req3_deletion.py", line 55, in test_delete_removes_session_and_returns_redacted_receipt
+    grant(sid, "transcript_save")
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'transcript_save' failed: status=404 body={}
+
+======================================================================
+FAIL: test_delete_without_vendor_reports_no_retained_connection (test_s4b_req3_deletion.TestDeletionCompleteness.test_delete_without_vendor_reports_no_retained_connection)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req3_deletion.py", line 100, in test_delete_without_vendor_reports_no_retained_connection
+    self.assertEqual(status, 200, f"delete failed: status={status} body={receipt}")
+AssertionError: 405 != 200 : delete failed: status=405 body={}
+
+======================================================================
+FAIL: test_logs_after_delete_contain_no_pii_token_or_vendor_id (test_s4b_req3_deletion.TestDeletionCompleteness.test_logs_after_delete_contain_no_pii_token_or_vendor_id)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req3_deletion.py", line 107, in test_logs_after_delete_contain_no_pii_token_or_vendor_id
+    grant_many(sid, ("rehearsal", "avatar"))
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 333, in grant_many
+    grant(session_id, scope)
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\s4b_helpers.py", line 327, in grant
+    raise AssertionError(f"granting {scope!r} failed: status={status} body={body}")
+AssertionError: granting 'rehearsal' failed: status=404 body={}
+
+======================================================================
+FAIL: test_second_delete_is_idempotent_not_500 (test_s4b_req3_deletion.TestDeletionCompleteness.test_second_delete_is_idempotent_not_500)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "C:\Users\User\Jam\278f65a8680ff197d4e825ec\2f25eefe5184a3cc415bc87c\79825bef03f2727dacbd718b\sahai-lite\.worktrees\LITE-S4B-VERIFY-TESTS-01\factory-lite\tests\test_s4b_req3_deletion.py", line 85, in test_second_delete_is_idempotent_not_500
+    self.assertEqual(status, 200, f"first delete failed: status={status} body={receipt}")
+AssertionError: 405 != 200 : first delete failed: status=405 body={}
+
+----------------------------------------------------------------------
+Ran 25 tests in 172.380s
+
+FAILED (failures=23)
+
+EXITCODE=1
+DURATION_SECONDS=173
+HEAD=baa33b39bb043d37363e4ff5d0c2ea2acd0bb4f8
+FINISHED=2026-11-27T11:36:07.4117445-05:00
