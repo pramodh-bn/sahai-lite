@@ -11,6 +11,7 @@ import threading
 import uuid
 
 import persona
+from consent_schema import new_consent_record
 
 MODE = "offline"
 SCENARIO = "alex_dana"
@@ -88,6 +89,8 @@ def create_session(personas=None):
         "evidence": [],
         "evidence_seq": 0,
         "pivot": build_pivot(personas or {}),
+        "consent": new_consent_record(),
+        "saved_transcript": None,
     }
     session["pivot_copy"] = copy.deepcopy(session["pivot"])
     with _lock:
@@ -98,6 +101,11 @@ def create_session(personas=None):
 def get_session(session_id):
     with _lock:
         return _sessions.get(session_id)
+
+
+def remove_session(session_id):
+    with _lock:
+        return _sessions.pop(session_id, None)
 
 
 def has_personas(session):

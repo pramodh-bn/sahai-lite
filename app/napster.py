@@ -27,6 +27,7 @@ import urllib.parse
 from flask import Blueprint, jsonify, request
 
 from rehearsal import _get_session
+import vendor_store
 
 DEFAULT_BASE_URL = "https://companion-api.napster.com"
 USER_AGENT = "sahai-lite/1.0"
@@ -118,14 +119,33 @@ def _entry(session_id):
     return _state.setdefault(session_id, {"connecting": False, "cooldown_until": 0.0, "connection": None})
 
 
+def _consent_gate(session):
+    """Stage 4B: an avatar/vendor session needs rehearsal then avatar consent.
+
+    Demo-state allocation stays on the certified Stage 3 path; once a rehearsal
+    seat exists, both scopes are required before any vendor contact.
+    """
+    if session.get("state") == "demo":
+        return None
+    for scope in ("rehearsal", "avatar"):
+        entry = (session.get("consent") or {}).get(scope) or {}
+        if entry.get("granted") is not True:
+            return jsonify({"error": "consent_required", "scope": scope}), 403
+    return None
+
+
 def _fail_with_cooldown(session_id, entry):
     entry["cooldown_until"] = time.monotonic() + COOLDOWN_S
 
 
 @bp.route("/sessions/<session_id>/napster-session", methods=["POST"])
 def create_napster_session(session_id):
-    if _get_session(session_id) is None:
+    session = _get_session(session_id)
+    if session is None:
         return jsonify({"error": "not_found"}), 404
+    blocked = _consent_gate(session)
+    if blocked is not None:
+        return blocked
     body = request.get_json(silent=True) or {}
     channel_type = body.get("channel_type", "webrtc")
     if channel_type != "webrtc":
@@ -184,6 +204,12 @@ def create_napster_session(session_id):
                         "base_url": base,
                         "agent_id": agent,
                     }
+            if not rolled_back:
+                vendor_store.save(session_id, {
+                    "connection_id": connection_id,
+                    "base_url": base,
+                    "agent_id": agent,
+                })
             return jsonify({
                 "status": "offline",
                 "error": "post_allocation_failure",
@@ -197,26 +223,64 @@ def create_napster_session(session_id):
                 "base_url": base,
                 "agent_id": agent,
             }
+        vendor_store.save(session_id, {
+            "connection_id": connection_id,
+            "base_url": base,
+            "agent_id": agent,
+        })
         return jsonify({"token": token, "connection_id": connection_id, "status": "ready"}), 200
     finally:
         with _state_lock:
             _entry(session_id)["connecting"] = False
 
 
-@bp.route("/sessions/<session_id>/napster-session", methods=["DELETE"])
-def delete_napster_session(session_id):
-    if _get_session(session_id) is None:
-        return jsonify({"error": "not_found"}), 404
+def _has_handle(session_id):
     with _state_lock:
         entry = _state.get(session_id)
-        connection = entry.get("connection") if entry else None
+        if entry is not None and entry.get("connection") is not None:
+            return True
+    return vendor_store.load(session_id) is not None
+
+
+def destroy_connection(session_id):
+    """Tear down a session's retained vendor handle exactly once.
+
+    Returns ``(destroyed, retained)``. Success clears the in-memory handle and
+    the persisted copy; failure keeps (or re-saves) the handle for a later retry
+    and never raises.
+    """
+    connection = vendor_store.load(session_id)
+    with _state_lock:
+        entry = _state.get(session_id)
+        if entry is not None and entry.get("connection") is not None:
+            connection = entry.get("connection")
     if connection is None:
-        return jsonify({"status": "no_active_connection", "session_destroyed": False}), 200
+        return True, False
 
     key = _env("NAPSTER_API_KEY")
     destroyed = bool(key) and _upstream_delete(
         connection["base_url"], key, connection["connection_id"]
     )
+    if not destroyed:
+        vendor_store.save(session_id, connection)
+        return False, True
+
+    with _state_lock:
+        entry = _state.get(session_id)
+        if entry is not None:
+            entry["connection"] = None
+    vendor_store.clear(session_id)
+    return True, False
+
+
+@bp.route("/sessions/<session_id>/napster-session", methods=["DELETE"])
+def delete_napster_session(session_id):
+    if _get_session(session_id) is None:
+        return jsonify({"error": "not_found"}), 404
+    if not _has_handle(session_id):
+        return jsonify({"status": "no_active_connection", "session_destroyed": False}), 200
+
+    destroyed, retained = destroy_connection(session_id)
     if not destroyed:
         # Preserve the local handle so a later DELETE can retry deterministically.
         return jsonify({
@@ -224,8 +288,4 @@ def delete_napster_session(session_id):
             "session_destroyed": False,
             "connection_retained": True,
         }), 502
-    with _state_lock:
-        entry = _state.get(session_id)
-        if entry is not None and entry.get("connection") is connection:
-            entry["connection"] = None
     return jsonify({"status": "destroyed", "session_destroyed": True}), 200
