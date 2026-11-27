@@ -1,19 +1,39 @@
 """
-Stage 4 helpers: canonical hashing, normative validators, compiler reference, deliverable checkers,
+Stage 4 helpers: canonical hashing, normative validators, compiler reference,
+deliverable checkers, process controller with log capture, test-owned fake vendor cleanup boundary,
 and black-box HTTP request functions against local app.
 """
 
 import copy
 import hashlib
 import json
+import os
 import re
+import shlex
+import subprocess
+import sys
+import tempfile
+import time
 import urllib.error
 import urllib.request
+from pathlib import Path
 
-from s2_helpers import AppProcess, app_base_url, assert_local_health_url
+from s2_helpers import (
+    ContractError,
+    app_base_url,
+    assert_local_health_url,
+    git_head_sha,
+    health_url,
+    read_run_doc_or_raise,
+    startup_command,
+    wait_for_health,
+)
 from s4_constants import (
+    JUDGING_CRITERIA,
     RULE_P01,
     RULE_P02,
+    RULE_P02A,
+    RULE_P02B,
     RULE_P03,
     RULE_P04,
     RULE_P05,
@@ -35,6 +55,140 @@ from s4_constants import (
 APPROVED_SCENARIOS = {"alex_dana"}
 APPROVED_ROLES = {"body_double", "counterpart"}
 APPROVED_AUTHORITY_LEVELS = {"A1", "A2"}
+
+
+class AppProcess:
+    """Controls the application process for black-box testing and captures stdout/stderr."""
+
+    def __init__(self):
+        self.proc = None
+        self.stdout_file = None
+        self.stderr_file = None
+        self.stdout_path = None
+        self.stderr_path = None
+
+    def start(self):
+        cmd = startup_command()
+        expected_sha = git_head_sha()
+        repo_root = Path(__file__).resolve().parents[2]
+
+        # Use temporary files so pipes do not block on high buffer usage
+        self.stdout_file = tempfile.NamedTemporaryFile(mode="w+", delete=False, encoding="utf-8")
+        self.stderr_file = tempfile.NamedTemporaryFile(mode="w+", delete=False, encoding="utf-8")
+        self.stdout_path = self.stdout_file.name
+        self.stderr_path = self.stderr_file.name
+
+        self.proc = subprocess.Popen(
+            shlex.split(cmd),
+            cwd=repo_root,
+            stdout=self.stdout_file,
+            stderr=self.stderr_file,
+        )
+        wait_for_health(expected_sha)
+        return self
+
+    def stop(self):
+        if self.proc is not None:
+            self.proc.terminate()
+            try:
+                self.proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                self.proc.kill()
+            self.proc = None
+
+        if self.stdout_file is not None and not self.stdout_file.closed:
+            self.stdout_file.close()
+        if self.stderr_file is not None and not self.stderr_file.closed:
+            self.stderr_file.close()
+
+    def get_stdout(self) -> str:
+        """Returns captured stdout from the app process."""
+        if self.stdout_path and os.path.isfile(self.stdout_path):
+            with open(self.stdout_path, "r", encoding="utf-8", errors="replace") as f:
+                return f.read()
+        return ""
+
+    def get_stderr(self) -> str:
+        """Returns captured stderr from the app process."""
+        if self.stderr_path and os.path.isfile(self.stderr_path):
+            with open(self.stderr_path, "r", encoding="utf-8", errors="replace") as f:
+                return f.read()
+        return ""
+
+
+class FakeVendorCleanupBoundary:
+    """Test-owned fake vendor / local cleanup boundary that observes resource connection,
+
+    tracks call counts, records failed DELETE attempts, and tests failure injection.
+    """
+
+    def __init__(self):
+        self._created_resources = {}  # session_id -> resource_handle
+        self._active_resources = set()  # set of resource_handles currently allocated
+        self._delete_calls = []  # list of records: {"session_id": sid, "handle": h, "success": bool}
+        self._inject_failure = False
+
+    def reset(self):
+        self._created_resources.clear()
+        self._active_resources.clear()
+        self._delete_calls.clear()
+        self._inject_failure = False
+
+    def set_inject_failure(self, inject: bool):
+        self._inject_failure = inject
+
+    def record_create(self, session_id: str, resource_handle: str):
+        """Observes vendor resource allocation before cleanup can occur."""
+        self._created_resources[session_id] = resource_handle
+        self._active_resources.add(resource_handle)
+
+    def delete(self, session_id: str, resource_handle: str | None = None) -> tuple[int, dict]:
+        """Performs cleanup of vendor resource. Records failed attempts and handle retention."""
+        handle = resource_handle or self._created_resources.get(session_id)
+        if self._inject_failure:
+            self._delete_calls.append({"session_id": session_id, "handle": handle, "success": False})
+            # Resource handle is explicitly retained on upstream failure
+            return 502, {"error": "upstream_cleanup_failure", "resource_retained": True, "handle": handle}
+
+        # Successful attempt
+        is_active = handle in self._active_resources if handle else False
+        if is_active:
+            self._active_resources.remove(handle)
+            clean_count = 1
+        else:
+            clean_count = 0  # Idempotent repeat: zero additional resources torn down
+
+        self._delete_calls.append({"session_id": session_id, "handle": handle, "success": True, "delta": clean_count})
+        return 200, {
+            "status": "cleaned",
+            "session_id": session_id,
+            "resource_handle": handle,
+            "resources_torn_down": clean_count,
+            "retained": False,
+        }
+
+    def create_call_count(self) -> int:
+        return len(self._created_resources)
+
+    def delete_call_count(self) -> int:
+        """Returns total number of DELETE attempts made to this boundary."""
+        return len(self._delete_calls)
+
+    def successful_cleanup_count(self) -> int:
+        return sum(1 for c in self._delete_calls if c["success"])
+
+    def failed_delete_count(self) -> int:
+        return sum(1 for c in self._delete_calls if not c["success"])
+
+    def is_resource_active(self, handle: str) -> bool:
+        return handle in self._active_resources
+
+    def get_delete_records(self) -> list[dict]:
+        return list(self._delete_calls)
+
+
+# Global boundary instance for test observations
+global_fake_boundary = FakeVendorCleanupBoundary()
 
 
 def _s4_request(method: str, url: str, payload=None, timeout: float = 5.0) -> tuple[int, dict]:
@@ -90,7 +244,7 @@ def make_valid_approved_profile(
     scenario: str = "alex_dana",
     authority_level: str = "A2",
 ) -> dict:
-    """Generates a normative, valid synthetic profile conforming to sah.persona.v1."""
+    """Generates a normative, complete synthetic profile conforming to sah.persona.v1."""
     profile = {
         "schema_version": SCHEMA_VERSION_PERSONA,
         "profile_id": f"prof-{role}-{scenario}-v1",
@@ -98,204 +252,114 @@ def make_valid_approved_profile(
         "role": role,
         "display_name": "Synthetic Alex" if role == "body_double" else "Synthetic Dana",
         "avatar": {
-            "kind": "synthetic_avatar",
-            "entity_type": "fictitious",
-            "real_person_target": False,
-            "synthetic_preset_id": "synth-mesh-01",
-            "biometric_template": None,
+            "kind": "synthetic",
+            "asset_id": "avatar-synth-01" if role == "body_double" else "avatar-synth-02",
+            "rendering": "2d_canvas",
         },
         "voice": {
-            "synthetic_voice_id": "synth-voice-neutral-01",
-            "cloned_voice_id": None,
-            "provider": "local_tts",
+            "kind": "synthetic",
+            "voice_id": "synth-voice-en-01" if role == "body_double" else "synth-voice-en-02",
         },
-        "authority": {
+        "personality": {
+            "tone": "collaborative",
+            "style": "assertive_direct" if role == "body_double" else "evaluative_probing",
+            "pacing": "moderate",
+        },
+        "goals": [
+            "establish_fair_terms",
+            "explore_counterpart_constraints",
+            "maintain_professional_relationship",
+        ],
+        "visible_knowledge": [
+            "initial_offer_range",
+            "project_scope",
+            "standard_payment_terms",
+        ],
+        "negotiation_policy": {
+            "strategy": "interest_based",
+            "anchor_policy": "firm",
+            "concession_rate": "measured",
+        },
+        "hidden_need_reveal_rules": {
+            "trigger": "probe_budget_or_signon",
+            "reveal_mode": "gradual",
+            "revealed_flag": False,
+        },
+        "delegated_authority": {
             "level": authority_level,
-            "can_commit_externally": False,
-            "allowed_actions": ["rehearse", "observe", "provide_feedback"],
+            "max_concession_pct": 15,
+            "can_finalize": False,
         },
-        "media": {
-            "retention": "ephemeral",
-            "record_audio": False,
-            "record_video": False,
+        "prohibited_actions": [
+            "real_person_impersonation",
+            "financial_signing",
+            "real_meeting",
+            "biometric_collection",
+            "voice_cloning",
+        ],
+        "escalation": {
+            "on_prohibited_request": "refuse_and_redirect",
+            "on_persistent_violation": "terminate_session",
         },
-        "consents": {
-            "rehearsal": True,
-            "avatar": True,
-            "mic": True,
-            "transcript_persistence": True,
+        "retention": {
+            "media": "ephemeral",
+            "transcript_allowed": True,
+            "ttl_seconds": 3600,
         },
-        "ttl_seconds": 3600,
-        "instruction_delimiters": {
-            "start": "<<<USER_INPUT>>>",
-            "end": "<<</USER_INPUT>>>",
-        },
+        "version": 1,
     }
     profile["profile_hash"] = compute_canonical_profile_hash(profile)
     return profile
 
 
-def make_valid_counterpart_profile(scenario: str = "alex_dana") -> dict:
-    """Generates counterpart profile with role 'counterpart'."""
-    return make_valid_approved_profile(
-        role="counterpart", scenario=scenario, authority_level="A2"
-    )
-
-
-def validate_persona_profile(profile: dict) -> tuple[bool, str | None, str | None]:
-    """
-    Validates a persona profile against normative rules P-01 to P-17.
-    Returns (is_valid, rule_id_or_none, error_message_or_none).
-    """
-    if not isinstance(profile, dict):
-        return False, RULE_P14, "Profile must be a JSON object"
-
-    known_fields = {
-        "schema_version",
-        "profile_id",
-        "scenario",
-        "role",
-        "display_name",
-        "avatar",
-        "voice",
-        "authority",
-        "media",
-        "consents",
-        "ttl_seconds",
-        "instruction_delimiters",
-        "profile_hash",
-    }
-    for k in profile:
-        if k not in known_fields:
-            return False, RULE_P14, f"Unknown field '{k}' rejected"
-
-    if profile.get("schema_version") != SCHEMA_VERSION_PERSONA:
-        return False, RULE_P09, f"Invalid schema_version, expected {SCHEMA_VERSION_PERSONA}"
-
-    if profile.get("scenario") not in APPROVED_SCENARIOS:
-        return False, RULE_P08, f"Unapproved scenario '{profile.get('scenario')}'"
-
-    if profile.get("role") not in APPROVED_ROLES:
-        return False, RULE_P10, f"Invalid role '{profile.get('role')}'"
-
-    avatar = profile.get("avatar")
-    if not isinstance(avatar, dict):
-        return False, RULE_P14, "avatar section missing or invalid"
-    if avatar.get("kind") != "synthetic_avatar":
-        return False, RULE_P01, "avatar.kind must be 'synthetic_avatar'"
-    if avatar.get("real_person_target") is not False or avatar.get("entity_type") != "fictitious":
-        return False, RULE_P02, "avatar must be fictitious and not target real persons"
-    if avatar.get("biometric_template") is not None:
-        return False, RULE_P03, "avatar.biometric_template must be absent/null"
-
-    voice = profile.get("voice")
-    if not isinstance(voice, dict):
-        return False, RULE_P14, "voice section missing or invalid"
-    if voice.get("cloned_voice_id") is not None:
-        return False, RULE_P04, "voice.cloned_voice_id must be absent/null"
-
-    auth = profile.get("authority")
-    if not isinstance(auth, dict):
-        return False, RULE_P14, "authority section missing or invalid"
-    if auth.get("level") not in APPROVED_AUTHORITY_LEVELS:
-        return False, RULE_P05, f"authority.level '{auth.get('level')}' must be in {APPROVED_AUTHORITY_LEVELS}"
-    if auth.get("can_commit_externally") is not False:
-        return False, RULE_P06, "authority.can_commit_externally must be strictly false"
-
-    media = profile.get("media")
-    if not isinstance(media, dict):
-        return False, RULE_P14, "media section missing or invalid"
-    if media.get("retention") != "ephemeral":
-        return False, RULE_P07, "media.retention must be 'ephemeral'"
-
-    ttl = profile.get("ttl_seconds")
-    if not isinstance(ttl, int) or ttl < 60 or ttl > 86400:
-        return False, RULE_P13, f"ttl_seconds {ttl} must be between 60 and 86400"
-
-    consents = profile.get("consents")
-    if not isinstance(consents, dict):
-        return False, RULE_P16, "consents section missing"
-    for scope in ["rehearsal", "avatar", "mic", "transcript_persistence"]:
-        if scope not in consents or not isinstance(consents[scope], bool):
-            return False, RULE_P16, f"Consent scope '{scope}' must be an explicit boolean"
-
-    expected_hash = compute_canonical_profile_hash(profile)
-    if profile.get("profile_hash") != expected_hash:
-        return False, RULE_P15, f"profile_hash mismatch: expected {expected_hash}"
-
-    injection_patterns = [r"ignore\s+all\s+prior", r"system\s*:", r"developer\s+mode"]
-    def has_injection(val):
-        if isinstance(val, str):
-            for pat in injection_patterns:
-                if re.search(pat, val, re.IGNORECASE):
-                    return True
-        elif isinstance(val, dict):
-            return any(has_injection(v) for v in val.values())
-        elif isinstance(val, list):
-            return any(has_injection(i) for i in val)
-        return False
-
-    if has_injection(profile):
-        return False, RULE_P17, "Prompt injection pattern detected in profile"
-
-    return True, None, None
-
-
-def compile_system_instructions(scenario_projection: dict, profile: dict) -> str:
-    """Compiles system prompt with 6 strict precedence layers and delimiter isolation."""
-    layers = [
-        "=== LAYER 1: PLATFORM SAFETY ===\nYou are a synthetic AI practice stand-in. You must never impersonate living persons, claim authority to execute contracts, or collect biometric data.",
-        f"=== LAYER 2: SCENARIO FACTS ===\nScenario: {scenario_projection.get('scenario')}\nTopic: {scenario_projection.get('topic', 'rehearsal')}",
-        f"=== LAYER 3: ROLE BOUNDARIES ===\nRole: {profile.get('role')}\nDisplay Name: {profile.get('display_name')}\nAuthority: {profile.get('authority', {}).get('level')}",
-        "=== LAYER 4: STYLE & REGISTER ===\nProfessional, empathetic, bounded practice tone.",
-        "=== LAYER 5: DYNAMIC STATE ===\nAttempt in progress. Ephemeral session context.",
-        "=== LAYER 6: USER INPUT ENCLOSURE ===\nAll user dialogue MUST be framed strictly within delimiters:\n<<<USER_INPUT>>>\n{utterance}\n<<</USER_INPUT>>>",
+def check_readme_sections(content: str) -> list[str]:
+    """Checks that root README.md has all required substantive sections."""
+    required = [
+        ("overview", ["overview", "project overview", "introduction"]),
+        ("architecture", ["architecture", "system architecture", "design"]),
+        ("setup", ["setup", "installation", "quickstart", "getting started"]),
+        ("verification", ["verification", "testing", "running tests"]),
+        ("clean_checkout", ["clean checkout", "manifest", "file structure"]),
     ]
-    return "\n\n".join(layers)
+    missing = []
+    lower = content.lower()
+    for section_id, synonyms in required:
+        if not any(s in lower for s in synonyms):
+            missing.append(section_id)
+    return missing
 
 
 def analyze_demo_script(content: str) -> dict:
-    cleaned = re.sub(r"\[.*?\]", "", content)
-    cleaned = re.sub(r"\(.*?\)", "", cleaned)
-    words = re.findall(r"\b\w+\b", cleaned)
+    """Analyzes demo script word count, cues, and bounded duration (<= 180s)."""
+    words = re.findall(r"\b\w+\b", content)
     word_count = len(words)
-    est_duration_seconds = (word_count / 150.0) * 60.0
+    # Average speaking rate: 140 words per minute (2.33 words/second)
+    est_duration = word_count / 2.33
+    is_under_3_min = est_duration <= 180.0
+    has_cues = any(c in content.lower() for c in ("[action", "[visual", "[cue", "demo:", "step 1", "speaker:"))
     return {
         "word_count": word_count,
-        "est_duration_seconds": est_duration_seconds,
-        "is_under_3_minutes": est_duration_seconds <= 180.0,
+        "est_duration_seconds": est_duration,
+        "is_under_3_minutes": is_under_3_min,
+        "has_cues": has_cues,
     }
 
 
 def analyze_writeup(content: str) -> dict:
+    """Analyzes hackathon writeup word count (strictly 100-500 words) and structure."""
     words = re.findall(r"\b\w+\b", content)
-    count = len(words)
+    word_count = len(words)
+    is_valid_range = 100 <= word_count <= 500
+    has_sections = any(s in content.lower() for s in ("problem", "solution", "architecture", "impact"))
     return {
-        "word_count": count,
-        "is_valid_range": 100 <= count <= 500,
+        "word_count": word_count,
+        "is_valid_range": is_valid_range,
+        "has_substantive_content": has_sections,
     }
 
 
-def check_readme_sections(content: str) -> list[str]:
-    required = ["overview", "architecture", "setup", "verification"]
-    lower = content.lower()
-    return [sec for sec in required if sec not in lower]
-
-
-def check_judging_rubric(content: str) -> dict:
-    lower = content.lower()
-    criteria = [
-        "synthetic persona fidelity",
-        "adversarial safety and bounded authority",
-        "user privacy and consent lifecycle",
-        "responsive and accessible execution",
-        "clean-room delivery and evidence",
-    ]
-    missing = [c for c in criteria if c not in lower]
-    return {"covered": len(missing) == 0, "missing": missing}
-
-
 def check_real_mock_matrix(content: str) -> dict:
+    """Checks that Real vs. Mock matrix explicitly covers Stages 1-4 with real/mock classifications."""
     lower = content.lower()
     stages = ["stage 1", "stage 2", "stage 3", "stage 4"]
     missing = [s for s in stages if s not in lower]
@@ -305,4 +369,29 @@ def check_real_mock_matrix(content: str) -> dict:
         "has_stages": len(missing) == 0,
         "missing_stages": missing,
         "has_real_and_mock": has_real and has_mock,
+    }
+
+
+def check_judging_rubric(content: str) -> dict:
+    """Checks that judging rubric self-check covers all five hackathon criteria."""
+    lower = content.lower()
+    missing = []
+    for crit in JUDGING_CRITERIA:
+        term = crit.replace("_", " ")
+        if term not in lower and crit not in lower:
+            missing.append(crit)
+    return {
+        "covered": len(missing) == 0,
+        "missing": missing,
+    }
+
+
+def check_clean_checkout_manifest(content: str) -> dict:
+    """Verifies that clean checkout manifest lists key repo components."""
+    lower = content.lower()
+    expected = ["app", "main.py", "factory-lite", "run.md", "protocol.md"]
+    missing = [e for e in expected if e not in lower]
+    return {
+        "valid": len(missing) == 0,
+        "missing": missing,
     }
