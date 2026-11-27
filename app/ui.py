@@ -9,7 +9,32 @@ PAGE = """<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Negotiation rehearsal (offline)</title>
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0;max-width:100%}
+body{padding:16px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45;color:#1b1b1f;background:#fafafa}
+h1{font-size:1.5rem;margin:0 0 .5rem}
+h2{font-size:1.15rem;margin:.6rem 0 .4rem}
+section{max-width:60rem;margin:0 auto 1rem}
+#avatar-panel{border:1px solid #d0d0d6;border-radius:10px;padding:.6rem;background:#fff}
+#napster-avatar{width:100%;max-width:100%;max-height:45vh;min-height:2.75rem;overflow:auto;border:1px dashed #9aa0a6;border-radius:8px;padding:.5rem;background:#f1f3f4}
+#napster-avatar video,#napster-avatar audio{max-width:100%;max-height:40vh;display:block}
+button{font:inherit;padding:.55rem .9rem;margin:.25rem .3rem .25rem 0;border-radius:8px;border:1px solid #5f6368;background:#fff;color:inherit;cursor:pointer}
+button:disabled{opacity:.55;cursor:progress}
+input{font:inherit;padding:.55rem;width:100%;max-width:100%;border:1px solid #5f6368;border-radius:8px;background:#fff}
+label{display:block;margin:.5rem 0}
+p{margin:.4rem 0;overflow-wrap:anywhere}
+ul{padding-left:1.2rem}
+:focus{outline:3px solid #0b57d0;outline-offset:2px;box-shadow:0 0 0 3px rgba(11,87,208,.35)}
+[hidden]{display:none !important}
+@media (max-width:480px){
+  body{padding:10px}
+  h1{font-size:1.2rem}
+  button{width:100%;margin-right:0}
+}
+</style>
 </head>
 <body>
 <h1>Negotiation rehearsal: Alex and Dana</h1>
@@ -42,6 +67,7 @@ PAGE = """<!doctype html>
   <p data-testid="mic-denied-fallback" id="mic-denied-fallback" hidden>
     Microphone is unavailable (denied or missing). Text practice is still available below.
   </p>
+  <p data-testid="recording-indicator" id="recording-indicator" hidden>Recording (microphone active).</p>
   <div id="transcript" aria-live="polite"></div>
   <label>Your message to Dana
     <input data-testid="practice-input" id="practice-input" type="text" autocomplete="off">
@@ -56,6 +82,13 @@ PAGE = """<!doctype html>
   <ul id="evidence"></ul>
   <button data-testid="retry-button" id="retry-button">Retry</button>
 </section>
+
+<section id="actions" hidden>
+  <button data-testid="end-and-delete" id="end-and-delete">End session and delete data</button>
+  <p data-testid="cleanup-status" id="cleanup-status" hidden></p>
+</section>
+
+<p data-testid="thinking-indicator" id="thinking-indicator" hidden>Dana is thinking&hellip;</p>
 
 <p id="status" role="status"></p>
 
@@ -75,10 +108,15 @@ function show(name) {
   for (const s of ["landing", "demo", "practice", "feedback"]) {
     $(s).hidden = (s !== name);
   }
+  $("actions").hidden = !(name === "practice" || name === "feedback");
 }
 
 function setStatus(text) {
   $("status").textContent = text;
+}
+
+function setThinking(on) {
+  $("thinking-indicator").hidden = !on;
 }
 
 function setAvatarStatus(text, sdkStatus, avatarReady) {
@@ -316,6 +354,7 @@ $("send-utterance").addEventListener("click", async () => {
   const btn = $("send-utterance");
   const text = $("practice-input").value.trim();
   btn.disabled = true;
+  setThinking(true);
   try {
     if (text === "") {
       await requestFeedback();
@@ -331,6 +370,7 @@ $("send-utterance").addEventListener("click", async () => {
   } catch (e) {
     setStatus("Error: " + e.message);
   } finally {
+    setThinking(false);
     btn.disabled = false;
   }
 });
@@ -344,6 +384,27 @@ $("retry-button").addEventListener("click", async () => {
     setStatus("New attempt from the pivot. Discovery starts again.");
   } catch (e) {
     setStatus("Error: " + e.message);
+  }
+});
+
+$("end-and-delete").addEventListener("click", async () => {
+  const btn = $("end-and-delete");
+  const cleanup = $("cleanup-status");
+  btn.disabled = true;
+  setThinking(true);
+  try {
+    if (sid === null) throw new Error("no session to delete");
+    const receipt = await api("DELETE", "/sessions/" + sid);
+    cleanup.textContent = "Session and data deleted. Vendor session: " +
+      (receipt.vendor_session_destroyed ? "none left live" : "retained for retry") +
+      ". Receipt attempts: " + (receipt.attempts || 1) + ".";
+    cleanup.hidden = false;
+    setStatus("Session deleted. This rehearsal's local data is gone.");
+  } catch (e) {
+    setStatus("Cleanup error: " + e.message);
+  } finally {
+    setThinking(false);
+    btn.disabled = false;
   }
 });
 </script>
