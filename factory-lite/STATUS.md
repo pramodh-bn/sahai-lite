@@ -1,12 +1,11 @@
 # Status
-Stage: 4
-Cycle: 2 (fresh clean-room verification contract; two-repair budget exhausted)
-Task: LITE-S4-VERIFY-TESTS-02
-Owner: Verifier 2
+Stage: 4A
+Cycle: 3 (owner-authorized staged recovery; one bounded increment at a time)
+Task: LITE-S4A-VERIFY-TESTS-01
+Owner: Fresh independent verifier
 Coordinator: sah-lead
-State: S4_CYCLE2_TERMINAL_BLOCKED
-Base SHA: 1ce3c39fcfb95a629d9774e22175c712d6bd05ee
-Closed PR: https://github.com/pramodh-bn/sahai-lite/pull/78
-Rejected head: fee9ab63d4cd0436eefe342e7af7e705e76abf51
-Evidence: Lead closed PR #78 without merge after final repair R2. Scope, ancestry, syntax, and the two-test mutation gate were clean, but the gate still admitted presence-based and disconnected proofs. In particular, the test-owned FakeVendorCleanupBoundary was never connected to the application process; tests manually created and deleted fake resources separately from the app, so they could not prove app-driven exactly-once cleanup, retained-handle recovery, or consent-triggered media teardown. The UI tests did not prove an actual denied media request or stable UI/server sequencing. Several consent, adversarial, concurrency, retry, fidelity, and evidence guarantees remained incomplete or potentially flaky. Lead stopped before the long Playwright and cumulative reruns to avoid unnecessary spend. No Builder implementation, live call, credential use, biometric upload, deployment, or submission occurred. Stage 3 remains the highest certified stage; Stage 4 is not certified.
-Next: Do not patch or reopen PR #78 and do not start Builder from its contract. Further Stage 4 work requires owner direction for a materially different independent test-authoring approach. Any new cycle must use application-connected cleanup instrumentation, semantic contract checks rather than AST name presence, and exact-head mechanically reconciled evidence before implementation begins.
+State: S4A_CYCLE3_AUTHORIZED
+Base SHA: 0ec7bed6aa2897b2965da5370c250be132529cf8
+Prior closed PRs: #73 and #78 (never merge or reuse)
+Evidence: On 2026-11-26 the owner authorized Stage 4 Cycle 3 after Cycles 1 and 2 exhausted their repair budgets. Cycle 3 materially changes the delivery method: Stage 4 is split into 4A core intelligence, 4B consent/lifecycle with an application-connected fake vendor, and 4C responsive UI/packaging. Only 4A is active. A fresh independent verifier—not Verifier 2 or Lead—authors the 4A deliberate-red contract from the amended Stage 4 spec and the three specialist reports. The oversized AST test-of-tests approach is prohibited; direct application-boundary behavior is primary. Builder, 4B, 4C, Playwright, vendor cleanup, presentation packaging, credentials, and live calls remain inactive. Stage 3 remains the highest certified stage; Stage 4 is not certified.
+Next: Create the fresh verifier runtime and assign LITE-S4A-VERIFY-TESTS-01 from the exact merged Cycle 3 authorization SHA. Scope is only the versioned synthetic persona/compiler, two-role hidden-state isolation, server-authoritative deterministic turns, bounded authority/adversarial decisions, retry pivot, and append-only evidence. The contract must preserve all 96 certified Stage 1-3 tests, remain tests/docs-only, and return one exact-head deliberate-red PR for Lead review before Builder receives any assignment.
