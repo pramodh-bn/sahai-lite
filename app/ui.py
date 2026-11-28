@@ -13,8 +13,8 @@ PAGE = """<!doctype html>
 <title>SahaI — Negotiation Practice</title>
 <style>
 *,*::before,*::after{box-sizing:border-box}
-html{min-height:100%;background:#0b1220}
-body{margin:0;min-height:100vh;background:#0b1220;color:#f4f7f8;font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased}
+html{min-height:100%;background:#0b1220;overflow-x:hidden}
+body{margin:0;min-height:100vh;background:#0b1220;color:#f4f7f8;font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 button,textarea,input{font:inherit;cursor:pointer}
 button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid #44d5bd;outline-offset:3px}
 [hidden]{display:none !important}
