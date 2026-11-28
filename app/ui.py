@@ -22,7 +22,7 @@ p{margin:.4rem 0}
 
 /* ---- ambient background ---- */
 .app-shell{min-height:100vh;position:relative;overflow:hidden;background:radial-gradient(ellipse at 49% 24%,rgba(20,54,64,.22),transparent 46%),#0b1220}
-.ambient{pointer-events:none;position:absolute;border-radius:999px;filter:blur(110px);opacity:.13}
+.ambient{pointer-events:none;position:fixed;border-radius:999px;filter:blur(110px);opacity:.13}
 .ambient-one{width:300px;height:300px;background:#16b89d;top:8%;left:-230px}
 .ambient-two{width:280px;height:280px;background:#2b6377;bottom:3%;right:-200px}
 
