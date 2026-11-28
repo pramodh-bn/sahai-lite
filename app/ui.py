@@ -21,6 +21,10 @@ section{max-width:60rem;margin:0 auto 1rem}
 #avatar-panel{border:1px solid #d0d0d6;border-radius:10px;padding:.6rem;background:#fff}
 #napster-avatar{width:100%;max-width:100%;max-height:45vh;min-height:2.75rem;overflow:auto;border:1px dashed #9aa0a6;border-radius:8px;padding:.5rem;background:#f1f3f4}
 #napster-avatar video,#napster-avatar audio{max-width:100%;max-height:40vh;display:block}
+.practice-stage{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem;margin:.6rem 0 1rem;max-width:100%}
+.practice-panel{min-width:0;border:1px solid #d0d0d6;border-radius:10px;padding:.6rem;background:#fff;overflow:hidden}
+.practice-panel h3{font-size:1rem;margin:0 0 .4rem;overflow-wrap:anywhere}
+.panel-visual{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;border:1px dashed #9aa0a6;border-radius:8px;background:#f1f3f4;color:#5f6368;text-align:center;padding:.5rem;overflow-wrap:anywhere}
 button{font:inherit;padding:.55rem .9rem;margin:.25rem .3rem .25rem 0;border-radius:8px;border:1px solid #5f6368;background:#fff;color:inherit;cursor:pointer}
 button:disabled{opacity:.55;cursor:progress}
 input{font:inherit;padding:.55rem;width:100%;max-width:100%;border:1px solid #5f6368;border-radius:8px;background:#fff}
@@ -33,6 +37,9 @@ ul{padding-left:1.2rem}
   body{padding:10px}
   h1{font-size:1.2rem}
   button{width:100%;margin-right:0}
+}
+@media (max-width:700px){
+  .practice-stage{grid-template-columns:minmax(0,1fr)}
 }
 </style>
 </head>
@@ -64,6 +71,20 @@ ul{padding-left:1.2rem}
 
 <section id="practice" hidden>
   <h2>Practice: you are Alex</h2>
+  <div class="practice-stage" data-testid="practice-stage">
+    <div class="practice-panel" data-testid="dana-avatar">
+      <h3>Dana &mdash; synthetic counterpart</h3>
+      <div class="panel-visual">Dana avatar<br>(AI stand-in)</div>
+    </div>
+    <div class="practice-panel" data-testid="user-webcam">
+      <h3>You &mdash; webcam</h3>
+      <div class="panel-visual" id="webcam-visual">Camera and microphone stay optional; text practice always works.</div>
+    </div>
+    <div class="practice-panel" data-testid="alex-avatar">
+      <h3>Alex &mdash; your body double</h3>
+      <div class="panel-visual">Body double avatar<br>(synthetic)</div>
+    </div>
+  </div>
   <p data-testid="mic-denied-fallback" id="mic-denied-fallback" hidden>
     Microphone is unavailable (denied or missing). Text practice is still available below.
   </p>

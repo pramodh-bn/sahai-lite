@@ -53,6 +53,11 @@ def new_attempt(number):
         "feedback_recorded": False,
         "next_seq": 1,
         "requests": {},
+        "coach": {
+            "turns_shown": 0,
+            "turns_accepted": 0,
+            "corrections": [],
+        },
     }
 
 
