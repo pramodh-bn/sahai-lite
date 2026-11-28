@@ -13,6 +13,7 @@ for the rest of that attempt. Retry starts a fresh attempt at the practice
 pivot; earlier attempts are kept unchanged.
 """
 import copy
+import uuid
 
 from flask import Blueprint, jsonify, request
 
@@ -144,6 +145,41 @@ def practice(session_id):
             "counterpart_reply": reply,
             "hidden_need_revealed": attempt["hidden_need_revealed"],
         }), 200
+
+
+@bp.route("/sessions/<session_id>/webcam-token", methods=["POST"])
+def webcam_token(session_id):
+    """Record a browser camera/microphone decision.
+
+    Denial is a normal outcome: text practice stays available either way. A
+    token is only minted when the camera is granted; it is a local, synthetic
+    placeholder and is never a vendor credential.
+    """
+    session = state.get_session(session_id)
+    if session is None:
+        return _not_found()
+    body = request.get_json(silent=True) or {}
+    if not isinstance(body, dict):
+        body = {}
+    camera = body.get("camera", "denied")
+    microphone = body.get("microphone", "denied")
+    if camera not in ("granted", "denied") or microphone not in ("granted", "denied"):
+        return jsonify({"error": "invalid_permission"}), 400
+    with session["lock"]:
+        attempt = session["current"]
+        attempt["webcam"] = {
+            "camera": camera,
+            "microphone": microphone,
+            "text_practice_available": True,
+        }
+    response = {
+        "camera": camera,
+        "microphone": microphone,
+        "text_practice_available": True,
+    }
+    if camera == "granted":
+        response["token"] = "webcam_" + uuid.uuid4().hex
+    return jsonify(response), 200
 
 
 @bp.route("/sessions/<session_id>/feedback", methods=["POST"])
